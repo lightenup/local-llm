@@ -18,6 +18,12 @@ fill.
 Settings scripts read: `.env.local` (see `.env.local.example`) and
 `proxy/.env` (see `proxy/.env.example`). Both are untracked.
 
+## Watching for new models
+
+`docs/SCOUT.md` is the runbook for scheduled model scouting:
+`python3 bench/model_scout.py scan --format json`, notify on `promising`,
+never download or gate on your own.
+
 ## Rules
 
 - This repository is public. Never commit a LAN address, a home-directory

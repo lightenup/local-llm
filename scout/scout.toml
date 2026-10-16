@@ -1,0 +1,95 @@
+# Policy for bench/model_scout.py: what makes a new Hub checkpoint worth
+# gating on this Mac. Every rule cites the finding it comes from, so a rule
+# whose finding is superseded can be found and changed.
+#
+# Measured facts about the Mac (architectures oMLX can load, resident sizes of
+# local models) are NOT here: they are exported to scout/setup.json by
+# `python3 bench/model_scout.py export`, run on the Mac.
+
+# Uploaders to watch. The shipped and gated models came from all of these, and
+# two of the four candidates gated so far were not from mlx-community.
+authors = [
+  "mlx-community",
+  "Jundot",            # Qwen3.8-27B-oQ4e-mtp, the shipped fast tier (§19)
+  "omlx",              # gemma-4-31B-it-qat-OptiQ-4bit, the additive tier (§30)
+  "NovaeonStudio",     # 35B-A3B distill with a trained MTP head (§34)
+  "peculiar-ragdoll",  # Tiel-Coder 35B-A3B (§34)
+  "GBP-DE",            # Flash-Next oQ5e (§27)
+]
+
+# Only chat models. Embedders, rerankers, speech and image generation are out
+# of scope: the lineup has its embed/rerank pair and nothing measures the rest.
+pipeline_tags = ["text-generation", "image-text-to-text"]
+
+[budget]
+# The prefill guard rejects against the dynamic ceiling, not the admission cap
+# (FINDINGS §27): Flash-Next was admitted at 101.50 GiB and then refused every
+# 16k call.
+prefill_ceiling_gib = 91.29
+# Room a candidate needs left over to serve a 16k prompt beside the lineup.
+# Measured both ways by bench/candidate_gate.py: gemma-4-31B served with 20.8
+# GiB to spare (results/candidate_gate_gemma.json); OptiQ with 1.8 GiB to spare
+# could not (results/candidate_gate.json).
+serve_margin_gib = 20.0
+# Total parameters, in billions, below which a model is out of the lineup's
+# 27-31B class. Read from the repo name ("24B-A2B") or estimated from size and
+# bits. Drafters and helpers are a different question (§23) and not scouted.
+min_params_b = 20
+# Weights smaller than this are a drafter, adapter or MTP sidecar whose name
+# carries the base model's size ("Qwen3.6-35B-A3B-DFlash2", 0.4 GiB).
+min_size_gib = 4.0
+# Below 4 bits quality falls off (§34, GLM-5.2 "degrades below Q4"), and
+# nothing below 4 bits has been measured here.
+min_bits = 4
+
+# The lineup by tier. Sizes come from setup.json. `core` tiers are resident
+# together; a candidate that fits beside them fits "alongside". gemma is loaded
+# on demand (§36: models are unpinned, TTL-evicted), so it is not core.
+[lineup.quality]
+model = "Qwen3.8-27B-8bit"
+core = true
+section = 19
+[lineup.fast]
+model = "Qwen3.8-27B-oQ4e-mtp"
+core = true
+section = 19
+[lineup.additive]
+model = "gemma-4-31B-it-qat-OptiQ-4bit"
+core = false
+section = 30
+[lineup.embedding]
+model = "Qwen3-Embedding-0.6B-8bit"
+core = true
+[lineup.reranker]
+model = "Qwen3-Reranker-0.6B-mxfp8"
+core = true
+
+# Things already measured and closed. `skip` drops the repo; `flag` reports it
+# but never as promising, with the finding attached. `pattern` is a regex
+# against the repo id, case-insensitive; `model_type` matches config.json.
+[[exclude]]
+pattern = "Coder-Next"
+action = "skip"
+section = 13
+why = "Coder-Next retired: 2x decode, livecodebench 43.2 vs 59.8"
+[[exclude]]
+pattern = "Flash-Next"
+action = "skip"
+section = 27
+why = "Flash-Next cannot co-reside: the lineup goes down with it"
+[[exclude]]
+pattern = "Qwen3\\.8-27B-OptiQ"
+action = "skip"
+section = 29
+why = "OptiQ on the 27B is dominated by oQ4e"
+[[exclude]]
+model_type = "qwen3_5_moe"
+action = "flag"
+section = 34
+why = "35B-A3B class decodes 3-4x but loses on code; worth a look only on a new base model"
+
+# What makes a candidate promising rather than merely loadable.
+[signals]
+dwq = "§19: DWQ is the one quantisation lane not yet measured here"
+mtp = "§19, §34: ships MTP weights; MTP measured 1.66-2.12x decode here"
+new_architecture = "no local model has this architecture; nothing measured yet"

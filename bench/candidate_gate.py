@@ -7,9 +7,9 @@ questions in cost order and STOPS at the first failure, because every one of
 Coder-Next, the GGUF MoEs and Flash-Next was retired after the expensive
 measurement rather than before it.
 
-  1. architecture is supported by the bundled mlx_lm (Flash-Next needed a
-     vendored qwen4_exp runtime and was a special case; a candidate whose
-     model_type is absent will not load at all)
+  1. architecture is supported by the bundled mlx_lm or mlx_vlm (oMLX serves
+     most checkpoints here through its vlm engine, so an mlx_lm-only check
+     rejects models that load; a model_type absent from both will not load)
   2. it loads, and what it actually costs resident -- the on-disk figure is not
      the resident figure
   3. THE ONE THAT MATTERS: it serves a realistic prompt WHILE THE PINNED LINEUP
@@ -52,8 +52,12 @@ MLX_MODELS = Path(
 DYNAMIC_CEILING_GB = 91.29
 
 
+MLX_VLM_MODELS = MLX_MODELS.parent.parent / "mlx_vlm" / "models"
+
+
 def supported(model_type: str) -> bool:
-    return (MLX_MODELS / f"{model_type}.py").exists()
+    return ((MLX_MODELS / f"{model_type}.py").exists()
+            or (MLX_VLM_MODELS / model_type).is_dir())
 
 
 def drain(o: Omlx, model_id: str, timeout: float = 180.0) -> None:
@@ -95,7 +99,7 @@ def probe(o: Omlx, model_id: str, prompt_tokens: int, keep_lineup: bool) -> dict
     r["arch_supported"] = supported(mt) if mt else None
     print(f"  arch           {mt} -> {'supported' if r['arch_supported'] else 'NOT SUPPORTED'}")
     if not r["arch_supported"]:
-        r["verdict"] = f"reject: mlx_lm has no {mt}.py"
+        r["verdict"] = f"reject: neither mlx_lm nor mlx_vlm has {mt}"
         return r
 
     # ---- step 2: load, and what it really costs

@@ -176,6 +176,7 @@ bench/concurrency.py     multi-client concurrency: scaling and profile mixing
 bench/longctx_quality.py multi-needle retrieval and multi-hop at 65k/131k/262k
 bench/quant_compare.py   4-bit sibling: download, throughput, accuracy vs 8-bit
 bench/quant_id.py        classify the quant build of any MLX repo, local or Hub
+bench/model_scout.py     watch the Hub for new MLX models that fit (docs/SCOUT.md)
 bench/kv_shape.py        what the prefill memory guard reserves, and why
 bench/cache_probe.py     prefix-cache hit rate across a real session (B1a)
 bench/proxy_check.py     tool calls survive the proxy hop; proxy overhead
@@ -204,6 +205,8 @@ results/                 every measurement, as JSON (raw *.log stay local)
 results/backup/          original oMLX settings before any change (local only)
 docs/FINDINGS.md         what was measured and why each lever was chosen
 docs/backlog.md          what is not done yet, across the whole local stack
+docs/SCOUT.md            model scout runbook, for the agent that schedules it
+scout/                   scout policy (scout.toml) and the Mac's exported setup.json
 ```
 
 ## The one design rule
