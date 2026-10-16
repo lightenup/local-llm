@@ -10,6 +10,7 @@ worth a look and the exact commands to gate it.
     python3 bench/model_scout.py scan                 # new since the last scan
     python3 bench/model_scout.py scan --since 14      # last 14 days, ignore state
     python3 bench/model_scout.py scan --format json   # for an agent
+    python3 bench/model_scout.py scan --notify        # daily job: post what is new
     python3 bench/model_scout.py export               # on the Mac: refresh setup.json
     python3 bench/model_scout.py download REPO        # on the Mac: queue in oMLX
 
@@ -41,6 +42,7 @@ import sys
 import tomllib
 import urllib.error
 import urllib.parse
+import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable
@@ -429,6 +431,70 @@ def render_text(report: dict, show_skips: bool) -> str:
     return "\n".join(lines)
 
 
+# ---- notify ---------------------------------------------------------------
+
+PUSHOVER = "https://api.pushover.net/1/messages.json"
+NOTIFY_ON = ("promising", "blocked")
+
+
+def _post(url: str, payload: dict, timeout: int = 30) -> None:
+    req = urllib.request.Request(
+        url, data=json.dumps(payload).encode(), method="POST",
+        headers={"Content-Type": "application/json", "User-Agent": "local-llm/scout"})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        resp.read()
+
+
+def notification(report: dict, verdicts: tuple[str, ...] = NOTIFY_ON) -> dict | None:
+    """Title, markdown body and one-line summary, or None when nothing is new.
+
+    Warnings (a stale setup.json) and errors are sent too, so a scout that has
+    quietly stopped working says so instead of going silent.
+    """
+    fams = [f for f in report["families"] if f["verdict"] in verdicts]
+    alerts = report["warnings"] + report["errors"]
+    if not fams and not alerts:
+        return None
+    promising = [f["family"] for f in fams if f["verdict"] == "promising"]
+    title = (f"{len(promising)} promising MLX model{'s' * (len(promising) != 1)}"
+             if promising else "Model scout")
+    lines = [f"**{title}** (new since {report['since'][:10]})"]
+    lines += [f"> {a}" for a in alerts]
+    for f in fams:
+        pick = next(b for b in f["builds"] if b["repo"] == f["pick"])
+        lines += ["", f"**{f['family']}** — {f['verdict']}, ~{f['params_b']}B "
+                  f"`{f.get('model_type')}`", f"{f['why']}",
+                  f"Try [{f['pick']}](https://huggingface.co/{f['pick']}): "
+                  f"{pick['size_gib']} GiB, {pick['fit']}"
+                  + (f" ({len(f['builds'])} builds)" if len(f["builds"]) > 1 else "")]
+        lines += [f"- warning: {w}" for w in f["warnings"] if w != f["why"]]
+        lines += [f"{i}. {s}" for i, s in enumerate(f["next_steps"], 1)]
+    summary = ", ".join(f["family"] for f in fams) or alerts[0]
+    return {"title": title, "markdown": "\n".join(lines), "summary": summary[:500]}
+
+
+def send(note: dict, env: dict, post: Callable[[str, dict], None] = _post) -> list[str]:
+    """Deliver to every sink configured in `env`. Raises if any of them fails.
+
+      SCOUT_OPENWEBUI_WEBHOOK   Open WebUI channel webhook: the full report
+      SCOUT_PUSHOVER_TOKEN      Pushover app token  } a one-line ping, so the
+      SCOUT_PUSHOVER_USER       Pushover user key   } phone actually buzzes
+      SCOUT_LINK                optional URL the ping opens (the channel)
+    """
+    sent = []
+    if env.get("SCOUT_OPENWEBUI_WEBHOOK"):
+        post(env["SCOUT_OPENWEBUI_WEBHOOK"], {"content": note["markdown"]})
+        sent.append("openwebui")
+    if env.get("SCOUT_PUSHOVER_TOKEN") and env.get("SCOUT_PUSHOVER_USER"):
+        ping = {"token": env["SCOUT_PUSHOVER_TOKEN"], "user": env["SCOUT_PUSHOVER_USER"],
+                "title": note["title"], "message": note["summary"]}
+        if env.get("SCOUT_LINK"):
+            ping.update(url=env["SCOUT_LINK"], url_title="Open the scout channel")
+        post(PUSHOVER, ping)
+        sent.append("pushover")
+    return sent
+
+
 # ---- on the Mac -------------------------------------------------------------
 
 def export_setup() -> dict:
@@ -471,6 +537,11 @@ def main() -> int:
     s.add_argument("--format", choices=("text", "json"), default="text")
     s.add_argument("--show-skips", action="store_true")
     s.add_argument("--dry-run", action="store_true", help="do not update the state file")
+    s.add_argument("--notify", action="store_true",
+                   help="send promising/blocked models to the sinks in the "
+                        "environment (see send()); state is kept only if delivery works")
+    s.add_argument("--notify-consider", action="store_true",
+                   help="with --notify, include 'consider' too")
     sub.add_parser("export", help="on the Mac: write scout/setup.json")
     d = sub.add_parser("download", help="on the Mac: queue a Hub download in oMLX")
     d.add_argument("repo")
@@ -496,6 +567,20 @@ def main() -> int:
         since = now - timedelta(days=7)
     report = scan(load_policy(), load_setup(), state, since, now,
                   include_seen=args.since is not None)
+    if args.notify:
+        verdicts = NOTIFY_ON + (("consider",) if args.notify_consider else ())
+        note = notification(report, verdicts)
+        try:
+            sent = send(note, os.environ) if note else []
+        except (urllib.error.URLError, OSError) as exc:
+            # Not saving the state means the next run reports these again.
+            print(f"notify failed, state not saved: {exc}", file=sys.stderr)
+            return 2
+        if note and not sent:
+            print("--notify: no sink configured (SCOUT_OPENWEBUI_WEBHOOK, "
+                  "SCOUT_PUSHOVER_TOKEN + SCOUT_PUSHOVER_USER)", file=sys.stderr)
+            return 2
+        print(f"notified: {', '.join(sent) or 'nothing new'}", file=sys.stderr)
     if not args.dry_run:
         STATE.parent.mkdir(parents=True, exist_ok=True)
         STATE.write_text(json.dumps(state, indent=1) + "\n")

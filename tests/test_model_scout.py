@@ -273,5 +273,63 @@ class ScanTests(unittest.TestCase):
         json.dumps(self.run_scan({"last_scan": None, "seen": {}}))
 
 
+class NotifyTests(unittest.TestCase):
+    def report(self, families=(), warnings=(), errors=()):
+        return {"since": "2026-10-15T00:00:00+00:00", "families": list(families),
+                "warnings": list(warnings), "errors": list(errors)}
+
+    def fam(self, verdict="promising", name="Qwen3.8-27B"):
+        pick = f"Jundot/{name}-oQ6e-fp16-mtp"
+        return {"family": name, "verdict": verdict, "why": "ships MTP weights",
+                "pick": pick, "fit": "alongside", "params_b": 27.0,
+                "model_type": "qwen3_5", "warnings": [],
+                "next_steps": ["leaderboard", "download", "gate"],
+                "builds": [{"repo": pick, "size_gib": 22.9, "bits": 6,
+                            "fit": "alongside", "verdict": verdict}]}
+
+    def test_nothing_new_sends_nothing(self):
+        self.assertIsNone(ms.notification(self.report()))
+
+    def test_consider_is_not_sent_by_default(self):
+        self.assertIsNone(ms.notification(self.report([self.fam("consider")])))
+        self.assertIsNotNone(ms.notification(self.report([self.fam("consider")]),
+                                             ms.NOTIFY_ON + ("consider",)))
+
+    def test_promising_message_carries_pick_and_steps(self):
+        note = ms.notification(self.report([self.fam()]))
+        self.assertEqual(note["title"], "1 promising MLX model")
+        self.assertIn("Jundot/Qwen3.8-27B-oQ6e-fp16-mtp", note["markdown"])
+        self.assertIn("3. gate", note["markdown"])
+        self.assertEqual(note["summary"], "Qwen3.8-27B")
+
+    def test_stale_setup_is_sent_even_with_no_models(self):
+        note = ms.notification(self.report(warnings=["setup.json is 40 days old"]))
+        self.assertIn("40 days", note["markdown"])
+
+    def test_send_posts_to_each_configured_sink(self):
+        calls = []
+        note = ms.notification(self.report([self.fam()]))
+        env = {"SCOUT_OPENWEBUI_WEBHOOK": "https://owui/api/v1/channels/webhooks/a/b",
+               "SCOUT_PUSHOVER_TOKEN": "t", "SCOUT_PUSHOVER_USER": "u",
+               "SCOUT_LINK": "https://owui/channels/x"}
+        sent = ms.send(note, env, lambda url, body: calls.append((url, body)))
+        self.assertEqual(sent, ["openwebui", "pushover"])
+        self.assertEqual(calls[0][1], {"content": note["markdown"]})
+        self.assertEqual(calls[1][0], ms.PUSHOVER)
+        self.assertEqual(calls[1][1]["url"], "https://owui/channels/x")
+
+    def test_pushover_needs_both_keys(self):
+        note = ms.notification(self.report([self.fam()]))
+        sent = ms.send(note, {"SCOUT_PUSHOVER_TOKEN": "t"}, lambda *_: None)
+        self.assertEqual(sent, [])
+
+    def test_failed_delivery_raises(self):
+        def boom(url, body):
+            raise urllib.error.URLError("down")
+        note = ms.notification(self.report([self.fam()]))
+        with self.assertRaises(urllib.error.URLError):
+            ms.send(note, {"SCOUT_OPENWEBUI_WEBHOOK": "https://x"}, boom)
+
+
 if __name__ == "__main__":
     unittest.main()

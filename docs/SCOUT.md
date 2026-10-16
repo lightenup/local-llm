@@ -18,7 +18,48 @@ run; state lives in `$SCOUT_STATE` (default `~/.cache/local-llm/scout_state.json
 The first run looks back 7 days. `--since DAYS` looks back further and
 re-reports repos already seen; add `--dry-run` to leave the state untouched.
 
-Exit status is 0 unless every request failed.
+Exit status: 0 normally, 1 if every Hub request failed, 2 if `--notify` could
+not deliver (or has no sink configured).
+
+## Notifications
+
+`scan --notify` posts what is new and stops there; no LLM is involved, so it
+still works while the Mac (and every model behind Hermes) is asleep. Sinks
+come from the environment, never from the repo:
+
+| variable | sink |
+|---|---|
+| `SCOUT_OPENWEBUI_WEBHOOK` | an Open WebUI **channel webhook** (channel settings → Webhooks): the full report, readable on phone and laptop |
+| `SCOUT_PUSHOVER_TOKEN`, `SCOUT_PUSHOVER_USER` | optional Pushover ping, one line, so the phone actually buzzes. Open WebUI has no push service of its own: its browser notifications only fire while the app is open |
+| `SCOUT_LINK` | optional URL the ping opens, e.g. the channel |
+
+It sends `promising` and `blocked` families, plus any warning or error, so a
+scout that stops working says so. `--notify-consider` adds `consider`. If a
+delivery fails the state is not saved, and the next run sends the same news.
+
+A daily systemd timer on the host that runs Hermes (user units, no root):
+
+    # ~/.config/systemd/user/model-scout.service
+    [Unit]
+    Description=MLX model scout
+    [Service]
+    Type=oneshot
+    WorkingDirectory=%h/local-llm
+    EnvironmentFile=%h/.config/model-scout.env
+    ExecStart=/bin/sh -c 'git pull -q --ff-only; exec python3 bench/model_scout.py scan --notify'
+
+    # ~/.config/systemd/user/model-scout.timer
+    [Timer]
+    OnCalendar=*-*-* 07:30
+    Persistent=true
+    RandomizedDelaySec=15m
+    [Install]
+    WantedBy=timers.target
+
+    systemctl --user daemon-reload && systemctl --user enable --now model-scout.timer
+    loginctl enable-linger "$USER"       # keep user timers running when logged out
+
+`~/.config/model-scout.env` holds the variables above, mode 600.
 
 ## Read the output
 
