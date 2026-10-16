@@ -1,0 +1,28 @@
+{
+  "label": "fn_oq5e_thinking",
+  "model_id": "Qwen3.8-Flash-Next-oQ5e-mtp",
+  "aborted": "preflight",
+  "preflight": {
+    "ok": false,
+    "reason": "server not answering: POST /v1/chat/completions -> 507: {\"error\":{\"message\":\"Cannot load Qwen3.8-Flash-Next-oQ5e-mtp: projected memory 140.53GB would exceed the metal_cap memory ceiling 107.52GB (current: 52.37GB, model: 88.15GB). Raise kernel iogpu.wired_limit_mb in Terminal (currently caps Metal at 107.52GB), or unload another model.\",\"type\":\"server_error\",\"param\":null,\"code\":null}}"
+  },
+  "variant": {
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_bits": 4,
+    "mtp_enabled": true,
+    "vlm_mtp_enabled": false,
+    "vlm_mtp_draft_model": null,
+    "vlm_mtp_draft_block_size": null,
+    "dflash_enabled": false,
+    "dflash_draft_model": null,
+    "specprefill_enabled": false,
+    "qwen4_ple_ssd_offload": true
+  }
+}

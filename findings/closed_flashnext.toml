@@ -1,0 +1,19 @@
+id      = "closed_flashnext"
+title   = "Qwen3.8-Flash-Next cannot be wired: co-residency takes the lineup down"
+status  = "dead-end"
+models  = ["Qwen3.8-Flash-Next-oQ4e-mtp"]
+section = 27
+section_title = "Flash-Next, closed: it works, and it cannot be wired"
+rationale = "1.41x faster than the shipped 8-bit at indistinguishable quality (taskbench p = 1.00000 for all three arms), but it cannot be co-resident: with the lineup pinned, every fn-agent call returns HTTP 507, and in the unpinned pairing all 8 alternating 16k calls were rejected for BOTH models — the dynamic ceiling (91.29 GB) rejects the prefill that the admission cap (115.45 GB) admitted. A model can be admitted and then be unable to do anything; trying breaks the model that works. The fn-* profiles stay stored and served, wired to nothing."
+updated = 2026-09-22
+
+[[metrics]]
+name      = "co-residency with pinned lineup"
+unit      = "calls served"
+direction = "higher"
+headline  = false
+tooltip_what     = "Whether a realistic 16k prompt can be served while the lineup is resident."
+tooltip_how      = "fn_coexist probe: 8 alternating 16k calls between the 8-bit and Flash-Next."
+tooltip_evidence = "0 of 8 calls served — HTTP 400 prefill-guard rejection for BOTH models; see §27."
+source_file = "fn_coexist.json"
+source_path  = "coexisted"

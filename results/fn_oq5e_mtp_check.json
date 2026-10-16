@@ -1,0 +1,19 @@
+{
+  "label": "fn_oq5e_mtp_check",
+  "model_id": "Qwen3.8-Flash-Next-oQ5e-mtp",
+  "at": "2026-09-21T17:49:00+02:00",
+  "question": "does mtp_enabled change decode, and does presence_penalty 1.5 interact with it (FINDINGS §7)?",
+  "baseline_loaded": [
+    "Qwen2.5-Coder-3B-8bit",
+    "Qwen3-Embedding-0.6B-8bit",
+    "Qwen3-Reranker-0.6B-mxfp8",
+    "Qwen3.8-27B-8bit",
+    "Qwen3.8-27B-oQ4e-mtp"
+  ],
+  "request": {
+    "repeats": 5,
+    "max_tokens": 400
+  },
+  "arms": [],
+  "exit_code": 0
+}

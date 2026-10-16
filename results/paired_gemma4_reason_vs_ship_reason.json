@@ -1,0 +1,107 @@
+{
+  "arm_a": "acc_ship_reason",
+  "arm_b": "acc_gemma4_reason",
+  "suites": {
+    "mmlu_pro": {
+      "n_shared": 500,
+      "both_correct": 281,
+      "neither_correct": 96,
+      "only_a_correct": 39,
+      "only_b_correct": 84,
+      "discordant": 123,
+      "net_to_b": 45,
+      "score_a": 64.0,
+      "score_b": 73.0,
+      "p_value": 6e-05,
+      "flips_to_a_sample": [
+        "10001",
+        "10003",
+        "10266",
+        "10406",
+        "10739",
+        "10822",
+        "11000",
+        "11122"
+      ],
+      "flips_to_b_sample": [
+        "10126",
+        "10232",
+        "104",
+        "10708",
+        "11063",
+        "11228",
+        "11582",
+        "11608"
+      ]
+    },
+    "gsm8k": {
+      "n_shared": 500,
+      "both_correct": 462,
+      "neither_correct": 7,
+      "only_a_correct": 6,
+      "only_b_correct": 25,
+      "discordant": 31,
+      "net_to_b": 19,
+      "score_a": 93.6,
+      "score_b": 97.4,
+      "p_value": 0.00088,
+      "flips_to_a_sample": [
+        "1059",
+        "234",
+        "267",
+        "552",
+        "610",
+        "652"
+      ],
+      "flips_to_b_sample": [
+        "1030",
+        "1067",
+        "1086",
+        "181",
+        "182",
+        "218",
+        "255",
+        "334"
+      ]
+    },
+    "mathqa": {
+      "n_shared": 500,
+      "both_correct": 91,
+      "neither_correct": 237,
+      "only_a_correct": 128,
+      "only_b_correct": 44,
+      "discordant": 172,
+      "net_to_b": -84,
+      "score_a": 43.8,
+      "score_b": 27.0,
+      "p_value": 0.0,
+      "flips_to_a_sample": [
+        "1002",
+        "101",
+        "1015",
+        "1018",
+        "1023",
+        "1028",
+        "1078",
+        "1083"
+      ],
+      "flips_to_b_sample": [
+        "1093",
+        "1138",
+        "1154",
+        "1222",
+        "1239",
+        "1344",
+        "1389",
+        "1393"
+      ]
+    }
+  },
+  "pooled": {
+    "questions": 1500,
+    "flips_to_a": 173,
+    "flips_to_b": 153,
+    "p_value": 0.29264
+  },
+  "verdict": "no significant difference (p=0.29264); A leads but within chance"
+}

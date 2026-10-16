@@ -1,0 +1,19 @@
+id      = "closed_codernext"
+title   = "Qwen3-Coder-Next 6-bit retired on code quality"
+status  = "retired"
+models  = ["Qwen3-Coder-Next-6bit"]
+section = 13
+section_title = "Quality: Coder-Next loses, and the quantisation run says something else"
+rationale = "2.0-2.5x the decode of the shipped setup, but livecodebench 43.2 vs 59.8 for the 8-bit (95/12 flips, pooled p = 0.00000) and mmlu_pro 58.0 vs 64.0 (p = 0.0073): twice the speed at materially lower end-to-end coding accuracy. oQ4e replaces it on every axis that matters."
+updated = 2026-09-22
+
+[[metrics]]
+name      = "livecodebench accuracy"
+unit      = "score"
+direction = "higher"
+headline  = false
+tooltip_what     = "LiveCodeBench competitive-programming accuracy, 500 samples."
+tooltip_how      = "bench/accuracy.py code, batch 8, thinking off, deterministic sampling."
+tooltip_evidence = "95 questions to the 8-bit against 12 the other way; see §13."
+source_file = "acc_codernext_code.json"
+source_path  = "results[?benchmark=livecodebench].accuracy"

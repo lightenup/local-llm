@@ -1,0 +1,272 @@
+{
+  "label": "tc_Tiel_Coder_35B_A3B_MLX_oQ4e",
+  "model": "Tiel-Coder-35B-A3B-MLX-oQ4e",
+  "at": "2026-09-21T19:37:31+00:00",
+  "repeats": 3,
+  "rows": [
+    {
+      "id": "tool-edit",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 75,
+      "wall_s": 1.93
+    },
+    {
+      "id": "tool-edit",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 75,
+      "wall_s": 0.95
+    },
+    {
+      "id": "tool-edit",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 76,
+      "wall_s": 0.96
+    },
+    {
+      "id": "tool-search",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 75,
+      "wall_s": 0.94
+    },
+    {
+      "id": "tool-search",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 107,
+      "wall_s": 1.22
+    },
+    {
+      "id": "tool-search",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 76,
+      "wall_s": 0.96
+    },
+    {
+      "id": "htool-nested",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 100,
+      "wall_s": 1.19
+    },
+    {
+      "id": "htool-nested",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 82,
+      "wall_s": 1.04
+    },
+    {
+      "id": "htool-nested",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 90,
+      "wall_s": 1.12
+    },
+    {
+      "id": "htool-escape",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 122,
+      "wall_s": 1.37
+    },
+    {
+      "id": "htool-escape",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 441,
+      "wall_s": 4.09
+    },
+    {
+      "id": "htool-escape",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 507,
+      "wall_s": 4.66
+    },
+    {
+      "id": "tool-edit2",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 151,
+      "wall_s": 1.61
+    },
+    {
+      "id": "tool-edit2",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 113,
+      "wall_s": 1.27
+    },
+    {
+      "id": "tool-edit2",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 81,
+      "wall_s": 0.99
+    },
+    {
+      "id": "hschema-enum",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 129,
+      "wall_s": 1.41
+    },
+    {
+      "id": "hschema-enum",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 122,
+      "wall_s": 1.36
+    },
+    {
+      "id": "hschema-enum",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 132,
+      "wall_s": 1.44
+    },
+    {
+      "id": "hschema-nested",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 116,
+      "wall_s": 1.3
+    },
+    {
+      "id": "hschema-nested",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 109,
+      "wall_s": 1.26
+    },
+    {
+      "id": "hschema-nested",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 127,
+      "wall_s": 1.41
+    },
+    {
+      "id": "hschema-semver",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 76,
+      "wall_s": 0.95
+    },
+    {
+      "id": "hschema-semver",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 76,
+      "wall_s": 0.96
+    },
+    {
+      "id": "hschema-semver",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 76,
+      "wall_s": 0.96
+    }
+  ]
+}

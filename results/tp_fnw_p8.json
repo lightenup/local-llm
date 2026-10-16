@@ -1,0 +1,125 @@
+{
+  "label": "fnw_p8",
+  "model_id": "Qwen3.8-Flash-Next-oQ4e-mtp",
+  "request": {
+    "prompt_lengths": [
+      16384
+    ],
+    "generation_length": 128,
+    "batch_sizes": [],
+    "context_profile": "code_python",
+    "warmup_mode": "quick",
+    "align_prompt_to_ane": false
+  },
+  "variant": {
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_bits": 4.0,
+    "mtp_enabled": true,
+    "vlm_mtp_enabled": false,
+    "vlm_mtp_draft_model": null,
+    "vlm_mtp_draft_block_size": null,
+    "dflash_enabled": false,
+    "dflash_draft_model": null,
+    "specprefill_enabled": false,
+    "qwen4_ple_ssd_offload": true
+  },
+  "summary": [
+    {
+      "test": "single",
+      "pp": 16384,
+      "tg": 128,
+      "batch_size": null,
+      "ttft_ms": 15314.4,
+      "tpot_ms": 22.53,
+      "prefill_tps": 1069.8,
+      "decode_tps": 45.3,
+      "decode_tps_per_stream": 45.3,
+      "total_tps": 997.0,
+      "e2e_s": 16.483,
+      "gen_tokens": 50,
+      "gen_short": false,
+      "peak_gb": 72.67,
+      "mlx_active_peak_gb": 72.5,
+      "gpu_util_avg": 93.3
+    }
+  ],
+  "raw": {
+    "bench_id": "bench-94c5310bde8f",
+    "status": "completed",
+    "context_profile": "code_python",
+    "results": [
+      {
+        "test_type": "single",
+        "pp": 16384,
+        "tg": 128,
+        "ttft_ms": 15314.4,
+        "tpot_ms": 22.53,
+        "gen_tps": 45.3,
+        "processing_tps": 1069.8,
+        "e2e_latency_s": 16.483,
+        "total_throughput": 997.0,
+        "peak_memory_bytes": 78033445374,
+        "prompt_tokens": 16384,
+        "completion_tokens": 50,
+        "cached_tokens": 0,
+        "system_metrics": {
+          "sample_count": 64,
+          "interval_s": 0.25,
+          "cpu": {
+            "total_avg": 6.6,
+            "total_max": 12.1,
+            "p_avg": 8.7,
+            "e_avg": 5.6
+          },
+          "memory": {
+            "phys_footprint_peak": 74.61,
+            "mlx_active_peak": 72.5,
+            "mlx_cache_peak": 1.48,
+            "system_used_peak": 99.99,
+            "system_wired_peak": 78.16,
+            "total_ram": 128
+          },
+          "gpu": {
+            "util_avg": 93.3,
+            "util_max": 100.0
+          },
+          "thermal": {
+            "start": 2,
+            "max": 2
+          }
+        }
+      }
+    ],
+    "error": null,
+    "upload_state": {
+      "phase": "done",
+      "results": [
+        {
+          "context_length": 16384,
+          "id": "v5rr3uh4",
+          "url": "https://omlx.ai/benchmarks/performance/v5rr3uh4"
+        }
+      ],
+      "total": 1,
+      "success_count": 1,
+      "failed_count": 0,
+      "owner_hash": "4cbb158a83d4a48f14a3b61678957e1187b07f58cc8b4880858b4a785602a8a3",
+      "skipped_reason": null,
+      "skipped_features": [],
+      "feature_flags": [
+        {
+          "key": "lightning_mtp",
+          "label": "Lightning MTP"
+        }
+      ],
+      "skipped_count": 0
+    }
+  }
+}

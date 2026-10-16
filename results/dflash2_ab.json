@@ -1,0 +1,7 @@
+{
+  "target": "Qwen3.8-27B-8bit",
+  "drafter": "Qwen3.8-27B-DFlash2-Q4",
+  "dflash_tok_s": 17.9,
+  "mtp_tok_s": 31.1,
+  "ratio": 0.575
+}

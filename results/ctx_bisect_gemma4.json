@@ -1,0 +1,42 @@
+{
+  "model": "gemma-4-31B-it-qat-OptiQ-4bit",
+  "profile": "gemma-4-31B-it-qat-OptiQ-4bit:g4-code",
+  "low": 65536,
+  "high": 131072,
+  "probes": [
+    {
+      "target": 98304,
+      "admitted": true,
+      "prompt_tokens": 98215,
+      "error": ""
+    },
+    {
+      "target": 114688,
+      "admitted": true,
+      "prompt_tokens": 112755,
+      "error": ""
+    },
+    {
+      "target": 122880,
+      "admitted": true,
+      "prompt_tokens": 121177,
+      "error": ""
+    },
+    {
+      "target": 126976,
+      "admitted": true,
+      "prompt_tokens": 124938,
+      "error": ""
+    }
+  ],
+  "original_window": 65536,
+  "max_admitted": 126976,
+  "min_refused": 131072,
+  "retrieval": {
+    "tokens": 116746,
+    "asked": 3,
+    "correct": 1
+  },
+  "recommended_cap": 65536,
+  "recommendation": "keep 65536: ~116746 is admitted but retrieval was 1/3, and admitting is not attending"
+}

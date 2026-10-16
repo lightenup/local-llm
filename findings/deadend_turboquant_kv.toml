@@ -1,0 +1,19 @@
+id      = "deadend_turboquant_kv"
+title   = "TurboQuant 4-bit KV"
+status  = "dead-end"
+models  = ["Qwen3.8-27B-8bit"]
+section = 5
+section_title = "Context ceiling — full 262,144 confirmed on plain KV"
+rationale = "Not required for long context: the context probe hit the requested ceiling with capped_by=target, not a memory limit — the machine has headroom beyond the model's native maximum. turboquant_kv_enabled is a load-time variant field, so enabling it only in the long-context profile would force a ~28 GB engine reload on every switch. It stays off; long context runs on lossless KV."
+updated = 2026-09-22
+
+[[metrics]]
+name      = "verified context tokens"
+unit      = "tokens"
+direction = "higher"
+headline  = false
+tooltip_what     = "Context tokens verified by the ceiling probe."
+tooltip_how      = "Context-window verification probe at the 262,144 target."
+tooltip_evidence = "capped_by=target (not a memory limit); see §5."
+source_file = "ctx_mtp.json"
+source_path  = "raw.result.verified_tokens"

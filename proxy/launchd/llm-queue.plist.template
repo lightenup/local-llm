@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  llm_queue (FINDINGS §38): one-at-a-time, group-by-model queue in front of oMLX.
+
+  Install / reload:   proxy/launchd/install.sh llm-queue
+  Remove:             proxy/launchd/install.sh --remove llm-queue
+  The @...@ placeholders are filled from .env.local; see install.sh.
+
+  /usr/bin/python3 (3.9), not Homebrew's: it is the interpreter the macOS
+  application firewall already allows inbound (same as hermes-tls-terminator),
+  so the metrics-only listener on 0.0.0.0:9464 is reachable from the homelab
+  Prometheus without a firewall change. Inference stays on loopback.
+
+  Soak mode: listens on 127.0.0.1:8001. LiteLLM still points at :8000, so only
+  clients sent to :8001 explicitly are queued.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>@PREFIX@.llm-queue</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>@REPO@/proxy/llm_queue.py</string>
+    <string>--listen</string>
+    <string>127.0.0.1</string>
+    <string>--port</string>
+    <string>8001</string>
+    <string>--upstream</string>
+    <string>127.0.0.1:8000</string>
+    <string>--event-log</string>
+    <string>@LOG_DIR@/events.jsonl</string>
+    <string>--metrics-listen</string>
+    <string>0.0.0.0:9464</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>StandardOutPath</key>
+  <string>@LOG_DIR@/llm_queue.log</string>
+  <key>StandardErrorPath</key>
+  <string>@LOG_DIR@/llm_queue.log</string>
+</dict>
+</plist>

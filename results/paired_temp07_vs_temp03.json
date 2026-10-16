@@ -1,0 +1,100 @@
+{
+  "arm_a": "acc_code_temp07",
+  "arm_b": "acc_code_temp03",
+  "suites": {
+    "humaneval": {
+      "n_shared": 164,
+      "both_correct": 149,
+      "neither_correct": 8,
+      "only_a_correct": 2,
+      "only_b_correct": 5,
+      "discordant": 7,
+      "net_to_b": 3,
+      "score_a": 92.07,
+      "score_b": 93.9,
+      "p_value": 0.45312,
+      "flips_to_a_sample": [
+        "HumanEval/103",
+        "HumanEval/160"
+      ],
+      "flips_to_b_sample": [
+        "HumanEval/115",
+        "HumanEval/127",
+        "HumanEval/129",
+        "HumanEval/140",
+        "HumanEval/147"
+      ]
+    },
+    "mbpp": {
+      "n_shared": 500,
+      "both_correct": 373,
+      "neither_correct": 83,
+      "only_a_correct": 19,
+      "only_b_correct": 25,
+      "discordant": 44,
+      "net_to_b": 6,
+      "score_a": 78.4,
+      "score_b": 79.6,
+      "p_value": 0.45138,
+      "flips_to_a_sample": [
+        "104",
+        "126",
+        "138",
+        "139",
+        "160",
+        "183",
+        "190",
+        "202"
+      ],
+      "flips_to_b_sample": [
+        "123",
+        "125",
+        "188",
+        "216",
+        "219",
+        "236",
+        "243",
+        "249"
+      ]
+    },
+    "livecodebench": {
+      "n_shared": 500,
+      "both_correct": 239,
+      "neither_correct": 153,
+      "only_a_correct": 51,
+      "only_b_correct": 57,
+      "discordant": 108,
+      "net_to_b": 6,
+      "score_a": 58.0,
+      "score_b": 59.2,
+      "p_value": 0.63063,
+      "flips_to_a_sample": [
+        "2831",
+        "2868",
+        "2869",
+        "2872",
+        "2878",
+        "2879",
+        "2893",
+        "3166"
+      ],
+      "flips_to_b_sample": [
+        "2755",
+        "2785",
+        "2866",
+        "2916",
+        "3025",
+        "3031",
+        "3045",
+        "3106"
+      ]
+    }
+  },
+  "pooled": {
+    "questions": 1164,
+    "flips_to_a": 72,
+    "flips_to_b": 87,
+    "p_value": 0.26683
+  },
+  "verdict": "no significant difference (p=0.26683); B leads but within chance"
+}

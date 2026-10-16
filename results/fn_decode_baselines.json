@@ -1,0 +1,29 @@
+{
+  "prompt": "List the integers from 1 to 120, comma separated, on one line, then stop. No prose.",
+  "max_tokens": 400,
+  "repeats": 5,
+  "models": {
+    "Qwen3.8-27B-8bit": {
+      "presence_penalty": 0.0,
+      "n": 5,
+      "tok_per_s_median": 43.67,
+      "tok_per_s_min": 40.76,
+      "tok_per_s_max": 43.94,
+      "tok_per_s_stdev": 1.35,
+      "completion_tokens_median": 400,
+      "mtp_enabled": false,
+      "vlm_mtp_draft_model": "Qwen3.8-27B-MTP-8bit"
+    },
+    "Qwen3.8-27B-oQ4e-mtp": {
+      "presence_penalty": 0.0,
+      "n": 5,
+      "tok_per_s_median": 71.29,
+      "tok_per_s_min": 69.28,
+      "tok_per_s_max": 72.06,
+      "tok_per_s_stdev": 1.03,
+      "completion_tokens_median": 400,
+      "mtp_enabled": true,
+      "vlm_mtp_draft_model": null
+    }
+  }
+}

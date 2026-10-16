@@ -1,0 +1,25 @@
+{
+  "label": "decode_novaeon",
+  "model_id": "Qwen3.8-35B-A3B-Distill-oQ8-fp16-mtp",
+  "at": "2026-09-21T21:24:47+02:00",
+  "baseline_mtp": null,
+  "arms": [
+    {
+      "n": 5,
+      "tok_per_s_median": 150.48,
+      "tok_per_s_stdev": 29.31,
+      "completion_tokens_median": 400,
+      "mtp_enabled": true
+    },
+    {
+      "n": 5,
+      "tok_per_s_median": 90.86,
+      "tok_per_s_stdev": 2.41,
+      "completion_tokens_median": 400,
+      "mtp_enabled": false
+    }
+  ],
+  "mtp_speedup": 1.656,
+  "verdict": "MTP changes decode (1.66x, delta 59.6 vs noise 29.3 tok/s)",
+  "exit_code": 0
+}

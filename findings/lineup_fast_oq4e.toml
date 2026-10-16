@@ -1,0 +1,19 @@
+id      = "lineup_fast_oq4e"
+title   = "Qwen3.8-27B-oQ4e ships the fast tier"
+status  = "shipped"
+tier    = "fast"
+models  = ["Qwen3.8-27B-oQ4e"]
+section = 19
+section_title = "The lineup: 8-bit for quality, oQ4e for speed"
+updated = 2026-09-22
+
+[[metrics]]
+name      = "decode @ 16k prompt"
+unit      = "tok/s"
+direction = "higher"
+headline  = true
+tooltip_what     = "Sustained decode throughput at a 16,384-token prompt, single stream."
+tooltip_how      = "bench/throughput.py, code_python context, 128-token generations."
+tooltip_evidence = "Deterministic sampling; 1.73x the 8-bit at 16 GB; see §19."
+source_file = "tp_oq4e.json"
+source_path  = "summary[?pp=16384].decode_tps"

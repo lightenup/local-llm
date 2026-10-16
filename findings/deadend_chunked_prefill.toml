@@ -1,0 +1,8 @@
+id      = "deadend_chunked_prefill"
+title   = "chunked_prefill"
+status  = "dead-end"
+models  = ["Qwen3.8-27B-8bit"]
+section = 8
+section_title = "What the validation runs settled"
+rationale = "No effect, so it stays off: prefill 686.4 to 701.3 t/s at 16k, 538.7 to 539.5 at 65k, 386.9 to 389.2 at 131k, TTFT unchanged. scheduler.chunked_prefill is a flat admin field; the measurement closed it."
+updated = 2026-09-22

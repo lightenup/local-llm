@@ -1,0 +1,41 @@
+id      = "lineup_additive_gemma4"
+title   = "gemma-4-31B is the additive tier"
+status  = "shipped"
+tier    = "additive"
+models  = ["gemma-4-31B"]
+section = 30
+section_title = "gemma-4-31B wins both measured axes, and costs 1.8x the decode to do it"
+updated = 2026-09-22
+
+[[metrics]]
+name      = "livecodebench accuracy"
+unit      = "score"
+direction = "higher"
+headline  = true
+tooltip_what     = "LiveCodeBench competitive-programming accuracy, 500 samples."
+tooltip_how      = "bench/accuracy.py code, batch 8, thinking off, deterministic sampling."
+tooltip_evidence = "Paired McNemar against the shipped 8-bit; see §30."
+source_file = "acc_gemma4_code.json"
+source_path  = "results[?benchmark=livecodebench].accuracy"
+
+[[metrics]]
+name      = "mmlu_pro accuracy"
+unit      = "score"
+direction = "higher"
+headline  = false
+tooltip_what     = "MMLU-Pro multi-domain reasoning accuracy, 500 samples."
+tooltip_how      = "bench/accuracy.py reason, batch 8, thinking off, deterministic sampling."
+tooltip_evidence = "+9.0 over the 8-bit, p = 0.00006; see §29."
+source_file = "acc_gemma4_reason.json"
+source_path  = "results[?benchmark=mmlu_pro].accuracy"
+
+[[metrics]]
+name      = "context ceiling"
+unit      = "tokens"
+direction = "higher"
+headline  = false
+tooltip_what     = "Verified context window; gemma fails above 65k on prefill transient memory."
+tooltip_how      = "bench/longctx_quality.py, five depths plus multi-hop, 65k/131k/262k."
+tooltip_evidence = "6/6 at 65,536; 131k refused at ~98.5 GB peak; see §32."
+source_file = "longctx_gemma4.json"
+source_path  = "summary.by_length.65536.verified_prompt_tokens"

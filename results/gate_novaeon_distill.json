@@ -1,0 +1,42 @@
+[
+  {
+    "model_id": "Qwen3.8-35B-A3B-Distill-oQ8-fp16-mtp",
+    "at": "2026-09-21T21:05:48",
+    "disk_gib": 38.62,
+    "config_model_type": "qwen3_5_moe",
+    "context": 262144,
+    "mtp_compatible": true,
+    "mtp_reason": "",
+    "arch_supported": true,
+    "lineup": [
+      "Qwen2.5-Coder-3B-8bit",
+      "Qwen3.8-27B-8bit",
+      "Qwen3.8-27B-oQ4e-mtp"
+    ],
+    "load_s": 31.6,
+    "resident_gib": 38.62,
+    "pool_gib": 87.28,
+    "lineup_survived_load": true,
+    "calls": [
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 16621,
+        "wall_s": 10.4,
+        "finish": "length",
+        "head": "# Module-by-Module Description\n\n## 1. `bench/accuracy.py` \u2014 Suite Queuer & Result Collecto"
+      },
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 16621,
+        "wall_s": 3.4,
+        "finish": "length",
+        "head": "# Module-by-Module Description\n\n## `bench/accuracy.py` \u2014 Accuracy Suite Orchestrator\n\n**"
+      }
+    ],
+    "lineup_survived_serving": true,
+    "coexists": true,
+    "verdict": "PASS -- coexists and serves"
+  }
+]

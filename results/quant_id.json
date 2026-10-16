@@ -1,0 +1,210 @@
+{
+  "generated": "2026-09-10T13:23:53",
+  "models": [
+    {
+      "repo": "mlx-community/Qwen2.5-Coder-3B-8bit",
+      "quantized": true,
+      "build": "uniform",
+      "base_bits": 8,
+      "group_size": 64,
+      "mode": null,
+      "size_gb": 3.3,
+      "modules_graded": 0,
+      "modules_above_base": 0,
+      "modules_above_base_non_router": 0,
+      "modules_below_base": 0,
+      "bit_histogram": {},
+      "effective_bits_over_graded": 8,
+      "name_signal": [],
+      "converted_by": "4.40.1"
+    },
+    {
+      "repo": "mlx-community/Qwen3.8-27B-4bit",
+      "quantized": true,
+      "build": "uniform",
+      "base_bits": 4,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 16.1,
+      "modules_graded": 0,
+      "modules_above_base": 0,
+      "modules_above_base_non_router": 0,
+      "modules_below_base": 0,
+      "bit_histogram": {},
+      "effective_bits_over_graded": 4,
+      "name_signal": [],
+      "converted_by": "5.8.0.dev0"
+    },
+    {
+      "repo": "mlx-community/Qwen3.8-27B-8bit",
+      "quantized": true,
+      "build": "uniform",
+      "base_bits": 8,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 29.5,
+      "modules_graded": 0,
+      "modules_above_base": 0,
+      "modules_above_base_non_router": 0,
+      "modules_below_base": 0,
+      "bit_histogram": {},
+      "effective_bits_over_graded": 8,
+      "name_signal": [],
+      "converted_by": "5.8.0.dev0"
+    },
+    {
+      "repo": "mlx-community/Qwen3.8-27B-MTP-4bit",
+      "quantized": true,
+      "build": "uniform",
+      "base_bits": 4,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 0.2,
+      "modules_graded": 0,
+      "modules_above_base": 0,
+      "modules_above_base_non_router": 0,
+      "modules_below_base": 0,
+      "bit_histogram": {},
+      "effective_bits_over_graded": 4,
+      "name_signal": [],
+      "converted_by": null
+    },
+    {
+      "repo": "mlx-community/Qwen3.8-27B-MTP-8bit",
+      "quantized": true,
+      "build": "uniform",
+      "base_bits": 8,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 0.5,
+      "modules_graded": 0,
+      "modules_above_base": 0,
+      "modules_above_base_non_router": 0,
+      "modules_below_base": 0,
+      "bit_histogram": {},
+      "effective_bits_over_graded": 8,
+      "name_signal": [],
+      "converted_by": null
+    },
+    {
+      "repo": "mlx-community/Qwen3-Coder-Next-6bit",
+      "quantized": true,
+      "build": "router-protected",
+      "base_bits": 6,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 64.7,
+      "modules_graded": 96,
+      "modules_above_base": 96,
+      "modules_above_base_non_router": 0,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "8": 96
+      },
+      "effective_bits_over_graded": 8.0,
+      "name_signal": [],
+      "converted_by": "4.57.0.dev0"
+    },
+    {
+      "repo": "mlx-community/Qwen3-Coder-Next-8bit",
+      "quantized": true,
+      "build": "uniform",
+      "base_bits": 8,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 84.7,
+      "modules_graded": 96,
+      "modules_above_base": 0,
+      "modules_above_base_non_router": 0,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "8": 96
+      },
+      "effective_bits_over_graded": 8.0,
+      "name_signal": [],
+      "converted_by": "4.57.0.dev0"
+    },
+    {
+      "repo": "lmstudio-community/Qwen3-Coder-Next-MLX-6bit",
+      "quantized": true,
+      "build": "router-protected",
+      "base_bits": 6,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 64.7,
+      "modules_graded": 96,
+      "modules_above_base": 96,
+      "modules_above_base_non_router": 0,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "8": 96
+      },
+      "effective_bits_over_graded": 8.0,
+      "name_signal": [],
+      "converted_by": "4.57.0.dev0"
+    },
+    {
+      "repo": "NexVeridian/Qwen3-Coder-Next-6bit",
+      "quantized": true,
+      "build": "router-protected",
+      "base_bits": 6,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 64.7,
+      "modules_graded": 96,
+      "modules_above_base": 96,
+      "modules_above_base_non_router": 0,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "8": 96
+      },
+      "effective_bits_over_graded": 8.0,
+      "name_signal": [],
+      "converted_by": "4.57.0.dev0"
+    },
+    {
+      "repo": "nightmedia/Qwen3-Coder-Next-qx53n-mlx",
+      "quantized": true,
+      "build": "mixed-down",
+      "base_bits": 5,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 43.4,
+      "modules_graded": 542,
+      "modules_above_base": 1,
+      "modules_above_base_non_router": 1,
+      "modules_below_base": 317,
+      "bit_histogram": {
+        "3": 317,
+        "5": 224,
+        "6": 1
+      },
+      "effective_bits_over_graded": 3.83,
+      "name_signal": [
+        "qx"
+      ],
+      "converted_by": "4.57.0.dev0"
+    },
+    {
+      "repo": "Jundot/Qwen3.8-27B-oQ4e-mtp",
+      "quantized": true,
+      "build": "mixed-up",
+      "base_bits": 4,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 17.0,
+      "modules_graded": 166,
+      "modules_above_base": 166,
+      "modules_above_base_non_router": 166,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "5": 166
+      },
+      "effective_bits_over_graded": 5.0,
+      "name_signal": [
+        "oq"
+      ],
+      "converted_by": "5.8.0.dev0"
+    }
+  ]
+}

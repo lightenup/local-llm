@@ -1,0 +1,94 @@
+{
+  "at": "2026-09-16T22:25:06",
+  "guard": "{\"error\":{\"message\":\"litellm.APIError: APIError: OpenAIException - Cannot load Qwen3.8-Flash-Next-oQ4e-mtp: projected memory 124.35GB would exceed the metal_cap memory ceiling 107.52GB (current: 51.70GB, model: 72.65GB). Raise kernel iogpu.wired_limit_mb in Terminal (currently caps Metal at 107.52GB), or unload another model.No fallback model group found for original model_group=Qwen3.8-Flash-Next-oQ4e-mtp:fn-agent. Fallbacks=[]. Received Model Group=Qwen3.8-Flash-Next-oQ4e-mtp:fn-agent\\nAvailable Model Group Fallbacks=None\\nError doing the fallback: litellm.APIError: APIError: OpenAIException - Cannot load Qwen3.8-Flash-Next-oQ4e-mtp: projected memory 124.35GB would exceed the metal_cap memory ceiling 107.52GB (current: 51.70GB, model: 72.65GB). Raise kernel iogpu.wired_limit_mb in Terminal (currently caps Metal at 107.52GB), or unload another model.No fallback model group found for original model_group=Qwen3.8-Flash-Next-oQ4e-mtp:fn-agent. Fallbacks=[]\",\"type\":null,\"param\":null,\"code\":\"507\"}}",
+  "arms": {
+    "fn-agent/bare": [
+      {
+        "completion_tokens": 512,
+        "prompt_tokens": 16611,
+        "finish_reason": "length",
+        "text": "This is a comprehensive suite of benchmarking and tuning scripts for an **oMLX** (likely a local LLM serving framework, possibly related to MLX on Apple Silicon or a custom fork) environment. The scri",
+        "wall_s": 67.1
+      },
+      {
+        "completion_tokens": 512,
+        "prompt_tokens": 16611,
+        "finish_reason": "length",
+        "text": "I've reviewed the provided Python scripts. They form a comprehensive benchmarking and tuning suite for **oMLX** (likely a local LLM inference server, possibly based on MLX or similar frameworks).\n\nHer",
+        "wall_s": 13.1
+      },
+      {
+        "completion_tokens": 81,
+        "prompt_tokens": 16611,
+        "finish_reason": "tool_calls",
+        "text": "I'll start by exploring the repository structure to understand the context of these files.",
+        "wall_s": 2.3
+      },
+      {
+        "completion_tokens": 512,
+        "prompt_tokens": 16611,
+        "finish_reason": "length",
+        "text": "This is a comprehensive suite of benchmarking and tuning scripts for **oMLX** (likely a local LLM inference server, possibly based on MLX or a similar framework, given the `ANE` references and `omlx_c",
+        "wall_s": 11.8
+      },
+      {
+        "completion_tokens": 512,
+        "prompt_tokens": 16611,
+        "finish_reason": "length",
+        "text": "This is a comprehensive suite of benchmarking and tuning scripts for **oMLX** (likely an MLX-based inference server, possibly for Apple Silicon given the ANE references). The scripts cover accuracy va",
+        "wall_s": 12.1
+      },
+      {
+        "completion_tokens": 512,
+        "prompt_tokens": 16611,
+        "finish_reason": "length",
+        "text": "I have reviewed the provided Python scripts. These appear to be part of a benchmarking and tuning suite for **oMLX** (likely a local LLM inference server, possibly based on MLX for Apple Silicon or si",
+        "wall_s": 12.0
+      }
+    ],
+    "fn-agent/instructed": [
+      {
+        "completion_tokens": 512,
+        "prompt_tokens": 16628,
+        "finish_reason": "length",
+        "text": "Here is a detailed, module-by-module analysis of the provided Python scripts. These scripts constitute a benchmarking and tuning suite for **oMLX** (a local LLM serving engine), specifically focusing ",
+        "wall_s": 12.5
+      },
+      {
+        "completion_tokens": 512,
+        "prompt_tokens": 16628,
+        "finish_reason": "length",
+        "text": "This collection of Python scripts forms a comprehensive benchmarking and optimization suite for **oMLX** (a local LLM inference server, likely based on MLX for Apple Silicon). The suite is designed to",
+        "wall_s": 12.6
+      },
+      {
+        "completion_tokens": 512,
+        "prompt_tokens": 16628,
+        "finish_reason": "length",
+        "text": "Here is a module-by-module analysis of the provided Python scripts. These scripts constitute a benchmarking and tuning suite for **oMLX** (an MLX-based LLM server), focusing on accuracy validation, ha",
+        "wall_s": 12.2
+      },
+      {
+        "completion_tokens": 512,
+        "prompt_tokens": 16628,
+        "finish_reason": "length",
+        "text": "Here is a module-by-module breakdown of the provided Python scripts. These scripts constitute a benchmarking and tuning suite for **oMLX**, a local LLM serving framework (likely built on MLX for Apple",
+        "wall_s": 12.2
+      },
+      {
+        "completion_tokens": 512,
+        "prompt_tokens": 16628,
+        "finish_reason": "length",
+        "text": "This codebase consists of six Python modules designed to benchmark, tune, and validate the performance and accuracy of a local LLM serving infrastructure (referred to as `oMLX`). The scripts interact ",
+        "wall_s": 12.4
+      },
+      {
+        "completion_tokens": 512,
+        "prompt_tokens": 16628,
+        "finish_reason": "length",
+        "text": "This codebase consists of five Python modules designed to benchmark, tune, and validate the performance and accuracy of local Large Language Models (LLMs) served via an **oMLX** server (likely running",
+        "wall_s": 12.9
+      }
+    ]
+  }
+}

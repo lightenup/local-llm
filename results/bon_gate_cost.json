@@ -1,0 +1,39 @@
+{
+  "sampler": "fast",
+  "escalation": "coder",
+  "temperature": 0.7,
+  "rows": [
+    {
+      "n": 1,
+      "median_wall_s": 1.38,
+      "accepted": 4,
+      "escalated": 0,
+      "mean_verified": 1,
+      "of": 4
+    },
+    {
+      "n": 2,
+      "median_wall_s": 1.67,
+      "accepted": 4,
+      "escalated": 0,
+      "mean_verified": 1,
+      "of": 4
+    },
+    {
+      "n": 4,
+      "median_wall_s": 2.41,
+      "accepted": 4,
+      "escalated": 0,
+      "mean_verified": 1,
+      "of": 4
+    },
+    {
+      "n": 8,
+      "median_wall_s": 3.81,
+      "accepted": 4,
+      "escalated": 0,
+      "mean_verified": 1,
+      "of": 4
+    }
+  ]
+}

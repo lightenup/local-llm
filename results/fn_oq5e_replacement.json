@@ -1,0 +1,49 @@
+{
+  "label": "fn_oq5e_replacement",
+  "at": "2026-09-21T17:59:10+0200",
+  "model_id": "Qwen3.8-Flash-Next-oQ5e-mtp",
+  "source_repo": "GBP-DE/Qwen3.8-Flash-Next-oQ5e-mtp",
+  "question": "Does the plain oQ5e serve on this 128GB machine, and how does it compare to the retired oQ4e?",
+  "build": {
+    "classifier": "bench/quant_id.py",
+    "build": "mixed-up",
+    "base_bits": 5,
+    "eff_bits_over_graded": 6.29,
+    "disk_gb": 128.5,
+    "vs_oq4e": "same 8-bit shared experts; routed MoE experts lifted 4->5 bit; hyper-connections to 6-bit"
+  },
+  "settings_used": {
+    "mtp_enabled": true,
+    "qwen4_ple_ssd_offload": true
+  },
+  "load_alone": {
+    "ok": true,
+    "load_s": 20.3,
+    "pool_gib_resident": 94.65,
+    "note": "PLE offloaded to SSD; this is the compute-weight residency"
+  },
+  "serve_alone": {
+    "ok": false,
+    "omlx_code": "prefill_memory_aborted",
+    "detail": "trivial prompt (~40 tokens, max_tokens=200) aborted mid-prefill: usage 102.9 GB vs hard watermark 102.1 GB, metal_cap 107.52 GB",
+    "meaning": "cannot generate a single token, ALONE, under the default iogpu.wired_limit_mb"
+  },
+  "coexistence": {
+    "loaded_beside_lineup": false,
+    "detail": "projected 139-140 GB (lineup ~51 GB committed + model 88.15 GB) exceeds metal_cap 107.52 GB"
+  },
+  "candidate_gate": {
+    "verdict": "arch step false-negative",
+    "detail": "gate checks bundled mlx_lm/models/qwen4_exp.py which is absent; oMLX runs this arch via its vendored qwen4_exp runtime, so the gate cannot evaluate coexistence for Flash-Next"
+  },
+  "comparison_oq4e": {
+    "oq4e_resident_gib": 69.37,
+    "oq4e_served": true,
+    "oq4e_decode_tok_s": 74.57,
+    "oq5e_resident_gib": 94.65,
+    "oq5e_served": false,
+    "delta_resident_gib": 25.28,
+    "reading": "the +22 GB disk / +25 GB resident from 4->5 bit erases the ~33 GB KV headroom oQ4e had; oQ5e crosses the hard watermark on prefill alone"
+  },
+  "verdict": "REJECT before benchmarking quality: the plain oQ5e does not serve on this 128GB machine even alone. No decode/quality numbers are obtainable without raising iogpu.wired_limit_mb, which FINDINGS §H documents as thrashing/kernel-panic territory."
+}

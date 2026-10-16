@@ -1,0 +1,154 @@
+{
+  "timestamp": "2026-09-18T17:54:23.955917+00:00",
+  "model_id": "gemma-4-31B-it-qat-OptiQ-4bit:g4-code",
+  "variant": {},
+  "request": {
+    "lengths": [
+      131072
+    ],
+    "depths": [
+      0.05,
+      0.5,
+      0.95
+    ],
+    "max_tokens": 64,
+    "max_length_seconds": 2400.0,
+    "sections": 240,
+    "seed": 20260906,
+    "safety_tokens": 256
+  },
+  "calibration": {
+    "slope": 0.16345,
+    "intercept": 1768.0,
+    "fitted": true,
+    "probes": [
+      {
+        "chars": 60000,
+        "prompt_tokens": 11575,
+        "ok": true,
+        "error": null
+      },
+      {
+        "chars": 180000,
+        "prompt_tokens": 31189,
+        "ok": true,
+        "error": null
+      }
+    ]
+  },
+  "records": [
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.05,
+      "expected": "12548",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "KeyError: 'choices'"
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.5,
+      "expected": "42445",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "KeyError: 'choices'"
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.95,
+      "expected": "99961",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=130725, min_chunk=32): predicted peak would require ~98.49 GB (current 23.05 GB + KV 20.76 GB + min-chunk transient 54"
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "multihop",
+      "depth": null,
+      "expected": "112509",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=130735, min_chunk=32): predicted peak would require ~98.37 GB (current 22.93 GB + KV 20.76 GB + min-chunk transient 54"
+    }
+  ],
+  "summary": {
+    "lengths": [
+      131072
+    ],
+    "depths": [
+      0.05,
+      0.5,
+      0.95
+    ],
+    "by_length": {
+      "131072": {
+        "asked": 3,
+        "scored": 3,
+        "correct": 0,
+        "skipped": 0,
+        "accuracy": 0.0,
+        "verified_prompt_tokens": null,
+        "repeat_requests": 3,
+        "mean_cached_fraction": null
+      }
+    },
+    "by_depth": {
+      "0.05": {
+        "asked": 1,
+        "scored": 1,
+        "correct": 0,
+        "skipped": 0,
+        "accuracy": 0.0
+      },
+      "0.5": {
+        "asked": 1,
+        "scored": 1,
+        "correct": 0,
+        "skipped": 0,
+        "accuracy": 0.0
+      },
+      "0.95": {
+        "asked": 1,
+        "scored": 1,
+        "correct": 0,
+        "skipped": 0,
+        "accuracy": 0.0
+      }
+    },
+    "multihop": {
+      "131072": {
+        "correct": false,
+        "skipped": false,
+        "expected": "112509",
+        "got": "",
+        "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=130735, min_chunk=32): predicted peak would require ~98.37 GB (current 22.93 GB + KV 20.76 GB + min-chunk transient 54"
+      }
+    },
+    "overall_retrieval": {
+      "asked": 3,
+      "scored": 3,
+      "correct": 0,
+      "skipped": 0,
+      "accuracy": 0.0
+    }
+  }
+}

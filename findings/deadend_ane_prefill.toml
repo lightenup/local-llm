@@ -1,0 +1,19 @@
+id      = "deadend_ane_prefill"
+title   = "ANE prefill offload"
+status  = "dead-end"
+models  = ["Qwen3.8-27B-8bit"]
+section = 3
+section_title = "ANE prefill offload — rejected, with evidence"
+rationale = "The bundled auto-tuner swept the split candidates at seq 2048: GPU only 855.6 t/s beats every ANE/CPU split (predicted optimum 799.9, profile-refined 788.5). Verdict enabled=false, speedup 0.0. On M5 Max the GPU wins for this model; consistent with oMLX's own startup decision to skip the FA-256 steel patch. The ane variant stays in bench/set_variant.py so the finding remains re-checkable on future hardware."
+updated = 2026-09-22
+
+[[metrics]]
+name      = "auto-tuner verdict speedup"
+unit      = "%"
+direction = "higher"
+headline  = false
+tooltip_what     = "Speedup percent reported by the ANE auto-tuner's final verdict."
+tooltip_how      = "bench/ane_tune.py sweep at seq 2048 over the split candidates."
+tooltip_evidence = "GPU only 855.6 t/s vs best ANE split 799.9; enabled=false; see §3."
+source_file = "ane_tune.json"
+source_path  = "recommendation.speedup_percent"

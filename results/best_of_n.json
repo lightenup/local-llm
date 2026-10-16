@@ -1,0 +1,493 @@
+{
+  "model": "Qwen3-Coder-Next-6bit",
+  "value": {
+    "n": 4,
+    "temperature": 0.7,
+    "attempted": 40,
+    "greedy_recovered": 1,
+    "pass_at_n_recovered": 9,
+    "median_wall_s": 28.2,
+    "rows": [
+      {
+        "id": "2857",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "stdin_format_unpack",
+          "stdin_format_unpack",
+          "stdin_format_unpack",
+          "stdin_format_unpack"
+        ],
+        "wall_s": 4.2
+      },
+      {
+        "id": "3426",
+        "greedy_passes": false,
+        "pass_at_n": true,
+        "buckets": [
+          "wrong_output",
+          "passes_now",
+          "passes_now",
+          "wrong_output"
+        ],
+        "wall_s": 3.5
+      },
+      {
+        "id": "3416",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 8.5
+      },
+      {
+        "id": "3351",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 5.5
+      },
+      {
+        "id": "3298",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 9.9
+      },
+      {
+        "id": "3690",
+        "greedy_passes": false,
+        "pass_at_n": true,
+        "buckets": [
+          "wrong_output",
+          "timeout",
+          "wrong_output",
+          "passes_now"
+        ],
+        "wall_s": 89.0
+      },
+      {
+        "id": "2883",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "wrong_output",
+          "wrong_output",
+          "wrong_output",
+          "wrong_output"
+        ],
+        "wall_s": 9.8
+      },
+      {
+        "id": "2878",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "no_output",
+          "wrong_output"
+        ],
+        "wall_s": 28.7
+      },
+      {
+        "id": "abc301_b",
+        "greedy_passes": false,
+        "pass_at_n": true,
+        "buckets": [
+          "passes_now",
+          "passes_now",
+          "passes_now",
+          "passes_now"
+        ],
+        "wall_s": 8.8
+      },
+      {
+        "id": "3375",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_IndexError",
+          "no_output"
+        ],
+        "wall_s": 16.0
+      },
+      {
+        "id": "3773",
+        "greedy_passes": false,
+        "pass_at_n": true,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "passes_now",
+          "crash_ValueError"
+        ],
+        "wall_s": 8.5
+      },
+      {
+        "id": "2868",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 8.8
+      },
+      {
+        "id": "3613",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 45.9
+      },
+      {
+        "id": "abc355_e",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_nonzero_exit",
+          "crash_IndentationError",
+          "crash_ValueError",
+          "crash_nonzero_exit"
+        ],
+        "wall_s": 197.1
+      },
+      {
+        "id": "3421",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 5.9
+      },
+      {
+        "id": "2755",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "wrong_output",
+          "no_output",
+          "wrong_output",
+          "wrong_output"
+        ],
+        "wall_s": 6.8
+      },
+      {
+        "id": "3683",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "wrong_output",
+          "wrong_output",
+          "crash_IndentationError",
+          "wrong_output"
+        ],
+        "wall_s": 165.0
+      },
+      {
+        "id": "3548",
+        "greedy_passes": false,
+        "pass_at_n": true,
+        "buckets": [
+          "wrong_output",
+          "passes_now",
+          "passes_now",
+          "passes_now"
+        ],
+        "wall_s": 58.2
+      },
+      {
+        "id": "3717",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_UnboundLocalError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 253.2
+      },
+      {
+        "id": "3560",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_IndexError",
+          "stdin_format_unpack",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 27.8
+      },
+      {
+        "id": "3776",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 108.0
+      },
+      {
+        "id": "3347",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 5.6
+      },
+      {
+        "id": "abc341_f",
+        "greedy_passes": false,
+        "pass_at_n": true,
+        "buckets": [
+          "no_output",
+          "passes_now",
+          "passes_now",
+          "no_output"
+        ],
+        "wall_s": 260.5
+      },
+      {
+        "id": "3045",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 9.9
+      },
+      {
+        "id": "3682",
+        "greedy_passes": false,
+        "pass_at_n": true,
+        "buckets": [
+          "passes_now",
+          "passes_now",
+          "passes_now",
+          "stdin_format_unpack"
+        ],
+        "wall_s": 43.4
+      },
+      {
+        "id": "3636",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 3.7
+      },
+      {
+        "id": "2847",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "wrong_output",
+          "wrong_output",
+          "wrong_output",
+          "wrong_output"
+        ],
+        "wall_s": 4.8
+      },
+      {
+        "id": "3344",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_nonzero_exit",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 47.4
+      },
+      {
+        "id": "3192",
+        "greedy_passes": true,
+        "pass_at_n": true,
+        "buckets": [
+          "passes_now",
+          "passes_now",
+          "passes_now",
+          "passes_now"
+        ],
+        "wall_s": 260.3
+      },
+      {
+        "id": "3714",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 43.2
+      },
+      {
+        "id": "2952",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_IndentationError",
+          "crash_ValueError"
+        ],
+        "wall_s": 100.8
+      },
+      {
+        "id": "3436",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 38.7
+      },
+      {
+        "id": "abc369_g",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "no_output",
+          "no_output",
+          "no_output",
+          "no_output"
+        ],
+        "wall_s": 425.7
+      },
+      {
+        "id": "abc387_c",
+        "greedy_passes": false,
+        "pass_at_n": true,
+        "buckets": [
+          "passes_now",
+          "passes_now",
+          "passes_now",
+          "passes_now"
+        ],
+        "wall_s": 106.2
+      },
+      {
+        "id": "3478",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_IndexError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 185.9
+      },
+      {
+        "id": "2892",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 6.6
+      },
+      {
+        "id": "2849",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 29.9
+      },
+      {
+        "id": "3543",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "wrong_output",
+          "wrong_output",
+          "wrong_output",
+          "wrong_output"
+        ],
+        "wall_s": 5.6
+      },
+      {
+        "id": "2953",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError",
+          "crash_ValueError"
+        ],
+        "wall_s": 11.1
+      },
+      {
+        "id": "3562",
+        "greedy_passes": false,
+        "pass_at_n": false,
+        "buckets": [
+          "crash_ValueError",
+          "crash_ValueError",
+          "no_output",
+          "crash_ValueError"
+        ],
+        "wall_s": 293.1
+      }
+    ]
+  }
+}

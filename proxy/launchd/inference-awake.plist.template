@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  inference_awake (FINDINGS §37, attempt 3): hold `caffeinate -i -s` only while
+  oMLX has active/waiting requests or a model loading, release 180 s after.
+
+  Install / reload:   proxy/launchd/install.sh inference-awake
+  Remove:             proxy/launchd/install.sh --remove inference-awake
+  The @...@ placeholders are filled from .env.local; see install.sh.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>@PREFIX@.inference-awake</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>@REPO@/proxy/inference_awake.py</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>StandardOutPath</key>
+  <string>@LOG_DIR@/inference_awake.log</string>
+  <key>StandardErrorPath</key>
+  <string>@LOG_DIR@/inference_awake.log</string>
+</dict>
+</plist>

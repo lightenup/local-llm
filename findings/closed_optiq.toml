@@ -1,0 +1,19 @@
+id      = "closed_optiq"
+title   = "OptiQ data-driven 4-bit allocation is strictly dominated by oQ4e"
+status  = "retired"
+models  = ["Qwen3.8-27B-OptiQ-4bit"]
+section = 29
+section_title = "The A7 reason arms: OptiQ is dominated, gemma-4 wins, and mathqa lied"
+rationale = "The leaderboard's 65.3 mmlu_pro did not replicate: we measure 61.2, and pooled McNemar says the 8-bit is better (p = 0.026) while oQ4e is indistinguishable (p = 0.797, mmlu_pro 61.2 vs 61.4). KL-divergence-driven per-layer allocation lands exactly where oq4e.py's simpler allocation landed, is 3.1 GiB larger, and has no speculative decoding at all against oQ4e's measured 1.73x. Data-driven allocation asked twice, answered no twice."
+updated = 2026-09-22
+
+[[metrics]]
+name      = "mmlu_pro accuracy"
+unit      = "score"
+direction = "higher"
+headline  = false
+tooltip_what     = "MMLU-Pro multi-domain reasoning accuracy, 500 samples."
+tooltip_how      = "bench/a7_reason.sh, batch 8, thinking off, deterministic sampling."
+tooltip_evidence = "61.2 vs oQ4e 61.4 (p = 1.0) and 8-bit 64.0 (pooled p = 0.026, 8-bit better); see §29."
+source_file = "acc_optiq_reason.json"
+source_path  = "results[?benchmark=mmlu_pro].accuracy"

@@ -1,0 +1,16 @@
+{
+  "at": "2026-09-11T11:21:50+00:00",
+  "model": "Qwen3.8-27B-8bit:qwen-agent",
+  "repeats": 9,
+  "direct_ms": {
+    "median": 295.3,
+    "min": 285.5,
+    "max": 304.9
+  },
+  "proxy_ms": {
+    "median": 316.4,
+    "min": 304.7,
+    "max": 678.4
+  },
+  "median_overhead_ms": 21.1
+}

@@ -1,0 +1,16 @@
+{
+  "label": "decode_tiel",
+  "model_id": "Tiel-Coder-35B-A3B-MLX-oQ4e",
+  "at": "2026-09-21T21:26:16+02:00",
+  "baseline_mtp": null,
+  "arms": [
+    {
+      "n": 5,
+      "tok_per_s_median": 113.88,
+      "tok_per_s_stdev": 29.94,
+      "completion_tokens_median": 400,
+      "mtp_enabled": null
+    }
+  ],
+  "exit_code": 0
+}

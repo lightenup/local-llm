@@ -1,0 +1,149 @@
+{
+  "label": "fn_thinking_plumbing_27b",
+  "model_id": "Qwen3.8-27B-8bit",
+  "at": "2026-09-16T14:51:14+02:00",
+  "request": {
+    "arms": [
+      "off"
+    ],
+    "arm_sampling": {
+      "off": {
+        "enable_thinking": false,
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "presence_penalty": 0.0
+      }
+    },
+    "repeats": 1,
+    "max_tokens": 1024,
+    "tasks": [
+      "py-merge",
+      "py-chunk",
+      "py-parse",
+      "py-topk"
+    ],
+    "verified": true
+  },
+  "variant": {
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_bits": 4.0,
+    "mtp_enabled": false,
+    "vlm_mtp_enabled": true,
+    "vlm_mtp_draft_model": "Qwen3.8-27B-MTP-8bit",
+    "vlm_mtp_draft_block_size": 3,
+    "dflash_enabled": false,
+    "dflash_draft_model": null,
+    "specprefill_enabled": false,
+    "qwen4_ple_ssd_offload": false
+  },
+  "preflight": {
+    "ok": true,
+    "template_kwargs_accepted": true,
+    "off_reasoning_chars": 0,
+    "on_reasoning_chars": 201,
+    "off_empty_content": false,
+    "reason": "thinking-off is genuinely off"
+  },
+  "summary": [
+    {
+      "arm": "off",
+      "n": 4,
+      "tok_per_s_median": 34.72,
+      "completion_tokens_median": 79,
+      "completion_tokens_total": 308,
+      "wall_s_median": 2.29,
+      "cap_hit_rate": 0.0,
+      "empty_content_rate": 0.0,
+      "reasoning_chars_median": 0,
+      "verified_n": 4,
+      "passed": 4,
+      "pass_rate": 1.0
+    }
+  ],
+  "rows": [
+    {
+      "arm": "off",
+      "id": "py-merge",
+      "rep": 0,
+      "wall_s": 3.226,
+      "prompt_tokens": 50,
+      "completion_tokens": 116,
+      "reasoning_chars": 0,
+      "content_chars": 431,
+      "tok_per_s": 35.96,
+      "finish_reason": "stop",
+      "cap_hit": false,
+      "empty_content": false,
+      "ok_call": true,
+      "ok": true,
+      "ran": true,
+      "reason": "pycode:all_passed",
+      "detail": ""
+    },
+    {
+      "arm": "off",
+      "id": "py-chunk",
+      "rep": 0,
+      "wall_s": 1.206,
+      "prompt_tokens": 52,
+      "completion_tokens": 33,
+      "reasoning_chars": 0,
+      "content_chars": 86,
+      "tok_per_s": 27.35,
+      "finish_reason": "stop",
+      "cap_hit": false,
+      "empty_content": false,
+      "ok_call": true,
+      "ok": true,
+      "ran": true,
+      "reason": "pycode:all_passed",
+      "detail": ""
+    },
+    {
+      "arm": "off",
+      "id": "py-parse",
+      "rep": 0,
+      "wall_s": 2.291,
+      "prompt_tokens": 59,
+      "completion_tokens": 82,
+      "reasoning_chars": 0,
+      "content_chars": 349,
+      "tok_per_s": 35.79,
+      "finish_reason": "stop",
+      "cap_hit": false,
+      "empty_content": false,
+      "ok_call": true,
+      "ok": true,
+      "ran": true,
+      "reason": "pycode:all_passed",
+      "detail": ""
+    },
+    {
+      "arm": "off",
+      "id": "py-topk",
+      "rep": 0,
+      "wall_s": 2.289,
+      "prompt_tokens": 50,
+      "completion_tokens": 77,
+      "reasoning_chars": 0,
+      "content_chars": 283,
+      "tok_per_s": 33.64,
+      "finish_reason": "stop",
+      "cap_hit": false,
+      "empty_content": false,
+      "ok_call": true,
+      "ok": true,
+      "ran": true,
+      "reason": "pycode:all_passed",
+      "detail": ""
+    }
+  ]
+}

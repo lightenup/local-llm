@@ -1,0 +1,8 @@
+id      = "deadend_specprefill_dense"
+title   = "specprefill on a dense checkpoint"
+status  = "dead-end"
+models  = ["Qwen3.8-27B-8bit"]
+section = 8
+section_title = "What the validation runs settled"
+rationale = "No effect either, and marginally negative: prefill 673.6 vs 686.4 t/s at 16k, 530.4 vs 538.7 at 65k. It did not engage, which is what was predicted for a dense checkpoint. Stays off; revisit only for a sparse checkpoint (A1-class)."
+updated = 2026-09-22

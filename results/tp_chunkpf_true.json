@@ -1,0 +1,251 @@
+{
+  "label": "chunkpf_true",
+  "model_id": "Qwen3.8-27B-8bit",
+  "request": {
+    "prompt_lengths": [
+      16384,
+      65536,
+      131072
+    ],
+    "generation_length": 128,
+    "batch_sizes": [],
+    "context_profile": "code_python",
+    "warmup_mode": "quick",
+    "align_prompt_to_ane": false
+  },
+  "variant": {
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_bits": 4.0,
+    "mtp_enabled": false,
+    "vlm_mtp_enabled": true,
+    "vlm_mtp_draft_model": "Qwen3.8-27B-MTP-8bit",
+    "vlm_mtp_draft_block_size": 3,
+    "dflash_enabled": false,
+    "dflash_draft_model": null,
+    "specprefill_enabled": false
+  },
+  "summary": [
+    {
+      "test": "single",
+      "pp": 16384,
+      "tg": 128,
+      "batch_size": null,
+      "ttft_ms": 23362.8,
+      "tpot_ms": 31.72,
+      "prefill_tps": 701.3,
+      "decode_tps": 31.8,
+      "decode_tps_per_stream": 31.8,
+      "total_tps": 602.3,
+      "e2e_s": 27.415,
+      "gen_tokens": 128,
+      "gen_short": false,
+      "peak_gb": 36.96,
+      "mlx_active_peak_gb": 36.82,
+      "gpu_util_avg": 92.7
+    },
+    {
+      "test": "single",
+      "pp": 65536,
+      "tg": 128,
+      "batch_size": null,
+      "ttft_ms": 121475.2,
+      "tpot_ms": 40.46,
+      "prefill_tps": 539.5,
+      "decode_tps": 24.9,
+      "decode_tps_per_stream": 24.9,
+      "total_tps": 518.4,
+      "e2e_s": 126.666,
+      "gen_tokens": 128,
+      "gen_short": false,
+      "peak_gb": 44.51,
+      "mlx_active_peak_gb": 44.48,
+      "gpu_util_avg": 97.9
+    },
+    {
+      "test": "single",
+      "pp": 131072,
+      "tg": 128,
+      "batch_size": null,
+      "ttft_ms": 336813.5,
+      "tpot_ms": 43.97,
+      "prefill_tps": 389.2,
+      "decode_tps": 22.9,
+      "decode_tps_per_stream": 22.9,
+      "total_tps": 383.1,
+      "e2e_s": 342.504,
+      "gen_tokens": 128,
+      "gen_short": false,
+      "peak_gb": 54.89,
+      "mlx_active_peak_gb": 54.8,
+      "gpu_util_avg": 98.6
+    }
+  ],
+  "raw": {
+    "bench_id": "bench-6862f4ae666a",
+    "status": "completed",
+    "context_profile": "code_python",
+    "results": [
+      {
+        "test_type": "single",
+        "pp": 16384,
+        "tg": 128,
+        "ttft_ms": 23362.8,
+        "tpot_ms": 31.72,
+        "gen_tps": 31.8,
+        "processing_tps": 701.3,
+        "e2e_latency_s": 27.415,
+        "total_throughput": 602.3,
+        "peak_memory_bytes": 39683744416,
+        "prompt_tokens": 16384,
+        "completion_tokens": 128,
+        "cached_tokens": 0,
+        "system_metrics": {
+          "sample_count": 105,
+          "interval_s": 0.25,
+          "cpu": {
+            "total_avg": 6.8,
+            "total_max": 26.8,
+            "p_avg": 10.0,
+            "e_avg": 5.2
+          },
+          "memory": {
+            "phys_footprint_peak": 38.82,
+            "mlx_active_peak": 36.82,
+            "mlx_cache_peak": 2.51,
+            "system_used_peak": 62.99,
+            "system_wired_peak": 41.57,
+            "total_ram": 128
+          },
+          "gpu": {
+            "util_avg": 92.7,
+            "util_max": 100.0
+          },
+          "thermal": {
+            "start": 1,
+            "max": 1
+          }
+        }
+      },
+      {
+        "test_type": "single",
+        "pp": 65536,
+        "tg": 128,
+        "ttft_ms": 121475.2,
+        "tpot_ms": 40.46,
+        "gen_tps": 24.9,
+        "processing_tps": 539.5,
+        "e2e_latency_s": 126.666,
+        "total_throughput": 518.4,
+        "peak_memory_bytes": 47796077220,
+        "prompt_tokens": 65536,
+        "completion_tokens": 128,
+        "cached_tokens": 0,
+        "system_metrics": {
+          "sample_count": 488,
+          "interval_s": 0.25,
+          "cpu": {
+            "total_avg": 6.5,
+            "total_max": 35.7,
+            "p_avg": 10.4,
+            "e_avg": 4.5
+          },
+          "memory": {
+            "phys_footprint_peak": 49.56,
+            "mlx_active_peak": 44.48,
+            "mlx_cache_peak": 10.47,
+            "system_used_peak": 73.74,
+            "system_wired_peak": 52.32,
+            "total_ram": 128
+          },
+          "gpu": {
+            "util_avg": 97.9,
+            "util_max": 100.0
+          },
+          "thermal": {
+            "start": 1,
+            "max": 2
+          }
+        }
+      },
+      {
+        "test_type": "single",
+        "pp": 131072,
+        "tg": 128,
+        "ttft_ms": 336813.5,
+        "tpot_ms": 43.97,
+        "gen_tps": 22.9,
+        "processing_tps": 389.2,
+        "e2e_latency_s": 342.504,
+        "total_throughput": 383.1,
+        "peak_memory_bytes": 58933461668,
+        "prompt_tokens": 131072,
+        "completion_tokens": 128,
+        "cached_tokens": 0,
+        "system_metrics": {
+          "sample_count": 1320,
+          "interval_s": 0.25,
+          "cpu": {
+            "total_avg": 6.5,
+            "total_max": 38.9,
+            "p_avg": 10.5,
+            "e_avg": 4.5
+          },
+          "memory": {
+            "phys_footprint_peak": 63.68,
+            "mlx_active_peak": 54.8,
+            "mlx_cache_peak": 20.34,
+            "system_used_peak": 87.37,
+            "system_wired_peak": 66.1,
+            "total_ram": 128
+          },
+          "gpu": {
+            "util_avg": 98.6,
+            "util_max": 100.0
+          },
+          "thermal": {
+            "start": 2,
+            "max": 2
+          }
+        }
+      }
+    ],
+    "error": null,
+    "upload_state": {
+      "phase": "done",
+      "results": [
+        {
+          "context_length": 16384,
+          "error": "Internal server error"
+        },
+        {
+          "context_length": 65536,
+          "error": "Internal server error"
+        },
+        {
+          "context_length": 131072,
+          "error": "Internal server error"
+        }
+      ],
+      "total": 3,
+      "success_count": 0,
+      "failed_count": 3,
+      "owner_hash": "4cbb158a83d4a48f14a3b61678957e1187b07f58cc8b4880858b4a785602a8a3",
+      "skipped_reason": null,
+      "skipped_features": [],
+      "feature_flags": [
+        {
+          "key": "vlm_mtp",
+          "label": "VLM MTP"
+        }
+      ],
+      "skipped_count": 0
+    }
+  }
+}

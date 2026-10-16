@@ -1,0 +1,109 @@
+{
+  "sampler": "fast",
+  "strong": "coder",
+  "n": 4,
+  "problems": 12,
+  "bon_recovered": 2,
+  "strong_recovered": 6,
+  "bon_total_s": 368.8,
+  "strong_total_s": 390.9,
+  "ratio_A_over_B": 0.943,
+  "rows": [
+    {
+      "id": "2857",
+      "bon_pass": false,
+      "bon_s": 7.4,
+      "bon_checked": 4,
+      "strong_pass": true,
+      "strong_s": 9.0
+    },
+    {
+      "id": "3426",
+      "bon_pass": false,
+      "bon_s": 28.6,
+      "bon_checked": 4,
+      "strong_pass": false,
+      "strong_s": 7.1
+    },
+    {
+      "id": "3416",
+      "bon_pass": false,
+      "bon_s": 32.4,
+      "bon_checked": 4,
+      "strong_pass": true,
+      "strong_s": 13.8
+    },
+    {
+      "id": "3351",
+      "bon_pass": false,
+      "bon_s": 31.8,
+      "bon_checked": 4,
+      "strong_pass": false,
+      "strong_s": 10.8
+    },
+    {
+      "id": "3298",
+      "bon_pass": false,
+      "bon_s": 35.6,
+      "bon_checked": 4,
+      "strong_pass": false,
+      "strong_s": 121.8
+    },
+    {
+      "id": "3690",
+      "bon_pass": true,
+      "bon_s": 38.6,
+      "bon_checked": 2,
+      "strong_pass": false,
+      "strong_s": 112.2
+    },
+    {
+      "id": "2883",
+      "bon_pass": false,
+      "bon_s": 37.8,
+      "bon_checked": 4,
+      "strong_pass": false,
+      "strong_s": 14.0
+    },
+    {
+      "id": "2878",
+      "bon_pass": false,
+      "bon_s": 42.6,
+      "bon_checked": 4,
+      "strong_pass": true,
+      "strong_s": 35.1
+    },
+    {
+      "id": "abc301_b",
+      "bon_pass": true,
+      "bon_s": 32.2,
+      "bon_checked": 1,
+      "strong_pass": false,
+      "strong_s": 10.1
+    },
+    {
+      "id": "3375",
+      "bon_pass": false,
+      "bon_s": 17.5,
+      "bon_checked": 4,
+      "strong_pass": true,
+      "strong_s": 27.5
+    },
+    {
+      "id": "3773",
+      "bon_pass": false,
+      "bon_s": 31.4,
+      "bon_checked": 4,
+      "strong_pass": true,
+      "strong_s": 15.4
+    },
+    {
+      "id": "2868",
+      "bon_pass": false,
+      "bon_s": 32.9,
+      "bon_checked": 4,
+      "strong_pass": true,
+      "strong_s": 14.1
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "at": "2026-09-11T11:21:27+00:00",
+  "results": [
+    {
+      "model": "Qwen3.8-27B-8bit:qwen-agent",
+      "direct": {
+        "ok": true,
+        "why": "ok",
+        "name": "edit_file",
+        "args": {
+          "path": "/tmp/demo/app.py",
+          "old_string": "timeout = 30",
+          "new_string": "timeout = 120"
+        },
+        "n_calls": 1,
+        "wall_s": 3.24
+      },
+      "proxy": {
+        "ok": true,
+        "why": "ok",
+        "name": "edit_file",
+        "args": {
+          "path": "/tmp/demo/app.py",
+          "old_string": "timeout = 30",
+          "new_string": "timeout = 120"
+        },
+        "n_calls": 1,
+        "wall_s": 2.27
+      },
+      "verdict": "hop preserves tool calls"
+    },
+    {
+      "model": "Qwen3-Coder-Next-6bit:cn-agent",
+      "direct": {
+        "ok": true,
+        "why": "ok",
+        "name": "edit_file",
+        "args": {
+          "path": "/tmp/demo/app.py",
+          "old_string": "timeout = 30",
+          "new_string": "timeout = 120"
+        },
+        "n_calls": 1,
+        "wall_s": 1.25
+      },
+      "proxy": {
+        "ok": true,
+        "why": "ok",
+        "name": "edit_file",
+        "args": {
+          "path": "/tmp/demo/app.py",
+          "old_string": "timeout = 30",
+          "new_string": "timeout = 120"
+        },
+        "n_calls": 1,
+        "wall_s": 1.08
+      },
+      "verdict": "hop preserves tool calls"
+    }
+  ]
+}

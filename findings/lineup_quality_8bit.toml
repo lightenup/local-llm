@@ -1,0 +1,30 @@
+id      = "lineup_quality_8bit"
+title   = "Qwen3.8-27B-8bit ships the quality tier"
+status  = "shipped"
+tier    = "quality"
+models  = ["Qwen3.8-27B-8bit"]
+section = 19
+section_title = "The lineup: 8-bit for quality, oQ4e for speed"
+updated = 2026-09-22
+
+[[metrics]]
+name      = "decode @ 16k prompt"
+unit      = "tok/s"
+direction = "higher"
+headline  = true
+tooltip_what     = "Sustained decode throughput at a 16,384-token prompt, single stream."
+tooltip_how      = "bench/throughput.py, code_python context, 128-token generations."
+tooltip_evidence = "Deterministic sampling; MTP on; see §4 for the A/B."
+source_file = "tp_mtp.json"
+source_path  = "summary[?pp=16384].decode_tps"
+
+[[metrics]]
+name      = "context ceiling"
+unit      = "tokens"
+direction = "higher"
+headline  = false
+tooltip_what     = "Verified context window served by the quality tier."
+tooltip_how      = "bench context-window verification, needle retrieval at depth."
+tooltip_evidence = "Verified to the full 262,144-token window; see §8."
+source_file = "ctx_mtp.json"
+source_path  = "raw.result.verified_tokens"

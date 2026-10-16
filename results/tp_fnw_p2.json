@@ -1,0 +1,119 @@
+{
+  "label": "fnw_p2",
+  "model_id": "Qwen3.8-Flash-Next-oQ4e-mtp",
+  "request": {
+    "prompt_lengths": [
+      16384
+    ],
+    "generation_length": 128,
+    "batch_sizes": [],
+    "context_profile": "code_python",
+    "warmup_mode": "quick",
+    "align_prompt_to_ane": false
+  },
+  "variant": {
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_bits": 4.0,
+    "mtp_enabled": true,
+    "vlm_mtp_enabled": false,
+    "vlm_mtp_draft_model": null,
+    "vlm_mtp_draft_block_size": null,
+    "dflash_enabled": false,
+    "dflash_draft_model": null,
+    "specprefill_enabled": false,
+    "qwen4_ple_ssd_offload": true
+  },
+  "summary": [
+    {
+      "test": "single",
+      "pp": 16384,
+      "tg": 128,
+      "batch_size": null,
+      "ttft_ms": 13172.9,
+      "tpot_ms": null,
+      "prefill_tps": 1243.8,
+      "decode_tps": null,
+      "decode_tps_per_stream": null,
+      "total_tps": 1234.0,
+      "e2e_s": 13.278,
+      "gen_tokens": 1,
+      "gen_short": true,
+      "peak_gb": 72.67,
+      "mlx_active_peak_gb": 72.59,
+      "gpu_util_avg": 86.6
+    }
+  ],
+  "raw": {
+    "bench_id": "bench-7cc53fc9b941",
+    "status": "completed",
+    "context_profile": "code_python",
+    "results": [
+      {
+        "test_type": "single",
+        "pp": 16384,
+        "tg": 128,
+        "ttft_ms": 13172.9,
+        "tpot_ms": null,
+        "gen_tps": null,
+        "processing_tps": 1243.8,
+        "e2e_latency_s": 13.278,
+        "total_throughput": 1234.0,
+        "peak_memory_bytes": 78033265230,
+        "prompt_tokens": 16384,
+        "completion_tokens": 1,
+        "cached_tokens": 0,
+        "system_metrics": {
+          "sample_count": 52,
+          "interval_s": 0.25,
+          "cpu": {
+            "total_avg": 8.1,
+            "total_max": 20.9,
+            "p_avg": 11.3,
+            "e_avg": 6.5
+          },
+          "memory": {
+            "phys_footprint_peak": 74.37,
+            "mlx_active_peak": 72.59,
+            "mlx_cache_peak": 1.46,
+            "system_used_peak": 98.93,
+            "system_wired_peak": 78.14,
+            "total_ram": 128
+          },
+          "gpu": {
+            "util_avg": 86.6,
+            "util_max": 100.0
+          },
+          "thermal": {
+            "start": 0,
+            "max": 0
+          }
+        }
+      }
+    ],
+    "error": null,
+    "upload_state": {
+      "phase": "done",
+      "results": [],
+      "total": 0,
+      "success_count": 0,
+      "failed_count": 0,
+      "owner_hash": "4cbb158a83d4a48f14a3b61678957e1187b07f58cc8b4880858b4a785602a8a3",
+      "skipped_reason": null,
+      "skipped_features": [],
+      "feature_flags": [
+        {
+          "key": "lightning_mtp",
+          "label": "Lightning MTP"
+        }
+      ],
+      "skipped_count": 1
+    }
+  }
+}

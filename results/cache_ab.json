@@ -1,0 +1,441 @@
+{
+  "timestamp": "2026-09-08T01:43:41.058376+00:00",
+  "model_id": "Qwen3.8-27B-8bit",
+  "engine_variant": {
+    "turboquant_kv_bits": 4.0,
+    "turboquant_skip_last": true,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_max_layers": 64,
+    "qwen35_ane_prefill_dual_ane": true,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_gdn_max_layers": 48,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "qwen35_ane_prefill_cpu_threads": 8,
+    "qwen35_ane_prefill_cpu_shared_resource": true,
+    "dflash_in_memory_cache": true,
+    "dflash_in_memory_cache_max_entries": 4,
+    "dflash_in_memory_cache_max_bytes": 8589934592,
+    "dflash_ssd_cache_max_bytes": 21474836480,
+    "vlm_mtp_enabled": true,
+    "vlm_mtp_draft_model": "Qwen3.8-27B-MTP-8bit",
+    "vlm_mtp_draft_block_size": 3
+  },
+  "hot_cache_before": "0",
+  "hot_cache_restored_to": "0",
+  "request": {
+    "model": "Qwen3.8-27B-8bit",
+    "hot_size": "20GB",
+    "prefix_tokens": 16384,
+    "repeats": 6,
+    "churn": 4,
+    "max_tokens": 48,
+    "arms": "both",
+    "restore": "0"
+  },
+  "arms": [
+    {
+      "arm": "baseline",
+      "hot_cache_requested": "0",
+      "hot_cache_reported": "0",
+      "prefix_tag": "40NO6A87V8",
+      "cold": {
+        "question": "Which component is described as having torque va",
+        "wall_s": 12.58,
+        "prompt_tokens": 9272,
+        "cached_tokens": 0,
+        "cached_frac": 0.0,
+        "completion_tokens": 48,
+        "probe_before": {
+          "total_blocks": 5,
+          "hot": 0,
+          "disk": 0,
+          "cold": 5,
+          "ssd_hit_tokens": 0
+        }
+      },
+      "repeats": [
+        {
+          "question": "In one sentence, what kind of document is the co",
+          "wall_s": 3.54,
+          "prompt_tokens": 9275,
+          "cached_tokens": 8192,
+          "cached_frac": 0.883,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          }
+        },
+        {
+          "question": "Name one thing the inspection found.",
+          "wall_s": 3.15,
+          "prompt_tokens": 9269,
+          "cached_tokens": 8192,
+          "cached_frac": 0.884,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 4,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        },
+        {
+          "question": "Was any anomaly detected? Answer yes or no.",
+          "wall_s": 3.43,
+          "prompt_tokens": 9272,
+          "cached_tokens": 8192,
+          "cached_frac": 0.884,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 4,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        },
+        {
+          "question": "What is logged against each fastener?",
+          "wall_s": 3.18,
+          "prompt_tokens": 9270,
+          "cached_tokens": 8192,
+          "cached_frac": 0.884,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 4,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        },
+        {
+          "question": "Summarise the context in under ten words.",
+          "wall_s": 3.93,
+          "prompt_tokens": 9272,
+          "cached_tokens": 8192,
+          "cached_frac": 0.884,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 4,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        },
+        {
+          "question": "Is this a maintenance record or a sales contract",
+          "wall_s": 3.58,
+          "prompt_tokens": 9272,
+          "cached_tokens": 8192,
+          "cached_frac": 0.884,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 4,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        }
+      ],
+      "churn": [
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 12.88,
+          "prompt_tokens": 9189,
+          "cached_tokens": 0,
+          "cached_frac": 0.0,
+          "completion_tokens": 8,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          },
+          "churn_round": 0
+        },
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 12.81,
+          "prompt_tokens": 9162,
+          "cached_tokens": 0,
+          "cached_frac": 0.0,
+          "completion_tokens": 8,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          },
+          "churn_round": 1
+        },
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 12.91,
+          "prompt_tokens": 9162,
+          "cached_tokens": 0,
+          "cached_frac": 0.0,
+          "completion_tokens": 8,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          },
+          "churn_round": 2
+        },
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 12.92,
+          "prompt_tokens": 9189,
+          "cached_tokens": 0,
+          "cached_frac": 0.0,
+          "completion_tokens": 8,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          },
+          "churn_round": 3
+        }
+      ],
+      "post_churn": {
+        "question": "Which component is described as having torque va",
+        "wall_s": 3.68,
+        "prompt_tokens": 9272,
+        "cached_tokens": 8192,
+        "cached_frac": 0.884,
+        "completion_tokens": 48,
+        "probe_before": {
+          "total_blocks": 5,
+          "hot": 0,
+          "disk": 4,
+          "cold": 1,
+          "ssd_hit_tokens": 8192
+        }
+      },
+      "summary": {
+        "cold_s": 12.58,
+        "repeat_median_s": 3.49,
+        "repeat_median_cached_frac": 0.884,
+        "post_churn_s": 3.68,
+        "post_churn_cached_frac": 0.884
+      }
+    },
+    {
+      "arm": "hot",
+      "hot_cache_requested": "20GB",
+      "hot_cache_reported": "20GB",
+      "prefix_tag": "R9QQM034DQ",
+      "cold": {
+        "question": "Which component is described as having torque va",
+        "wall_s": 14.39,
+        "prompt_tokens": 9245,
+        "cached_tokens": 0,
+        "cached_frac": 0.0,
+        "completion_tokens": 48,
+        "probe_before": {
+          "total_blocks": 5,
+          "hot": 0,
+          "disk": 0,
+          "cold": 5,
+          "ssd_hit_tokens": 0
+        }
+      },
+      "repeats": [
+        {
+          "question": "In one sentence, what kind of document is the co",
+          "wall_s": 4.04,
+          "prompt_tokens": 9248,
+          "cached_tokens": 8192,
+          "cached_frac": 0.886,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          }
+        },
+        {
+          "question": "Name one thing the inspection found.",
+          "wall_s": 3.87,
+          "prompt_tokens": 9242,
+          "cached_tokens": 8192,
+          "cached_frac": 0.886,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 4,
+            "disk": 0,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        },
+        {
+          "question": "Was any anomaly detected? Answer yes or no.",
+          "wall_s": 4.08,
+          "prompt_tokens": 9245,
+          "cached_tokens": 8192,
+          "cached_frac": 0.886,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 4,
+            "disk": 0,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        },
+        {
+          "question": "What is logged against each fastener?",
+          "wall_s": 3.85,
+          "prompt_tokens": 9243,
+          "cached_tokens": 8192,
+          "cached_frac": 0.886,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 4,
+            "disk": 0,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        },
+        {
+          "question": "Summarise the context in under ten words.",
+          "wall_s": 4.32,
+          "prompt_tokens": 9245,
+          "cached_tokens": 8192,
+          "cached_frac": 0.886,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 4,
+            "disk": 0,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        },
+        {
+          "question": "Is this a maintenance record or a sales contract",
+          "wall_s": 3.76,
+          "prompt_tokens": 9245,
+          "cached_tokens": 8192,
+          "cached_frac": 0.886,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 4,
+            "disk": 0,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        }
+      ],
+      "churn": [
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 14.38,
+          "prompt_tokens": 9189,
+          "cached_tokens": 0,
+          "cached_frac": 0.0,
+          "completion_tokens": 8,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          },
+          "churn_round": 0
+        },
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 13.99,
+          "prompt_tokens": 9189,
+          "cached_tokens": 0,
+          "cached_frac": 0.0,
+          "completion_tokens": 8,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          },
+          "churn_round": 1
+        },
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 14.06,
+          "prompt_tokens": 9162,
+          "cached_tokens": 0,
+          "cached_frac": 0.0,
+          "completion_tokens": 8,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          },
+          "churn_round": 2
+        },
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 14.06,
+          "prompt_tokens": 9189,
+          "cached_tokens": 0,
+          "cached_frac": 0.0,
+          "completion_tokens": 8,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          },
+          "churn_round": 3
+        }
+      ],
+      "post_churn": {
+        "question": "Which component is described as having torque va",
+        "wall_s": 3.93,
+        "prompt_tokens": 9245,
+        "cached_tokens": 8192,
+        "cached_frac": 0.886,
+        "completion_tokens": 48,
+        "probe_before": {
+          "total_blocks": 5,
+          "hot": 4,
+          "disk": 0,
+          "cold": 1,
+          "ssd_hit_tokens": 8192
+        }
+      },
+      "summary": {
+        "cold_s": 14.39,
+        "repeat_median_s": 3.96,
+        "repeat_median_cached_frac": 0.886,
+        "post_churn_s": 3.93,
+        "post_churn_cached_frac": 0.886
+      }
+    }
+  ]
+}

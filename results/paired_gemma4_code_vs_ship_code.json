@@ -1,0 +1,103 @@
+{
+  "arm_a": "acc_ship_code",
+  "arm_b": "acc_gemma4_code",
+  "suites": {
+    "humaneval": {
+      "n_shared": 164,
+      "both_correct": 150,
+      "neither_correct": 4,
+      "only_a_correct": 4,
+      "only_b_correct": 6,
+      "discordant": 10,
+      "net_to_b": 2,
+      "score_a": 93.9,
+      "score_b": 95.12,
+      "p_value": 0.75391,
+      "flips_to_a_sample": [
+        "HumanEval/10",
+        "HumanEval/101",
+        "HumanEval/103",
+        "HumanEval/129"
+      ],
+      "flips_to_b_sample": [
+        "HumanEval/115",
+        "HumanEval/130",
+        "HumanEval/160",
+        "HumanEval/83",
+        "HumanEval/91",
+        "HumanEval/99"
+      ]
+    },
+    "mbpp": {
+      "n_shared": 500,
+      "both_correct": 383,
+      "neither_correct": 55,
+      "only_a_correct": 19,
+      "only_b_correct": 43,
+      "discordant": 62,
+      "net_to_b": 24,
+      "score_a": 80.4,
+      "score_b": 85.2,
+      "p_value": 0.00316,
+      "flips_to_a_sample": [
+        "122",
+        "125",
+        "139",
+        "142",
+        "183",
+        "184",
+        "20",
+        "236"
+      ],
+      "flips_to_b_sample": [
+        "104",
+        "108",
+        "110",
+        "112",
+        "119",
+        "121",
+        "140",
+        "147"
+      ]
+    },
+    "livecodebench": {
+      "n_shared": 500,
+      "both_correct": 272,
+      "neither_correct": 106,
+      "only_a_correct": 27,
+      "only_b_correct": 95,
+      "discordant": 122,
+      "net_to_b": 68,
+      "score_a": 59.8,
+      "score_b": 73.4,
+      "p_value": 0.0,
+      "flips_to_a_sample": [
+        "2847",
+        "2854",
+        "2866",
+        "2916",
+        "2953",
+        "3026",
+        "3045",
+        "3329"
+      ],
+      "flips_to_b_sample": [
+        "2730",
+        "2785",
+        "2831",
+        "2834",
+        "2848",
+        "2868",
+        "2876",
+        "2878"
+      ]
+    }
+  },
+  "pooled": {
+    "questions": 1164,
+    "flips_to_a": 50,
+    "flips_to_b": 144,
+    "p_value": 0.0
+  },
+  "verdict": "B is better (p=0.00000, pooled across suites)"
+}

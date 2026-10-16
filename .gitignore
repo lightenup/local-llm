@@ -1,0 +1,20 @@
+__pycache__/
+*.pyc
+
+# Original oMLX config, kept on disk for restore. Never committed:
+# settings.json contains auth.api_key and auth.secret_key.
+results/backup/
+
+# Proxy secrets: master key, salt key, Postgres password, the oMLX API key.
+proxy/.env
+
+# This machine's facts and settings: LAN addresses, label prefix, paths.
+# Public docs use placeholders that LOCAL.md resolves.
+LOCAL.md
+.env.local
+CLAUDE.local.md
+
+# Raw run logs stay on disk but are not published: they carry home paths and
+# tracebacks. The JSON in results/ is the record.
+results/*.log
+results/*.out

@@ -1,0 +1,96 @@
+{
+  "label": "smoke_tiel",
+  "model": "Tiel-Coder-35B-A3B-MLX-oQ4e",
+  "at": "2026-09-21T19:33:55+00:00",
+  "repeats": 1,
+  "rows": [
+    {
+      "id": "tool-edit",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 76,
+      "wall_s": 4.89
+    },
+    {
+      "id": "tool-search",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 75,
+      "wall_s": 0.93
+    },
+    {
+      "id": "htool-nested",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 84,
+      "wall_s": 1.03
+    },
+    {
+      "id": "htool-escape",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 198,
+      "wall_s": 1.94
+    },
+    {
+      "id": "tool-edit2",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 73,
+      "wall_s": 0.91
+    },
+    {
+      "id": "hschema-enum",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 97,
+      "wall_s": 1.13
+    },
+    {
+      "id": "hschema-nested",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 106,
+      "wall_s": 1.24
+    },
+    {
+      "id": "hschema-semver",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 76,
+      "wall_s": 1.0
+    }
+  ]
+}

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Findings — local-LLM stack</title>
+<style>
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+       margin: 0; padding: 0; color: #1a1a1a; background: #ffffff;
+       line-height: 1.5; }
+.skip { position: absolute; left: -9999px; top: 0; z-index: 100;
+        padding: .5rem 1rem; background: #0b5ed7; color: #fff; }
+.skip:focus { left: 0; }
+header { max-width: 56rem; margin: 0 auto; padding: 1.5rem 1rem .5rem; }
+h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.2rem; border-bottom: 1px solid #ccc; padding-bottom: .3rem;
+     margin-top: 2rem; }
+h3 { font-size: 1rem; margin-top: 1.2rem; }
+h4 { font-size: .95rem; margin-top: 1rem; }
+.stamp { color: #595959; font-size: .85rem; font-weight: normal; }
+.bar { position: sticky; top: 0; background: #ffffff; border-bottom: 1px solid #ddd;
+       padding: .5rem 1rem; z-index: 10; display: flex; flex-wrap: wrap;
+       gap: .5rem; align-items: center; }
+.bar nav { display: flex; gap: .75rem; }
+.bar nav a { color: #0b5ed7; text-decoration: none; font-weight: 500; }
+.bar nav a:hover { text-decoration: underline; }
+.controls { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center;
+            margin-left: auto; }
+.controls label { font-size: .8rem; color: #595959; display: flex;
+                  align-items: center; gap: .2rem; }
+.controls select, .controls input[type="search"] {
+    font-size: .8rem; padding: .2rem .3rem; border: 1px solid #ccc;
+    border-radius: .2rem; }
+.controls button { font-size: .8rem; padding: .2rem .5rem; border: 1px solid #ccc;
+                   border-radius: .2rem; background: #f5f5f5; cursor: pointer; }
+.controls button:hover { background: #e8e8e8; }
+#f-count { font-size: .8rem; color: #595959; margin: 0; }
+main { max-width: 56rem; margin: 0 auto; padding: 0 1rem 3rem; }
+section { margin-top: 1.5rem; }
+table { border-collapse: collapse; margin: .5rem 0 1rem; width: 100%; }
+th, td { border: 1px solid #ddd; padding: .35rem .6rem; text-align: left;
+         vertical-align: top; word-wrap: break-word; overflow-wrap: break-word; }
+th { background: #f5f5f5; }
+th button { font: inherit; font-weight: 600; background: none; border: none;
+            cursor: pointer; padding: 0; color: inherit; }
+th button:hover { text-decoration: underline; }
+.badge { display: inline-block; padding: .1rem .5rem; border-radius: .3rem;
+         font-size: .8rem; font-weight: 600; border: 1px solid; }
+.badge-shipped { background: #d4edda; color: #155724; border-color: #155724; }
+.badge-on-trial { background: #fff3cd; color: #856404; border-color: #856404; }
+.badge-retired { background: #e2e3e5; color: #383d41; border-color: #383d41; }
+.badge-dead-end { background: #f8d7da; color: #721c24; border-color: #721c24; }
+.badge-open { background: #d1ecf1; color: #0c5460; border-color: #0c5460; }
+.marker-stale { background: #f8d7da; color: #721c24; padding: .1rem .4rem;
+                border-radius: .3rem; font-size: .8rem; font-weight: 600;
+                border: 1px solid #721c24; }
+.marker-none { background: #e2e3e5; color: #383d41; padding: .1rem .4rem;
+               border-radius: .3rem; font-size: .8rem; border: 1px solid #383d41; }
+.empty-state { color: #595959; font-style: italic; }
+a { color: #0b5ed7; }
+.tier { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em;
+        color: #595959; font-weight: 700; }
+.details { font-size: .8rem; color: #595959; margin: .1rem 0 .4rem; }
+.details b { color: #1a1a1a; }
+#tooltip { display: none; position: fixed; z-index: 100; max-width: 28rem;
+           background: #222; color: #fff; padding: .6rem .8rem;
+           border-radius: .4rem; font-size: .85rem; line-height: 1.4;
+           white-space: normal; word-wrap: break-word; }
+#tooltip .tt-title { font-weight: 600; margin-bottom: .2rem; }
+#tooltip a { color: #9ecbff; }
+svg text { font-size: 11px; fill: #1a1a1a; }
+.bar-rect { fill: #4dabf7; }
+.bar-rect:hover, .bar-rect:focus { fill: #1971c2; }
+:focus-visible { outline: 2px solid #0b5ed7; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div id="tooltip"></div>
+<header>
+<h1>Findings — local-LLM stack <span class="stamp">[generated at: 2026-10-11 07:31:43 CEST]</span></h1>
+<div class="bar">
+<nav aria-label="Views">
+<a href="#lineup">Live lineup</a>
+<a href="#board">Candidate status board</a>
+<a href="#dead-ends">Settled dead ends</a>
+</nav>
+<form class="controls" role="search">
+<label>Model <select id="f-model"><option value="all">all</option><option value="GLM-5.2">GLM-5.2</option><option value="Qwen3-Coder-Next-6bit">Qwen3-Coder-Next-6bit</option><option value="Qwen3.8-27B-8bit">Qwen3.8-27B-8bit</option><option value="Qwen3.8-27B-OptiQ-4bit">Qwen3.8-27B-OptiQ-4bit</option><option value="Qwen3.8-27B-oQ4e">Qwen3.8-27B-oQ4e</option><option value="Qwen3.8-35B-A3B-Distill-oQ8">Qwen3.8-35B-A3B-Distill-oQ8</option><option value="Qwen3.8-Flash-Next-oQ4e-mtp">Qwen3.8-Flash-Next-oQ4e-mtp</option><option value="Tiel-Coder-35B-A3B-MLX-oQ4e">Tiel-Coder-35B-A3B-MLX-oQ4e</option><option value="gemma-4-31B">gemma-4-31B</option></select></label>
+<label>Tier <select id="f-tier"><option value="all">all</option><option value="quality">quality</option><option value="fast">fast</option><option value="additive">additive</option></select></label>
+<label>Status <select id="f-status"><option value="all">all</option><option value="shipped">shipped</option><option value="on-trial">on-trial</option><option value="retired">retired</option><option value="dead-end">dead-end</option><option value="open">open</option></select></label>
+<label>Search <input type="search" id="f-text"></label>
+<button id="f-clear" type="button">Clear filters</button>
+<p id="f-count" role="status">16 of 16 findings</p>
+</form>
+</div>
+</header>
+<main id="main">
+<section id="lineup" aria-labelledby="lineup-h">
+<h2 id="lineup-h" tabindex="-1">Live lineup</h2>
+<h3 class="tier">quality tier</h3>
+<div class="finding" data-model="Qwen3.8-27B-8bit" data-tier="quality" data-status="shipped" data-title="Qwen3.8-27B-8bit ships the quality tier" data-rationale="">
+<h4>Qwen3.8-27B-8bit ships the quality tier</h4>
+<table>
+<tr><th scope="col" aria-sort="none"><button>metric</button></th><th scope="col" aria-sort="none" data-sort="higher"><button>value</button></th><th scope="col" aria-sort="none"><button>unit</button></th></tr>
+<tr><td><span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;decode @ 16k prompt&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Sustained decode throughput at a 16,384-token prompt, single stream.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/throughput.py, code_python context, 128-token generations.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — Deterministic sampling; MTP on; see §4 for the A/B.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed&quot;&gt;FINDINGS §19&lt;/a&gt; · &lt;a href=&quot;../results/tp_mtp.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">decode @ 16k prompt</span></td><td data-value="34.0"><a href="../results/tp_mtp.json">34.0</a></td><td>tok/s</td></tr>
+<div class="details"><b>what</b> Sustained decode throughput at a 16,384-token prompt, single stream. <b>how</b> bench/throughput.py, code_python context, 128-token generations. <b>evidence</b> Deterministic sampling; MTP on; see §4 for the A/B.  <b>links</b> <a href="docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed">FINDINGS §19</a> · <a href="../results/tp_mtp.json">raw results</a></div>
+<tr><td><span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;context ceiling&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Verified context window served by the quality tier.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench context-window verification, needle retrieval at depth.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — Verified to the full 262,144-token window; see §8.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed&quot;&gt;FINDINGS §19&lt;/a&gt; · &lt;a href=&quot;../results/ctx_mtp.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">context ceiling</span></td><td data-value="262144"><a href="../results/ctx_mtp.json">262144</a></td><td>tokens</td></tr>
+<div class="details"><b>what</b> Verified context window served by the quality tier. <b>how</b> bench context-window verification, needle retrieval at depth. <b>evidence</b> Verified to the full 262,144-token window; see §8.  <b>links</b> <a href="docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed">FINDINGS §19</a> · <a href="../results/ctx_mtp.json">raw results</a></div>
+</table>
+</div>
+<h3 class="tier">fast tier</h3>
+<div class="finding" data-model="Qwen3.8-27B-oQ4e" data-tier="fast" data-status="shipped" data-title="Qwen3.8-27B-oQ4e ships the fast tier" data-rationale="">
+<h4>Qwen3.8-27B-oQ4e ships the fast tier</h4>
+<table>
+<tr><th>metric</th><th>value</th><th>unit</th></tr>
+<tr><td><span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;decode @ 16k prompt&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Sustained decode throughput at a 16,384-token prompt, single stream.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/throughput.py, code_python context, 128-token generations.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — Deterministic sampling; 1.73x the 8-bit at 16 GB; see §19.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed&quot;&gt;FINDINGS §19&lt;/a&gt; · &lt;a href=&quot;../results/tp_oq4e.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">decode @ 16k prompt</span></td><td data-value="58.8"><a href="../results/tp_oq4e.json">58.8</a></td><td>tok/s</td></tr>
+<div class="details"><b>what</b> Sustained decode throughput at a 16,384-token prompt, single stream. <b>how</b> bench/throughput.py, code_python context, 128-token generations. <b>evidence</b> Deterministic sampling; 1.73x the 8-bit at 16 GB; see §19.  <b>links</b> <a href="docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed">FINDINGS §19</a> · <a href="../results/tp_oq4e.json">raw results</a></div>
+</table>
+</div>
+<h3 class="tier">additive tier</h3>
+<div class="finding" data-model="gemma-4-31B" data-tier="additive" data-status="shipped" data-title="gemma-4-31B is the additive tier" data-rationale="">
+<h4>gemma-4-31B is the additive tier</h4>
+<table>
+<tr><th scope="col" aria-sort="none"><button>metric</button></th><th scope="col" aria-sort="none" data-sort="higher"><button>value</button></th><th scope="col" aria-sort="none"><button>unit</button></th></tr>
+<tr><td><span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;livecodebench accuracy&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — LiveCodeBench competitive-programming accuracy, 500 samples.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/accuracy.py code, batch 8, thinking off, deterministic sampling.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — Paired McNemar against the shipped 8-bit; see §30.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#30-gemma-4-31b-wins-both-measured-axes-and-costs-18x-the-decode-to-do-it&quot;&gt;FINDINGS §30&lt;/a&gt; · &lt;a href=&quot;../results/acc_gemma4_code.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">livecodebench accuracy</span></td><td data-value="0.734"><a href="../results/acc_gemma4_code.json">0.734</a></td><td>score</td></tr>
+<div class="details"><b>what</b> LiveCodeBench competitive-programming accuracy, 500 samples. <b>how</b> bench/accuracy.py code, batch 8, thinking off, deterministic sampling. <b>evidence</b> Paired McNemar against the shipped 8-bit; see §30.  <b>links</b> <a href="docs/FINDINGS.md#30-gemma-4-31b-wins-both-measured-axes-and-costs-18x-the-decode-to-do-it">FINDINGS §30</a> · <a href="../results/acc_gemma4_code.json">raw results</a></div>
+<tr><td><span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;mmlu_pro accuracy&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — MMLU-Pro multi-domain reasoning accuracy, 500 samples.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/accuracy.py reason, batch 8, thinking off, deterministic sampling.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — +9.0 over the 8-bit, p = 0.00006; see §29.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#30-gemma-4-31b-wins-both-measured-axes-and-costs-18x-the-decode-to-do-it&quot;&gt;FINDINGS §30&lt;/a&gt; · &lt;a href=&quot;../results/acc_gemma4_reason.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">mmlu_pro accuracy</span></td><td data-value="0.73"><a href="../results/acc_gemma4_reason.json">0.73</a></td><td>score</td></tr>
+<div class="details"><b>what</b> MMLU-Pro multi-domain reasoning accuracy, 500 samples. <b>how</b> bench/accuracy.py reason, batch 8, thinking off, deterministic sampling. <b>evidence</b> +9.0 over the 8-bit, p = 0.00006; see §29.  <b>links</b> <a href="docs/FINDINGS.md#30-gemma-4-31b-wins-both-measured-axes-and-costs-18x-the-decode-to-do-it">FINDINGS §30</a> · <a href="../results/acc_gemma4_reason.json">raw results</a></div>
+<tr><td><span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;context ceiling&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Verified context window; gemma fails above 65k on prefill transient memory.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/longctx_quality.py, five depths plus multi-hop, 65k/131k/262k.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — 6/6 at 65,536; 131k refused at ~98.5 GB peak; see §32.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#30-gemma-4-31b-wins-both-measured-axes-and-costs-18x-the-decode-to-do-it&quot;&gt;FINDINGS §30&lt;/a&gt; · &lt;a href=&quot;../results/longctx_gemma4.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">context ceiling</span></td><td data-value="65225"><a href="../results/longctx_gemma4.json">65225</a></td><td>tokens</td></tr>
+<div class="details"><b>what</b> Verified context window; gemma fails above 65k on prefill transient memory. <b>how</b> bench/longctx_quality.py, five depths plus multi-hop, 65k/131k/262k. <b>evidence</b> 6/6 at 65,536; 131k refused at ~98.5 GB peak; see §32.  <b>links</b> <a href="docs/FINDINGS.md#30-gemma-4-31b-wins-both-measured-axes-and-costs-18x-the-decode-to-do-it">FINDINGS §30</a> · <a href="../results/longctx_gemma4.json">raw results</a></div>
+</table>
+</div>
+<h4>decode @ 16k prompt (tok/s)</h4>
+<svg width="541" height="110" role="img" aria-label="decode @ 16k prompt"><line x1="130.0" y1="12" x2="130.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="220.0" y1="12" x2="220.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="310.0" y1="12" x2="310.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="400.0" y1="12" x2="400.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="490.0" y1="12" x2="490.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="130" y1="72" x2="490" y2="72" stroke="#999" stroke-width="1"/><text x="130.0" y="88" text-anchor="middle" font-size="11" fill="#595959">0</text><text x="220.0" y="88" text-anchor="middle" font-size="11" fill="#595959">25.0</text><text x="310.0" y="88" text-anchor="middle" font-size="11" fill="#595959">50.0</text><text x="400.0" y="88" text-anchor="middle" font-size="11" fill="#595959">75.0</text><text x="490.0" y="88" text-anchor="middle" font-size="11" fill="#595959">100</text><text x="122" y="31.0" text-anchor="end" font-size="11" fill="#1a1a1a">Qwen3.8-27B-8bit</text><rect class="bar" x="130" y="17" width="122.4" height="20" tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;decode @ 16k prompt&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Sustained decode throughput at a 16,384-token prompt, single stream.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/throughput.py, code_python context, 128-token generations.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — Deterministic sampling; MTP on; see §4 for the A/B.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed&quot;&gt;FINDINGS §19&lt;/a&gt; · &lt;a href=&quot;../results/tp_mtp.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;" aria-label="Qwen3.8-27B-8bit: 34.0 tok/s" fill="#0b5ed7"/><text x="256.4" y="31.0" text-anchor="start" font-size="11" fill="#1a1a1a">34.0</text><text x="122" y="61.0" text-anchor="end" font-size="11" fill="#1a1a1a">Qwen3.8-27B-oQ4e</text><rect class="bar" x="130" y="47" width="211.7" height="20" tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;decode @ 16k prompt&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Sustained decode throughput at a 16,384-token prompt, single stream.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/throughput.py, code_python context, 128-token generations.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — Deterministic sampling; 1.73x the 8-bit at 16 GB; see §19.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed&quot;&gt;FINDINGS §19&lt;/a&gt; · &lt;a href=&quot;../results/tp_oq4e.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;" aria-label="Qwen3.8-27B-oQ4e: 58.8 tok/s" fill="#0b5ed7"/><text x="345.7" y="61.0" text-anchor="start" font-size="11" fill="#1a1a1a">58.8</text></svg>
+<p class="no-match" id="no-match-lineup" hidden>no findings match the current filters <button type="button" class="no-match-clear">Clear filters</button></p>
+</section>
+<section id="board" aria-labelledby="board-h">
+<h2 id="board-h" tabindex="-1">Candidate status board</h2>
+<table>
+<tr><th scope="col" aria-sort="none"><button>title</button></th><th scope="col" aria-sort="none"><button>model(s)</button></th><th scope="col" aria-sort="none"><button>status</button></th><th scope="col" aria-sort="none"><button>rationale</button></th></tr>
+<tr class="finding" data-model="gemma-4-31B" data-tier="additive" data-status="shipped" data-title="gemma-4-31B is the additive tier" data-rationale=""><td>gemma-4-31B is the additive tier</td><td>gemma-4-31B</td><td><span class="badge badge-shipped">shipped</span></td><td></td></tr>
+<tr class="finding" data-model="Qwen3.8-27B-8bit" data-tier="quality" data-status="shipped" data-title="Qwen3.8-27B-8bit ships the quality tier" data-rationale=""><td>Qwen3.8-27B-8bit ships the quality tier</td><td>Qwen3.8-27B-8bit</td><td><span class="badge badge-shipped">shipped</span></td><td></td></tr>
+<tr class="finding" data-model="Qwen3.8-27B-oQ4e" data-tier="fast" data-status="shipped" data-title="Qwen3.8-27B-oQ4e ships the fast tier" data-rationale=""><td>Qwen3.8-27B-oQ4e ships the fast tier</td><td>Qwen3.8-27B-oQ4e</td><td><span class="badge badge-shipped">shipped</span></td><td></td></tr>
+<tr class="finding" data-model="Qwen3.8-27B-OptiQ-4bit" data-tier="" data-status="retired" data-title="OptiQ data-driven 4-bit allocation is strictly dominated by oQ4e" data-rationale="The leaderboard&#x27;s 65.3 mmlu_pro did not replicate: we measure 61.2, and pooled McNemar says the 8-bit is better (p = 0.026) while oQ4e is indistinguishable (p = 0.797, mmlu_pro 61.2 vs 61.4). KL-divergence-driven per-layer allocation lands exactly where oq4e.py&#x27;s simpler allocation landed, is 3.1 GiB larger, and has no speculative decoding at all against oQ4e&#x27;s measured 1.73x. Data-driven allocation asked twice, answered no twice."><td>OptiQ data-driven 4-bit allocation is strictly dominated by oQ4e</td><td>Qwen3.8-27B-OptiQ-4bit</td><td><span class="badge badge-retired">retired</span></td><td><a href="docs/FINDINGS.md#29-the-a7-reason-arms-optiq-is-dominated-gemma-4-wins-and-mathqa-lied">The leaderboard&#x27;s 65.3 mmlu_pro did not replicate: we measure 61.2, and pooled McNemar says the 8-bit is better (p = 0.026) while oQ4e is indistinguishable (p = 0.797, mmlu_pro 61.2 vs 61.4). KL-divergence-driven per-layer allocation lands exactly where oq4e.py&#x27;s simpler allocation landed, is 3.1 GiB larger, and has no speculative decoding at all against oQ4e&#x27;s measured 1.73x. Data-driven allocation asked twice, answered no twice.</a></td></tr>
+<tr class="finding" data-model="Qwen3-Coder-Next-6bit" data-tier="" data-status="retired" data-title="Qwen3-Coder-Next 6-bit retired on code quality" data-rationale="2.0-2.5x the decode of the shipped setup, but livecodebench 43.2 vs 59.8 for the 8-bit (95/12 flips, pooled p = 0.00000) and mmlu_pro 58.0 vs 64.0 (p = 0.0073): twice the speed at materially lower end-to-end coding accuracy. oQ4e replaces it on every axis that matters."><td>Qwen3-Coder-Next 6-bit retired on code quality</td><td>Qwen3-Coder-Next-6bit</td><td><span class="badge badge-retired">retired</span></td><td><a href="docs/FINDINGS.md#13-quality-coder-next-loses-and-the-quantisation-run-says-something-else">2.0-2.5x the decode of the shipped setup, but livecodebench 43.2 vs 59.8 for the 8-bit (95/12 flips, pooled p = 0.00000) and mmlu_pro 58.0 vs 64.0 (p = 0.0073): twice the speed at materially lower end-to-end coding accuracy. oQ4e replaces it on every axis that matters.</a></td></tr>
+<tr class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="ANE prefill offload" data-rationale="The bundled auto-tuner swept the split candidates at seq 2048: GPU only 855.6 t/s beats every ANE/CPU split (predicted optimum 799.9, profile-refined 788.5). Verdict enabled=false, speedup 0.0. On M5 Max the GPU wins for this model; consistent with oMLX&#x27;s own startup decision to skip the FA-256 steel patch. The ane variant stays in bench/set_variant.py so the finding remains re-checkable on future hardware."><td>ANE prefill offload</td><td>Qwen3.8-27B-8bit</td><td><span class="badge badge-dead-end">dead-end</span></td><td><a href="docs/FINDINGS.md#3-ane-prefill-offload-rejected-with-evidence">The bundled auto-tuner swept the split candidates at seq 2048: GPU only 855.6 t/s beats every ANE/CPU split (predicted optimum 799.9, profile-refined 788.5). Verdict enabled=false, speedup 0.0. On M5 Max the GPU wins for this model; consistent with oMLX&#x27;s own startup decision to skip the FA-256 steel patch. The ane variant stays in bench/set_variant.py so the finding remains re-checkable on future hardware.</a></td></tr>
+<tr class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="chunked_prefill" data-rationale="No effect, so it stays off: prefill 686.4 to 701.3 t/s at 16k, 538.7 to 539.5 at 65k, 386.9 to 389.2 at 131k, TTFT unchanged. scheduler.chunked_prefill is a flat admin field; the measurement closed it."><td>chunked_prefill</td><td>Qwen3.8-27B-8bit</td><td><span class="badge badge-dead-end">dead-end</span></td><td><a href="docs/FINDINGS.md#8-what-the-validation-runs-settled">No effect, so it stays off: prefill 686.4 to 701.3 t/s at 16k, 538.7 to 539.5 at 65k, 386.9 to 389.2 at 131k, TTFT unchanged. scheduler.chunked_prefill is a flat admin field; the measurement closed it.</a></td></tr>
+<tr class="finding" data-model="GLM-5.2" data-tier="" data-status="dead-end" data-title="GLM-5.2 / Kimi-class models locally on 128 GB" data-rationale="Closed by argument: GLM-5.2 needs ~239-245 GB even at 2-bit and degrades below Q4, making a 256 GB Mac Studio the entry ticket. Expert streaming does not rescue it — streaming cost scales with active parameters, and GLM-5.2 is 40B active (~13 GB of expert reads per token at ~2.6 bits/param), so several GB come off SSD every token: sub-2 tok/s optimistically. Prefill is worse, since every prompt token routes independently and touches essentially all experts. The sane use of GLM-5.2 is remote, as a planner over its native API, with local doing execution."><td>GLM-5.2 / Kimi-class models locally on 128 GB</td><td>GLM-5.2</td><td><span class="badge badge-dead-end">dead-end</span></td><td><a href="docs/FINDINGS.md#34-the-qwen3_5_moe-35b-a3b-class-fast-it-coexists-and-it-cannot-code">Closed by argument: GLM-5.2 needs ~239-245 GB even at 2-bit and degrades below Q4, making a 256 GB Mac Studio the entry ticket. Expert streaming does not rescue it — streaming cost scales with active parameters, and GLM-5.2 is 40B active (~13 GB of expert reads per token at ~2.6 bits/param), so several GB come off SSD every token: sub-2 tok/s optimistically. Prefill is worse, since every prompt token routes independently and touches essentially all experts. The sane use of GLM-5.2 is remote, as a planner over its native API, with local doing execution.</a></td></tr>
+<tr class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="In-memory hot cache" data-rationale="Measured worse on every number at a 20 GB cost: repeat median 3.96 s with hot_cache_max_size=20GB against 3.49 s with it off, cold 14.39 s against 12.58 s, and the cache hit fraction does not move at all (0.886 vs 0.884). Repeats already reuse 88% of their blocks from the SSD tier; the residual 3.5 s is prefill of the uncached tail plus generation, not disk reads. There is no disk-read cost left for a RAM tier to remove. The earlier &#x27;largest remaining win for agentic loops&#x27; claim was a plausible hypothesis and it was wrong."><td>In-memory hot cache</td><td>Qwen3.8-27B-8bit</td><td><span class="badge badge-dead-end">dead-end</span></td><td><a href="docs/FINDINGS.md#8-what-the-validation-runs-settled">Measured worse on every number at a 20 GB cost: repeat median 3.96 s with hot_cache_max_size=20GB against 3.49 s with it off, cold 14.39 s against 12.58 s, and the cache hit fraction does not move at all (0.886 vs 0.884). Repeats already reuse 88% of their blocks from the SSD tier; the residual 3.5 s is prefill of the uncached tail plus generation, not disk reads. There is no disk-read cost left for a RAM tier to remove. The earlier &#x27;largest remaining win for agentic loops&#x27; claim was a plausible hypothesis and it was wrong.</a></td></tr>
+<tr class="finding" data-model="" data-tier="" data-status="dead-end" data-title="Plain mmap with macOS swap for overflow" data-rationale="Closed by argument plus one measurement: plain mmap with macOS swap handling overflow produces documented thrashing, kernel panics and page-out death spirals — one measurement had mmap at 0.017 tok/s. --cpu-moe / --n-cpu-moe buy nothing on unified memory; there is no separate VRAM pool to spill from. Do not attempt the naive version."><td>Plain mmap with macOS swap for overflow</td><td></td><td><span class="badge badge-dead-end">dead-end</span></td><td><a href="docs/FINDINGS.md#34-the-qwen3_5_moe-35b-a3b-class-fast-it-coexists-and-it-cannot-code">Closed by argument plus one measurement: plain mmap with macOS swap handling overflow produces documented thrashing, kernel panics and page-out death spirals — one measurement had mmap at 0.017 tok/s. --cpu-moe / --n-cpu-moe buy nothing on unified memory; there is no separate VRAM pool to spill from. Do not attempt the naive version.</a></td></tr>
+<tr class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="qwen-code temperature 0.3" data-rationale="No measurable difference, keep 0.7. The suite scores looked like a clean win for 0.3 (humaneval 92.1, mbpp 78.4, livecodebench 58.0), but the paired test says otherwise: temperature churns 108 of 500 livecodebench verdicts (~22% of the suite) in a nearly even split (51 against 57), and the +1.2 point suite gap is the small net residue of a large amount of noise. Pooled p = 0.27. qwen-code stays at 0.7, the Qwen-published default, because nothing was measured that justifies moving it."><td>qwen-code temperature 0.3</td><td>Qwen3.8-27B-8bit</td><td><span class="badge badge-dead-end">dead-end</span></td><td><a href="docs/FINDINGS.md#8-what-the-validation-runs-settled">No measurable difference, keep 0.7. The suite scores looked like a clean win for 0.3 (humaneval 92.1, mbpp 78.4, livecodebench 58.0), but the paired test says otherwise: temperature churns 108 of 500 livecodebench verdicts (~22% of the suite) in a nearly even split (51 against 57), and the +1.2 point suite gap is the small net residue of a large amount of noise. Pooled p = 0.27. qwen-code stays at 0.7, the Qwen-published default, because nothing was measured that justifies moving it.</a></td></tr>
+<tr class="finding" data-model="Qwen3.8-Flash-Next-oQ4e-mtp" data-tier="" data-status="dead-end" data-title="Qwen3.8-Flash-Next cannot be wired: co-residency takes the lineup down" data-rationale="1.41x faster than the shipped 8-bit at indistinguishable quality (taskbench p = 1.00000 for all three arms), but it cannot be co-resident: with the lineup pinned, every fn-agent call returns HTTP 507, and in the unpinned pairing all 8 alternating 16k calls were rejected for BOTH models — the dynamic ceiling (91.29 GB) rejects the prefill that the admission cap (115.45 GB) admitted. A model can be admitted and then be unable to do anything; trying breaks the model that works. The fn-* profiles stay stored and served, wired to nothing."><td>Qwen3.8-Flash-Next cannot be wired: co-residency takes the lineup down</td><td>Qwen3.8-Flash-Next-oQ4e-mtp</td><td><span class="badge badge-dead-end">dead-end</span></td><td><a href="docs/FINDINGS.md#27-flash-next-closed-it-works-and-it-cannot-be-wired">1.41x faster than the shipped 8-bit at indistinguishable quality (taskbench p = 1.00000 for all three arms), but it cannot be co-resident: with the lineup pinned, every fn-agent call returns HTTP 507, and in the unpinned pairing all 8 alternating 16k calls were rejected for BOTH models — the dynamic ceiling (91.29 GB) rejects the prefill that the admission cap (115.45 GB) admitted. A model can be admitted and then be unable to do anything; trying breaks the model that works. The fn-* profiles stay stored and served, wired to nothing.</a></td></tr>
+<tr class="finding" data-model="Tiel-Coder-35B-A3B-MLX-oQ4e Qwen3.8-35B-A3B-Distill-oQ8" data-tier="" data-status="dead-end" data-title="qwen3_5_moe 35B-A3B class: 3-4x decode it cannot buy back in code quality" data-rationale="First candidates since gemma to pass the coexistence check, and Novaeon&#x27;s trained MTP head is genuinely worth 1.66x (150.5 vs 90.9 tok/s) — but Tiel-Coder scores livecodebench 24.2, below Coder-Next&#x27;s 43.2 that retired that model, losing to all three incumbents at pooled p ≈ 0, and Novaeon&#x27;s 41.6 still loses to the 8-bit at p = 0.00003. The 24/24 toolcall score measured format, not correctness. Both retired; the lineup is unchanged."><td>qwen3_5_moe 35B-A3B class: 3-4x decode it cannot buy back in code quality</td><td>Tiel-Coder-35B-A3B-MLX-oQ4e, Qwen3.8-35B-A3B-Distill-oQ8</td><td><span class="badge badge-dead-end">dead-end</span></td><td><a href="docs/FINDINGS.md#34-the-qwen3_5_moe-35b-a3b-class-fast-it-coexists-and-it-cannot-code">First candidates since gemma to pass the coexistence check, and Novaeon&#x27;s trained MTP head is genuinely worth 1.66x (150.5 vs 90.9 tok/s) — but Tiel-Coder scores livecodebench 24.2, below Coder-Next&#x27;s 43.2 that retired that model, losing to all three incumbents at pooled p ≈ 0, and Novaeon&#x27;s 41.6 still loses to the 8-bit at p = 0.00003. The 24/24 toolcall score measured format, not correctness. Both retired; the lineup is unchanged.</a></td></tr>
+<tr class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="Raising the concurrency limit" data-rationale="Concurrency is prefill-bound: eight concurrent requests buy 1.38x aggregate throughput and cost 4.9x p95 latency (28.42 t/s, p95 31.2 s vs 20.66 t/s, 6.4 s at one). Two are worse than one (scaling efficiency 0.44). Each client sent a distinct ~1,035-token cold prompt, so ~8,300 tokens of prefill consumed roughly half the wall; the engine&#x27;s decode batching is fine — feeding it eight cold prompts is what does not scale. The lever for parallel agent work is prefix-cache hit rate, not the limit."><td>Raising the concurrency limit</td><td>Qwen3.8-27B-8bit</td><td><span class="badge badge-dead-end">dead-end</span></td><td><a href="docs/FINDINGS.md#8-what-the-validation-runs-settled">Concurrency is prefill-bound: eight concurrent requests buy 1.38x aggregate throughput and cost 4.9x p95 latency (28.42 t/s, p95 31.2 s vs 20.66 t/s, 6.4 s at one). Two are worse than one (scaling efficiency 0.44). Each client sent a distinct ~1,035-token cold prompt, so ~8,300 tokens of prefill consumed roughly half the wall; the engine&#x27;s decode batching is fine — feeding it eight cold prompts is what does not scale. The lever for parallel agent work is prefix-cache hit rate, not the limit.</a></td></tr>
+<tr class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="specprefill on a dense checkpoint" data-rationale="No effect either, and marginally negative: prefill 673.6 vs 686.4 t/s at 16k, 530.4 vs 538.7 at 65k. It did not engage, which is what was predicted for a dense checkpoint. Stays off; revisit only for a sparse checkpoint (A1-class)."><td>specprefill on a dense checkpoint</td><td>Qwen3.8-27B-8bit</td><td><span class="badge badge-dead-end">dead-end</span></td><td><a href="docs/FINDINGS.md#8-what-the-validation-runs-settled">No effect either, and marginally negative: prefill 673.6 vs 686.4 t/s at 16k, 530.4 vs 538.7 at 65k. It did not engage, which is what was predicted for a dense checkpoint. Stays off; revisit only for a sparse checkpoint (A1-class).</a></td></tr>
+<tr class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="TurboQuant 4-bit KV" data-rationale="Not required for long context: the context probe hit the requested ceiling with capped_by=target, not a memory limit — the machine has headroom beyond the model&#x27;s native maximum. turboquant_kv_enabled is a load-time variant field, so enabling it only in the long-context profile would force a ~28 GB engine reload on every switch. It stays off; long context runs on lossless KV."><td>TurboQuant 4-bit KV</td><td>Qwen3.8-27B-8bit</td><td><span class="badge badge-dead-end">dead-end</span></td><td><a href="docs/FINDINGS.md#5-context-ceiling-full-262144-confirmed-on-plain-kv">Not required for long context: the context probe hit the requested ceiling with capped_by=target, not a memory limit — the machine has headroom beyond the model&#x27;s native maximum. turboquant_kv_enabled is a load-time variant field, so enabling it only in the long-context profile would force a ~28 GB engine reload on every switch. It stays off; long context runs on lossless KV.</a></td></tr>
+</table>
+<p class="no-match" id="no-match-board" hidden>no findings match the current filters <button type="button" class="no-match-clear">Clear filters</button></p>
+</section>
+<section id="dead-ends" aria-labelledby="deadends-h">
+<h2 id="deadends-h" tabindex="-1">Settled dead ends</h2>
+<div class="details"><b>what</b> Whether a realistic 16k prompt can be served while the lineup is resident. <b>how</b> fn_coexist probe: 8 alternating 16k calls between the 8-bit and Flash-Next. <b>evidence</b> 0 of 8 calls served — HTTP 400 prefill-guard rejection for BOTH models; see §27.  <b>links</b> <a href="docs/FINDINGS.md#27-flash-next-closed-it-works-and-it-cannot-be-wired">FINDINGS §27</a> · <a href="../results/fn_coexist.json">raw results</a></div>
+<p class="finding" data-model="Qwen3.8-Flash-Next-oQ4e-mtp" data-tier="" data-status="dead-end" data-title="Qwen3.8-Flash-Next cannot be wired: co-residency takes the lineup down" data-rationale="1.41x faster than the shipped 8-bit at indistinguishable quality (taskbench p = 1.00000 for all three arms), but it cannot be co-resident: with the lineup pinned, every fn-agent call returns HTTP 507, and in the unpinned pairing all 8 alternating 16k calls were rejected for BOTH models — the dynamic ceiling (91.29 GB) rejects the prefill that the admission cap (115.45 GB) admitted. A model can be admitted and then be unable to do anything; trying breaks the model that works. The fn-* profiles stay stored and served, wired to nothing."><b>Qwen3.8-Flash-Next cannot be wired: co-residency takes the lineup down</b> — closed by measurement: <span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;co-residency with pinned lineup&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Whether a realistic 16k prompt can be served while the lineup is resident.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — fn_coexist probe: 8 alternating 16k calls between the 8-bit and Flash-Next.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — 0 of 8 calls served — HTTP 400 prefill-guard rejection for BOTH models; see §27.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#27-flash-next-closed-it-works-and-it-cannot-be-wired&quot;&gt;FINDINGS §27&lt;/a&gt; · &lt;a href=&quot;../results/fn_coexist.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">co-residency with pinned lineup: False calls served</span> <a href="../results/fn_coexist.json">raw</a> · <a href="docs/FINDINGS.md#27-flash-next-closed-it-works-and-it-cannot-be-wired">1.41x faster than the shipped 8-bit at indistinguishable quality (taskbench p = 1.00000 for all three arms), but it cannot be co-resident: with the lineup pinned, every fn-agent call returns HTTP 507, and in the unpinned pairing all 8 alternating 16k calls were rejected for BOTH models — the dynamic ceiling (91.29 GB) rejects the prefill that the admission cap (115.45 GB) admitted. A model can be admitted and then be unable to do anything; trying breaks the model that works. The fn-* profiles stay stored and served, wired to nothing.</a></p>
+<div class="details"><b>what</b> LiveCodeBench competitive-programming accuracy, 250 samples. <b>how</b> bench/accuracy.py code, thinking off, deterministic sampling. <b>evidence</b> 41.6 vs 8-bit 59.8, pooled p = 0.00003; vs gemma 73.4, p ≈ 0; see §34.  <b>links</b> <a href="docs/FINDINGS.md#34-the-qwen3_5_moe-35b-a3b-class-fast-it-coexists-and-it-cannot-code">FINDINGS §34</a> · <a href="../results/acc_novaeon_code.json">raw results</a></div>
+<div class="details"><b>what</b> LiveCodeBench competitive-programming accuracy, 500 samples. <b>how</b> bench/accuracy.py code, thinking off, deterministic sampling. <b>evidence</b> 24.2, below Coder-Next&#x27;s 43.2; 261 flips to the 8-bit against 31; see §34.  <b>links</b> <a href="docs/FINDINGS.md#34-the-qwen3_5_moe-35b-a3b-class-fast-it-coexists-and-it-cannot-code">FINDINGS §34</a> · <a href="../results/acc_tiel_code.json">raw results</a></div>
+<p class="finding" data-model="Tiel-Coder-35B-A3B-MLX-oQ4e Qwen3.8-35B-A3B-Distill-oQ8" data-tier="" data-status="dead-end" data-title="qwen3_5_moe 35B-A3B class: 3-4x decode it cannot buy back in code quality" data-rationale="First candidates since gemma to pass the coexistence check, and Novaeon&#x27;s trained MTP head is genuinely worth 1.66x (150.5 vs 90.9 tok/s) — but Tiel-Coder scores livecodebench 24.2, below Coder-Next&#x27;s 43.2 that retired that model, losing to all three incumbents at pooled p ≈ 0, and Novaeon&#x27;s 41.6 still loses to the 8-bit at p = 0.00003. The 24/24 toolcall score measured format, not correctness. Both retired; the lineup is unchanged."><b>qwen3_5_moe 35B-A3B class: 3-4x decode it cannot buy back in code quality</b> — closed by measurement: <span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;livecodebench accuracy (Novaeon distill)&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — LiveCodeBench competitive-programming accuracy, 250 samples.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/accuracy.py code, thinking off, deterministic sampling.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — 41.6 vs 8-bit 59.8, pooled p = 0.00003; vs gemma 73.4, p ≈ 0; see §34.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#34-the-qwen3_5_moe-35b-a3b-class-fast-it-coexists-and-it-cannot-code&quot;&gt;FINDINGS §34&lt;/a&gt; · &lt;a href=&quot;../results/acc_novaeon_code.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">livecodebench accuracy (Novaeon distill): 0.416 score</span> <a href="../results/acc_novaeon_code.json">raw</a>; <span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;livecodebench accuracy (Tiel-Coder)&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — LiveCodeBench competitive-programming accuracy, 500 samples.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/accuracy.py code, thinking off, deterministic sampling.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — 24.2, below Coder-Next&amp;#x27;s 43.2; 261 flips to the 8-bit against 31; see §34.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#34-the-qwen3_5_moe-35b-a3b-class-fast-it-coexists-and-it-cannot-code&quot;&gt;FINDINGS §34&lt;/a&gt; · &lt;a href=&quot;../results/acc_tiel_code.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">livecodebench accuracy (Tiel-Coder): 0.242 score</span> <a href="../results/acc_tiel_code.json">raw</a> · <a href="docs/FINDINGS.md#34-the-qwen3_5_moe-35b-a3b-class-fast-it-coexists-and-it-cannot-code">First candidates since gemma to pass the coexistence check, and Novaeon&#x27;s trained MTP head is genuinely worth 1.66x (150.5 vs 90.9 tok/s) — but Tiel-Coder scores livecodebench 24.2, below Coder-Next&#x27;s 43.2 that retired that model, losing to all three incumbents at pooled p ≈ 0, and Novaeon&#x27;s 41.6 still loses to the 8-bit at p = 0.00003. The 24/24 toolcall score measured format, not correctness. Both retired; the lineup is unchanged.</a></p>
+<div class="details"><b>what</b> Speedup percent reported by the ANE auto-tuner&#x27;s final verdict. <b>how</b> bench/ane_tune.py sweep at seq 2048 over the split candidates. <b>evidence</b> GPU only 855.6 t/s vs best ANE split 799.9; enabled=false; see §3.  <b>links</b> <a href="docs/FINDINGS.md#3-ane-prefill-offload-rejected-with-evidence">FINDINGS §3</a> · <a href="../results/ane_tune.json">raw results</a></div>
+<p class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="ANE prefill offload" data-rationale="The bundled auto-tuner swept the split candidates at seq 2048: GPU only 855.6 t/s beats every ANE/CPU split (predicted optimum 799.9, profile-refined 788.5). Verdict enabled=false, speedup 0.0. On M5 Max the GPU wins for this model; consistent with oMLX&#x27;s own startup decision to skip the FA-256 steel patch. The ane variant stays in bench/set_variant.py so the finding remains re-checkable on future hardware."><b>ANE prefill offload</b> — closed by measurement: <span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;auto-tuner verdict speedup&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Speedup percent reported by the ANE auto-tuner&amp;#x27;s final verdict.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/ane_tune.py sweep at seq 2048 over the split candidates.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — GPU only 855.6 t/s vs best ANE split 799.9; enabled=false; see §3.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#3-ane-prefill-offload-rejected-with-evidence&quot;&gt;FINDINGS §3&lt;/a&gt; · &lt;a href=&quot;../results/ane_tune.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">auto-tuner verdict speedup: 0.0 %</span> <a href="../results/ane_tune.json">raw</a> · <a href="docs/FINDINGS.md#3-ane-prefill-offload-rejected-with-evidence">The bundled auto-tuner swept the split candidates at seq 2048: GPU only 855.6 t/s beats every ANE/CPU split (predicted optimum 799.9, profile-refined 788.5). Verdict enabled=false, speedup 0.0. On M5 Max the GPU wins for this model; consistent with oMLX&#x27;s own startup decision to skip the FA-256 steel patch. The ane variant stays in bench/set_variant.py so the finding remains re-checkable on future hardware.</a></p>
+<p class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="chunked_prefill" data-rationale="No effect, so it stays off: prefill 686.4 to 701.3 t/s at 16k, 538.7 to 539.5 at 65k, 386.9 to 389.2 at 131k, TTFT unchanged. scheduler.chunked_prefill is a flat admin field; the measurement closed it."><b>chunked_prefill</b> <span class="marker-none">no measurement</span> — <a href="docs/FINDINGS.md#8-what-the-validation-runs-settled">No effect, so it stays off: prefill 686.4 to 701.3 t/s at 16k, 538.7 to 539.5 at 65k, 386.9 to 389.2 at 131k, TTFT unchanged. scheduler.chunked_prefill is a flat admin field; the measurement closed it.</a></p>
+<div class="details"><b>what</b> p95 latency with 8 concurrent clients against the same profile. <b>how</b> concurrency sweep, 1/2/4/8 clients, ~1,035-token cold prompts each. <b>evidence</b> 31.2 s at 8 vs 6.4 s at 1; aggregate 28.42 vs 20.66 t/s; see §8.  <b>links</b> <a href="docs/FINDINGS.md#8-what-the-validation-runs-settled">FINDINGS §8</a> · <a href="../results/concurrency.json">raw results</a></div>
+<p class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="Raising the concurrency limit" data-rationale="Concurrency is prefill-bound: eight concurrent requests buy 1.38x aggregate throughput and cost 4.9x p95 latency (28.42 t/s, p95 31.2 s vs 20.66 t/s, 6.4 s at one). Two are worse than one (scaling efficiency 0.44). Each client sent a distinct ~1,035-token cold prompt, so ~8,300 tokens of prefill consumed roughly half the wall; the engine&#x27;s decode batching is fine — feeding it eight cold prompts is what does not scale. The lever for parallel agent work is prefix-cache hit rate, not the limit."><b>Raising the concurrency limit</b> — closed by measurement: <span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;p95 latency at 8 concurrent&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — p95 latency with 8 concurrent clients against the same profile.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — concurrency sweep, 1/2/4/8 clients, ~1,035-token cold prompts each.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — 31.2 s at 8 vs 6.4 s at 1; aggregate 28.42 vs 20.66 t/s; see §8.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#8-what-the-validation-runs-settled&quot;&gt;FINDINGS §8&lt;/a&gt; · &lt;a href=&quot;../results/concurrency.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">p95 latency at 8 concurrent: 31.213 s</span> <a href="../results/concurrency.json">raw</a> · <a href="docs/FINDINGS.md#8-what-the-validation-runs-settled">Concurrency is prefill-bound: eight concurrent requests buy 1.38x aggregate throughput and cost 4.9x p95 latency (28.42 t/s, p95 31.2 s vs 20.66 t/s, 6.4 s at one). Two are worse than one (scaling efficiency 0.44). Each client sent a distinct ~1,035-token cold prompt, so ~8,300 tokens of prefill consumed roughly half the wall; the engine&#x27;s decode batching is fine — feeding it eight cold prompts is what does not scale. The lever for parallel agent work is prefix-cache hit rate, not the limit.</a></p>
+<p class="finding" data-model="GLM-5.2" data-tier="" data-status="dead-end" data-title="GLM-5.2 / Kimi-class models locally on 128 GB" data-rationale="Closed by argument: GLM-5.2 needs ~239-245 GB even at 2-bit and degrades below Q4, making a 256 GB Mac Studio the entry ticket. Expert streaming does not rescue it — streaming cost scales with active parameters, and GLM-5.2 is 40B active (~13 GB of expert reads per token at ~2.6 bits/param), so several GB come off SSD every token: sub-2 tok/s optimistically. Prefill is worse, since every prompt token routes independently and touches essentially all experts. The sane use of GLM-5.2 is remote, as a planner over its native API, with local doing execution."><b>GLM-5.2 / Kimi-class models locally on 128 GB</b> <span class="marker-none">no measurement</span> — <a href="docs/FINDINGS.md#34-the-qwen3_5_moe-35b-a3b-class-fast-it-coexists-and-it-cannot-code">Closed by argument: GLM-5.2 needs ~239-245 GB even at 2-bit and degrades below Q4, making a 256 GB Mac Studio the entry ticket. Expert streaming does not rescue it — streaming cost scales with active parameters, and GLM-5.2 is 40B active (~13 GB of expert reads per token at ~2.6 bits/param), so several GB come off SSD every token: sub-2 tok/s optimistically. Prefill is worse, since every prompt token routes independently and touches essentially all experts. The sane use of GLM-5.2 is remote, as a planner over its native API, with local doing execution.</a></p>
+<div class="details"><b>what</b> Median latency of a repeated prompt with the hot cache disabled. <b>how</b> cache_ab A/B, hot_cache_max_size 0 vs 20GB, same request. <b>evidence</b> 3.49 s off vs 3.96 s on; hit fraction 0.884 vs 0.886; see §8.  <b>links</b> <a href="docs/FINDINGS.md#8-what-the-validation-runs-settled">FINDINGS §8</a> · <a href="../results/cache_ab.json">raw results</a></div>
+<p class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="In-memory hot cache" data-rationale="Measured worse on every number at a 20 GB cost: repeat median 3.96 s with hot_cache_max_size=20GB against 3.49 s with it off, cold 14.39 s against 12.58 s, and the cache hit fraction does not move at all (0.886 vs 0.884). Repeats already reuse 88% of their blocks from the SSD tier; the residual 3.5 s is prefill of the uncached tail plus generation, not disk reads. There is no disk-read cost left for a RAM tier to remove. The earlier &#x27;largest remaining win for agentic loops&#x27; claim was a plausible hypothesis and it was wrong."><b>In-memory hot cache</b> — closed by measurement: <span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;repeat median latency, cache off&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Median latency of a repeated prompt with the hot cache disabled.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — cache_ab A/B, hot_cache_max_size 0 vs 20GB, same request.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — 3.49 s off vs 3.96 s on; hit fraction 0.884 vs 0.886; see §8.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#8-what-the-validation-runs-settled&quot;&gt;FINDINGS §8&lt;/a&gt; · &lt;a href=&quot;../results/cache_ab.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">repeat median latency, cache off: 3.49 s</span> <a href="../results/cache_ab.json">raw</a> · <a href="docs/FINDINGS.md#8-what-the-validation-runs-settled">Measured worse on every number at a 20 GB cost: repeat median 3.96 s with hot_cache_max_size=20GB against 3.49 s with it off, cold 14.39 s against 12.58 s, and the cache hit fraction does not move at all (0.886 vs 0.884). Repeats already reuse 88% of their blocks from the SSD tier; the residual 3.5 s is prefill of the uncached tail plus generation, not disk reads. There is no disk-read cost left for a RAM tier to remove. The earlier &#x27;largest remaining win for agentic loops&#x27; claim was a plausible hypothesis and it was wrong.</a></p>
+<p class="finding" data-model="" data-tier="" data-status="dead-end" data-title="Plain mmap with macOS swap for overflow" data-rationale="Closed by argument plus one measurement: plain mmap with macOS swap handling overflow produces documented thrashing, kernel panics and page-out death spirals — one measurement had mmap at 0.017 tok/s. --cpu-moe / --n-cpu-moe buy nothing on unified memory; there is no separate VRAM pool to spill from. Do not attempt the naive version."><b>Plain mmap with macOS swap for overflow</b> <span class="marker-none">no measurement</span> — <a href="docs/FINDINGS.md#34-the-qwen3_5_moe-35b-a3b-class-fast-it-coexists-and-it-cannot-code">Closed by argument plus one measurement: plain mmap with macOS swap handling overflow produces documented thrashing, kernel panics and page-out death spirals — one measurement had mmap at 0.017 tok/s. --cpu-moe / --n-cpu-moe buy nothing on unified memory; there is no separate VRAM pool to spill from. Do not attempt the naive version.</a></p>
+<p class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="qwen-code temperature 0.3" data-rationale="No measurable difference, keep 0.7. The suite scores looked like a clean win for 0.3 (humaneval 92.1, mbpp 78.4, livecodebench 58.0), but the paired test says otherwise: temperature churns 108 of 500 livecodebench verdicts (~22% of the suite) in a nearly even split (51 against 57), and the +1.2 point suite gap is the small net residue of a large amount of noise. Pooled p = 0.27. qwen-code stays at 0.7, the Qwen-published default, because nothing was measured that justifies moving it."><b>qwen-code temperature 0.3</b> <span class="marker-none">no measurement</span> — <a href="docs/FINDINGS.md#8-what-the-validation-runs-settled">No measurable difference, keep 0.7. The suite scores looked like a clean win for 0.3 (humaneval 92.1, mbpp 78.4, livecodebench 58.0), but the paired test says otherwise: temperature churns 108 of 500 livecodebench verdicts (~22% of the suite) in a nearly even split (51 against 57), and the +1.2 point suite gap is the small net residue of a large amount of noise. Pooled p = 0.27. qwen-code stays at 0.7, the Qwen-published default, because nothing was measured that justifies moving it.</a></p>
+<p class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="specprefill on a dense checkpoint" data-rationale="No effect either, and marginally negative: prefill 673.6 vs 686.4 t/s at 16k, 530.4 vs 538.7 at 65k. It did not engage, which is what was predicted for a dense checkpoint. Stays off; revisit only for a sparse checkpoint (A1-class)."><b>specprefill on a dense checkpoint</b> <span class="marker-none">no measurement</span> — <a href="docs/FINDINGS.md#8-what-the-validation-runs-settled">No effect either, and marginally negative: prefill 673.6 vs 686.4 t/s at 16k, 530.4 vs 538.7 at 65k. It did not engage, which is what was predicted for a dense checkpoint. Stays off; revisit only for a sparse checkpoint (A1-class).</a></p>
+<div class="details"><b>what</b> Context tokens verified by the ceiling probe. <b>how</b> Context-window verification probe at the 262,144 target. <b>evidence</b> capped_by=target (not a memory limit); see §5.  <b>links</b> <a href="docs/FINDINGS.md#5-context-ceiling-full-262144-confirmed-on-plain-kv">FINDINGS §5</a> · <a href="../results/ctx_mtp.json">raw results</a></div>
+<p class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="TurboQuant 4-bit KV" data-rationale="Not required for long context: the context probe hit the requested ceiling with capped_by=target, not a memory limit — the machine has headroom beyond the model&#x27;s native maximum. turboquant_kv_enabled is a load-time variant field, so enabling it only in the long-context profile would force a ~28 GB engine reload on every switch. It stays off; long context runs on lossless KV."><b>TurboQuant 4-bit KV</b> — closed by measurement: <span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;verified context tokens&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Context tokens verified by the ceiling probe.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — Context-window verification probe at the 262,144 target.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — capped_by=target (not a memory limit); see §5.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#5-context-ceiling-full-262144-confirmed-on-plain-kv&quot;&gt;FINDINGS §5&lt;/a&gt; · &lt;a href=&quot;../results/ctx_mtp.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">verified context tokens: 262144 tokens</span> <a href="../results/ctx_mtp.json">raw</a> · <a href="docs/FINDINGS.md#5-context-ceiling-full-262144-confirmed-on-plain-kv">Not required for long context: the context probe hit the requested ceiling with capped_by=target, not a memory limit — the machine has headroom beyond the model&#x27;s native maximum. turboquant_kv_enabled is a load-time variant field, so enabling it only in the long-context profile would force a ~28 GB engine reload on every switch. It stays off; long context runs on lossless KV.</a></p>
+<p class="no-match" id="no-match-dead-ends" hidden>no findings match the current filters <button type="button" class="no-match-clear">Clear filters</button></p>
+</section>
+</main>
+<script>
+(function () {
+  var tip = document.getElementById('tooltip');
+  var current = null;
+  function show(el) {
+    if (current === el) return;
+    hide();
+    current = el;
+    tip.innerHTML = el.getAttribute('data-tooltip') || '';
+    tip.style.display = 'block';
+  }
+  function hide() {
+    if (current) current.blur && current.blur();
+    current = null;
+    tip.style.display = 'none';
+  }
+  document.addEventListener('mouseover', function (e) {
+    var el = e.target.closest('[data-tooltip]');
+    if (el) show(el);
+  });
+  document.addEventListener('mouseout', function (e) {
+    var el = e.target.closest('[data-tooltip]');
+    if (el && current === el) hide();
+  });
+  document.addEventListener('focusin', function (e) {
+    var el = e.target.closest('[data-tooltip]');
+    if (el) show(el);
+  });
+  document.addEventListener('focusout', function (e) {
+    var el = e.target.closest('[data-tooltip]');
+    if (el && current === el) hide();
+  });
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-tooltip]');
+    if (el && current === el && !e.target.closest('a')) hide();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') hide();
+  });
+
+  var navLinks = document.querySelectorAll('nav[aria-label="Views"] a');
+  navLinks.forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      var target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        var heading = target.querySelector('h2');
+        if (heading) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+          heading.focus();
+        }
+      }
+    });
+  });
+
+  var fModel = document.getElementById('f-model');
+  var fTier = document.getElementById('f-tier');
+  var fStatus = document.getElementById('f-status');
+  var fText = document.getElementById('f-text');
+  var fClear = document.getElementById('f-clear');
+  var fCount = document.getElementById('f-count');
+  if (fModel && fTier && fStatus && fText && fClear && fCount) {
+    var allFindings = Array.prototype.slice.call(
+      document.querySelectorAll('.finding'));
+    var noMatchLineup = document.getElementById('no-match-lineup');
+    var noMatchBoard = document.getElementById('no-match-board');
+    var noMatchDeadends = document.getElementById('no-match-dead-ends');
+    var noMatchAll = [noMatchLineup, noMatchBoard, noMatchDeadends].filter(Boolean);
+    function applyFilter() {
+      var mv = fModel.value;
+      var tv = fTier.value;
+      var sv = fStatus.value;
+      var qv = (fText.value || '').toLowerCase().trim();
+      var visible = 0;
+      allFindings.forEach(function (el) {
+        var dm = (el.getAttribute('data-model') || '').split(' ');
+        var dt = el.getAttribute('data-tier') || '';
+        var ds = el.getAttribute('data-status') || '';
+        var text = ((el.getAttribute('data-title') || '') + ' ' +
+                    (el.getAttribute('data-rationale') || '')).toLowerCase();
+        var ok = true;
+        if (mv !== 'all' && dm.indexOf(mv) === -1) ok = false;
+        if (tv !== 'all' && dt !== tv) ok = false;
+        if (sv !== 'all' && ds !== sv) ok = false;
+        if (ok && qv && text.indexOf(qv) === -1) ok = false;
+        el.hidden = !ok;
+        if (ok) visible++;
+      });
+      fCount.textContent = visible + ' of ' + allFindings.length + ' findings';
+      var views = ['lineup', 'board', 'dead-ends'];
+      views.forEach(function (vid) {
+        var section = document.getElementById(vid);
+        var nm = document.getElementById('no-match-' + vid);
+        if (!section || !nm) return;
+        var anyVisible = false;
+        section.querySelectorAll('.finding:not([hidden])').forEach(function () {
+          anyVisible = true;
+        });
+        if (!anyVisible) {
+          var empty = section.querySelector('.empty-state');
+          if (!empty || empty.hidden) {
+            nm.hidden = false;
+          }
+        } else {
+          nm.hidden = true;
+        }
+      });
+    }
+    function clearFilters() {
+      fModel.value = 'all';
+      fTier.value = 'all';
+      fStatus.value = 'all';
+      fText.value = '';
+      applyFilter();
+    }
+    fModel.addEventListener('change', applyFilter);
+    fTier.addEventListener('change', applyFilter);
+    fStatus.addEventListener('change', applyFilter);
+    fText.addEventListener('input', applyFilter);
+    fClear.addEventListener('click', clearFilters);
+    noMatchAll.forEach(function (nm) {
+      var btn = nm.querySelector('.no-match-clear');
+      if (btn) btn.addEventListener('click', clearFilters);
+    });
+  }
+
+  var sortBtns = document.querySelectorAll('th button');
+  sortBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var th = btn.parentElement;
+      var table = th.closest('table');
+      if (!table) return;
+      var colIdx = Array.prototype.indexOf.call(
+        th.parentElement.children, th);
+      var rows = Array.prototype.slice.call(
+        table.querySelectorAll('tr')).filter(function (r) {
+        return r.children.length > colIdx &&
+               !r.querySelector('th');
+      });
+      if (rows.length <= 1) return;
+      var ths = table.querySelectorAll('tr th');
+      var isNumeric = th.hasAttribute('data-sort');
+      var currentSort = th.getAttribute('aria-sort');
+      var dir;
+      if (currentSort === 'none') {
+        if (isNumeric) {
+          dir = th.getAttribute('data-sort') === 'higher' ? 'descending' : 'ascending';
+        } else {
+          dir = 'ascending';
+        }
+      } else if (currentSort === 'ascending') {
+        dir = 'descending';
+      } else {
+        dir = 'ascending';
+      }
+      ths.forEach(function (t) {
+        t.setAttribute('aria-sort', 'none');
+        var b = t.querySelector('button');
+        if (b) b.textContent = b.textContent.replace(/\s*[↑↓]\s*$/, '');
+      });
+      th.setAttribute('aria-sort', dir);
+      btn.textContent = btn.textContent +
+        (dir === 'ascending' ? ' ↑' : ' ↓');
+      var tbody = table;
+      rows.sort(function (a, b) {
+        var cellA = a.children[colIdx];
+        var cellB = b.children[colIdx];
+        var vA = cellA.getAttribute('data-value');
+        var vB = cellB.getAttribute('data-value');
+        if (vA === null && vB === null) return 0;
+        if (vA === null) return 1;
+        if (vB === null) return -1;
+        if (isNumeric) {
+          var nA = parseFloat(vA);
+          var nB = parseFloat(vB);
+          return dir === 'ascending' ? nA - nB : nB - nA;
+        }
+        var sA = cellA.textContent || '';
+        var sB = cellB.textContent || '';
+        return dir === 'ascending'
+          ? sA.localeCompare(sB)
+          : sB.localeCompare(sA);
+      });
+      rows.forEach(function (r) { tbody.appendChild(r); });
+    });
+  });
+})();
+</script>
+</body></html>

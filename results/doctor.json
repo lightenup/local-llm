@@ -1,0 +1,61 @@
+{
+  "at": "2026-10-12T07:11:41",
+  "results": [
+    {
+      "name": "server responds",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "status=healthy",
+      "layer": "engine"
+    },
+    {
+      "name": "profiles match their definitions",
+      "ok": true,
+      "kind": "config",
+      "detail": "27B 4/4 and oQ4e 3/3 match definitions",
+      "layer": "engine"
+    },
+    {
+      "name": "8-bit base engine variant is the shipped one",
+      "ok": true,
+      "kind": "config",
+      "detail": "base == set_variant 'plain'",
+      "layer": "engine"
+    },
+    {
+      "name": "no retired profiles still served",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "16 served",
+      "layer": "engine"
+    },
+    {
+      "name": "profile samples: Qwen3.8-27B-8bit:qwen-code",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "4/4 distinct",
+      "layer": "engine"
+    },
+    {
+      "name": "profile samples: Qwen3.8-27B-8bit:qwen-agent",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "4/4 distinct",
+      "layer": "engine"
+    },
+    {
+      "name": "profile samples: Qwen3.8-27B-oQ4e-mtp:oq-agent",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "4/4 distinct",
+      "layer": "engine"
+    },
+    {
+      "name": "speculative decode active: Qwen3.8-27B-oQ4e-mtp",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "82.2 tok/s (floor 44.0; below means speculative decoding is NOT engaging)",
+      "layer": "engine"
+    }
+  ]
+}

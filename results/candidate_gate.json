@@ -1,0 +1,86 @@
+[
+  {
+    "model_id": "Qwen3.8-27B-OptiQ-4bit",
+    "at": "2026-09-17T07:29:22",
+    "disk_gib": 19.0,
+    "config_model_type": "qwen3_5",
+    "context": 262144,
+    "mtp_compatible": false,
+    "mtp_reason": "MTPLX side-car detected but not imported. Import it to merge the MTP head into the checkpoint index.",
+    "arch_supported": true,
+    "lineup": [
+      "Qwen2.5-Coder-3B-8bit",
+      "Qwen3.8-27B-8bit",
+      "Qwen3.8-27B-oQ4e-mtp"
+    ],
+    "load_s": 6.7,
+    "resident_gib": 19.0,
+    "pool_gib": 67.65,
+    "lineup_survived_load": true,
+    "calls": [
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 16663,
+        "wall_s": 30.7,
+        "finish": "length",
+        "head": "We need answer user's request: \"Describe what the code above does, module by module.\" They"
+      },
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 16663,
+        "wall_s": 11.2,
+        "finish": "length",
+        "head": "We need answer user: \"Describe what the code above does, module by module.\" They pasted mu"
+      }
+    ],
+    "lineup_survived_serving": true,
+    "coexists": true,
+    "verdict": "PASS -- coexists and serves"
+  },
+  {
+    "model_id": "gemma-4-31B-it-qat-OptiQ-4bit",
+    "at": "2026-09-17T07:30:11",
+    "disk_gib": 21.88,
+    "config_model_type": "gemma4",
+    "context": 262144,
+    "mtp_compatible": false,
+    "mtp_reason": "model has no MTP heads in config",
+    "arch_supported": true,
+    "lineup": [
+      "Qwen2.5-Coder-3B-8bit",
+      "Qwen3.8-27B-8bit",
+      "Qwen3.8-27B-OptiQ-4bit",
+      "Qwen3.8-27B-oQ4e-mtp"
+    ],
+    "load_s": 7.6,
+    "resident_gib": 21.88,
+    "pool_gib": 89.53,
+    "lineup_survived_load": false,
+    "evicted_on_load": [
+      "Qwen3.8-27B-OptiQ-4bit"
+    ],
+    "calls": [
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 18196,
+        "wall_s": 47.8,
+        "finish": "length",
+        "head": "This codebase is a comprehensive benchmarking and tuning suite for **oMLX**, a local LLM i"
+      },
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 18196,
+        "wall_s": 20.0,
+        "finish": "length",
+        "head": "This collection of Python scripts constitutes a benchmarking and optimization suite for **"
+      }
+    ],
+    "lineup_survived_serving": false,
+    "coexists": false,
+    "verdict": "reject: cannot serve while the lineup is resident"
+  }
+]

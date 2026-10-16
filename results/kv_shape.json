@@ -1,0 +1,62 @@
+[
+  {
+    "model": "Qwen3.8-27B-8bit:qwen-code",
+    "requested_tokens": 2000,
+    "prompt_tokens": 8898,
+    "baseline_gb": 29.23,
+    "peak_gb": 49.47,
+    "growth_gb": 20.24,
+    "wall_s": 11.4,
+    "error": null
+  },
+  {
+    "model": "Qwen3.8-27B-8bit:qwen-code",
+    "requested_tokens": 16000,
+    "prompt_tokens": 71118,
+    "baseline_gb": 45.22,
+    "peak_gb": 57.9,
+    "growth_gb": 12.68,
+    "wall_s": 194.0,
+    "error": null
+  },
+  {
+    "model": "Qwen3.8-27B-8bit:qwen-code",
+    "requested_tokens": 48000,
+    "prompt_tokens": 0,
+    "baseline_gb": 45.56,
+    "peak_gb": 45.57,
+    "growth_gb": 0.01,
+    "wall_s": 0.2,
+    "error": "POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"Prompt too long: 213342 tokens exceeds max context window of 131072 tokens\",\"type\":\"invalid_request_error\",\"param\":null,\"code\":null}}"
+  },
+  {
+    "model": "Qwen3.8-27B-8bit:qwen-long",
+    "requested_tokens": 2000,
+    "prompt_tokens": 8898,
+    "baseline_gb": 45.08,
+    "peak_gb": 49.67,
+    "growth_gb": 4.59,
+    "wall_s": 13.3,
+    "error": null
+  },
+  {
+    "model": "Qwen3.8-27B-8bit:qwen-long",
+    "requested_tokens": 16000,
+    "prompt_tokens": 71118,
+    "baseline_gb": 45.58,
+    "peak_gb": 57.81,
+    "growth_gb": 12.22,
+    "wall_s": 201.0,
+    "error": null
+  },
+  {
+    "model": "Qwen3.8-27B-8bit:qwen-long",
+    "requested_tokens": 48000,
+    "prompt_tokens": 213342,
+    "baseline_gb": 45.48,
+    "peak_gb": 76.92,
+    "growth_gb": 31.44,
+    "wall_s": 1308.0,
+    "error": null
+  }
+]

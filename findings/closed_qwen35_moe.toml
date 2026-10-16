@@ -1,0 +1,30 @@
+id      = "closed_qwen35_moe"
+title   = "qwen3_5_moe 35B-A3B class: 3-4x decode it cannot buy back in code quality"
+status  = "dead-end"
+models  = ["Tiel-Coder-35B-A3B-MLX-oQ4e", "Qwen3.8-35B-A3B-Distill-oQ8"]
+section = 34
+section_title = "The qwen3_5_moe 35B-A3B class: fast, it coexists, and it cannot code"
+rationale = "First candidates since gemma to pass the coexistence check, and Novaeon's trained MTP head is genuinely worth 1.66x (150.5 vs 90.9 tok/s) — but Tiel-Coder scores livecodebench 24.2, below Coder-Next's 43.2 that retired that model, losing to all three incumbents at pooled p ≈ 0, and Novaeon's 41.6 still loses to the 8-bit at p = 0.00003. The 24/24 toolcall score measured format, not correctness. Both retired; the lineup is unchanged."
+updated = 2026-09-22
+
+[[metrics]]
+name      = "livecodebench accuracy (Novaeon distill)"
+unit      = "score"
+direction = "higher"
+headline  = false
+tooltip_what     = "LiveCodeBench competitive-programming accuracy, 250 samples."
+tooltip_how      = "bench/accuracy.py code, thinking off, deterministic sampling."
+tooltip_evidence = "41.6 vs 8-bit 59.8, pooled p = 0.00003; vs gemma 73.4, p ≈ 0; see §34."
+source_file = "acc_novaeon_code.json"
+source_path  = "results[?benchmark=livecodebench].accuracy"
+
+[[metrics]]
+name      = "livecodebench accuracy (Tiel-Coder)"
+unit      = "score"
+direction = "higher"
+headline  = false
+tooltip_what     = "LiveCodeBench competitive-programming accuracy, 500 samples."
+tooltip_how      = "bench/accuracy.py code, thinking off, deterministic sampling."
+tooltip_evidence = "24.2, below Coder-Next's 43.2; 261 flips to the 8-bit against 31; see §34."
+source_file = "acc_tiel_code.json"
+source_path  = "results[?benchmark=livecodebench].accuracy"

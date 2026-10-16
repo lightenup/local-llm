@@ -1,0 +1,66 @@
+{
+  "question": "does oQ4e coexist with the 27B without eviction?",
+  "both_loaded": [
+    "Qwen3.8-27B-8bit",
+    "Qwen3.8-27B-oQ4e-mtp"
+  ],
+  "mem_after_load_gb": 58.98,
+  "rounds": [
+    {
+      "27B": {
+        "s": 7.9,
+        "loaded": [
+          "Qwen3.8-27B-8bit",
+          "Qwen3.8-27B-oQ4e-mtp"
+        ],
+        "mem_gb": 65.91
+      },
+      "oQ4e": {
+        "s": 8.0,
+        "loaded": [
+          "Qwen3.8-27B-8bit",
+          "Qwen3.8-27B-oQ4e-mtp"
+        ],
+        "mem_gb": 66.8
+      }
+    },
+    {
+      "27B": {
+        "s": 2.9,
+        "loaded": [
+          "Qwen3.8-27B-8bit",
+          "Qwen3.8-27B-oQ4e-mtp"
+        ],
+        "mem_gb": 66.55
+      },
+      "oQ4e": {
+        "s": 2.8,
+        "loaded": [
+          "Qwen3.8-27B-8bit",
+          "Qwen3.8-27B-oQ4e-mtp"
+        ],
+        "mem_gb": 66.63
+      }
+    },
+    {
+      "27B": {
+        "s": 2.8,
+        "loaded": [
+          "Qwen3.8-27B-8bit",
+          "Qwen3.8-27B-oQ4e-mtp"
+        ],
+        "mem_gb": 66.5
+      },
+      "oQ4e": {
+        "s": 2.8,
+        "loaded": [
+          "Qwen3.8-27B-8bit",
+          "Qwen3.8-27B-oQ4e-mtp"
+        ],
+        "mem_gb": 67.02
+      }
+    }
+  ],
+  "evictions_observed": 0,
+  "verdict": "no eviction - oQ4e coexists with the 27B"
+}

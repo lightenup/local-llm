@@ -1,0 +1,73 @@
+{
+  "arm_a": "acc_plain_code",
+  "arm_b": "acc_ship_code",
+  "suites": {
+    "humaneval": {
+      "n_shared": 164,
+      "both_correct": 154,
+      "neither_correct": 10,
+      "only_a_correct": 0,
+      "only_b_correct": 0,
+      "discordant": 0,
+      "net_to_b": 0,
+      "score_a": 93.9,
+      "score_b": 93.9,
+      "p_value": 1.0,
+      "flips_to_a_sample": [],
+      "flips_to_b_sample": []
+    },
+    "mbpp": {
+      "n_shared": 500,
+      "both_correct": 402,
+      "neither_correct": 98,
+      "only_a_correct": 0,
+      "only_b_correct": 0,
+      "discordant": 0,
+      "net_to_b": 0,
+      "score_a": 80.4,
+      "score_b": 80.4,
+      "p_value": 1.0,
+      "flips_to_a_sample": [],
+      "flips_to_b_sample": []
+    },
+    "livecodebench": {
+      "n_shared": 500,
+      "both_correct": 284,
+      "neither_correct": 188,
+      "only_a_correct": 13,
+      "only_b_correct": 15,
+      "discordant": 28,
+      "net_to_b": 2,
+      "score_a": 59.4,
+      "score_b": 59.8,
+      "p_value": 0.85055,
+      "flips_to_a_sample": [
+        "2876",
+        "3046",
+        "3714",
+        "abc310_f",
+        "abc335_c",
+        "abc342_b",
+        "abc364_c",
+        "abc366_e"
+      ],
+      "flips_to_b_sample": [
+        "3032",
+        "3045",
+        "3690",
+        "3725",
+        "3809",
+        "abc352_a",
+        "abc370_c",
+        "abc379_e"
+      ]
+    }
+  },
+  "pooled": {
+    "questions": 1164,
+    "flips_to_a": 13,
+    "flips_to_b": 15,
+    "p_value": 0.85055
+  },
+  "verdict": "no significant difference (p=0.85055); B leads but within chance"
+}

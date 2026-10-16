@@ -1,0 +1,133 @@
+{
+  "at": "2026-09-17T06:42:28",
+  "before": {
+    "Qwen2.5-Coder-3B-8bit": {
+      "loaded": true,
+      "pinned": true
+    },
+    "Qwen3-Coder-Next-6bit": {
+      "loaded": false,
+      "pinned": false
+    },
+    "Qwen3.8-27B-4bit": {
+      "loaded": false,
+      "pinned": false
+    },
+    "Qwen3.8-27B-8bit": {
+      "loaded": true,
+      "pinned": true
+    },
+    "Qwen3.8-27B-DFlash2-Q4": {
+      "loaded": false,
+      "pinned": false
+    },
+    "Qwen3.8-27B-MTP-4bit": {
+      "loaded": false,
+      "pinned": false
+    },
+    "Qwen3.8-27B-MTP-8bit": {
+      "loaded": false,
+      "pinned": false
+    },
+    "Qwen3.8-27B-oQ4e-mtp": {
+      "loaded": true,
+      "pinned": true
+    },
+    "Qwen3.8-Flash-Next-oQ4e-mtp": {
+      "loaded": false,
+      "pinned": false
+    }
+  },
+  "calls": [
+    {
+      "round": 0,
+      "model": "qwen-agent",
+      "http": 400,
+      "error": "{\"error\":{\"message\":\"litellm.BadRequestError: OpenAIException - oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=16578, min_chunk=32): predicted peak would require ~98.99 GB (current 97.97 GB + KV 1.01 GB + min-chunk trans"
+    },
+    {
+      "round": 0,
+      "model": "fn-agent",
+      "http": 400,
+      "error": "{\"error\":{\"message\":\"litellm.BadRequestError: OpenAIException - oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=16578, min_chunk=32): predicted peak would require ~98.42 GB (current 97.99 GB + KV 442.55 MB + min-chunk tra"
+    },
+    {
+      "round": 1,
+      "model": "qwen-agent",
+      "http": 400,
+      "error": "{\"error\":{\"message\":\"litellm.BadRequestError: OpenAIException - oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=16578, min_chunk=32): predicted peak would require ~99.01 GB (current 97.99 GB + KV 1.01 GB + min-chunk trans"
+    },
+    {
+      "round": 1,
+      "model": "fn-agent",
+      "http": 400,
+      "error": "{\"error\":{\"message\":\"litellm.BadRequestError: OpenAIException - oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=16578, min_chunk=32): predicted peak would require ~98.42 GB (current 97.99 GB + KV 442.55 MB + min-chunk tra"
+    },
+    {
+      "round": 2,
+      "model": "qwen-agent",
+      "http": 400,
+      "error": "{\"error\":{\"message\":\"litellm.BadRequestError: OpenAIException - oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=16578, min_chunk=32): predicted peak would require ~99.01 GB (current 97.99 GB + KV 1.01 GB + min-chunk trans"
+    },
+    {
+      "round": 2,
+      "model": "fn-agent",
+      "http": 400,
+      "error": "{\"error\":{\"message\":\"litellm.BadRequestError: OpenAIException - oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=16578, min_chunk=32): predicted peak would require ~98.42 GB (current 97.99 GB + KV 442.55 MB + min-chunk tra"
+    },
+    {
+      "round": 3,
+      "model": "qwen-agent",
+      "http": 400,
+      "error": "{\"error\":{\"message\":\"litellm.BadRequestError: OpenAIException - oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=16578, min_chunk=32): predicted peak would require ~99.01 GB (current 97.99 GB + KV 1.01 GB + min-chunk trans"
+    },
+    {
+      "round": 3,
+      "model": "fn-agent",
+      "http": 400,
+      "error": "{\"error\":{\"message\":\"litellm.BadRequestError: OpenAIException - oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=16578, min_chunk=32): predicted peak would require ~98.42 GB (current 97.99 GB + KV 442.55 MB + min-chunk tra"
+    }
+  ],
+  "evictions": [],
+  "coexisted": false,
+  "pool_gib": 101.5,
+  "after": {
+    "Qwen2.5-Coder-3B-8bit": {
+      "loaded": true,
+      "pinned": true
+    },
+    "Qwen3-Coder-Next-6bit": {
+      "loaded": false,
+      "pinned": false
+    },
+    "Qwen3.8-27B-4bit": {
+      "loaded": false,
+      "pinned": false
+    },
+    "Qwen3.8-27B-8bit": {
+      "loaded": true,
+      "pinned": true
+    },
+    "Qwen3.8-27B-DFlash2-Q4": {
+      "loaded": false,
+      "pinned": false
+    },
+    "Qwen3.8-27B-MTP-4bit": {
+      "loaded": false,
+      "pinned": false
+    },
+    "Qwen3.8-27B-MTP-8bit": {
+      "loaded": false,
+      "pinned": false
+    },
+    "Qwen3.8-27B-oQ4e-mtp": {
+      "loaded": true,
+      "pinned": true
+    },
+    "Qwen3.8-Flash-Next-oQ4e-mtp": {
+      "loaded": false,
+      "pinned": false
+    }
+  },
+  "drift": {}
+}

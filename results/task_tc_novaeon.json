@@ -1,0 +1,272 @@
+{
+  "label": "tc_novaeon",
+  "model": "Qwen3.8-35B-A3B-Distill-oQ8-fp16-mtp",
+  "at": "2026-09-21T19:40:26+00:00",
+  "repeats": 3,
+  "rows": [
+    {
+      "id": "tool-edit",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 102,
+      "wall_s": 2.3
+    },
+    {
+      "id": "tool-edit",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 94,
+      "wall_s": 1.33
+    },
+    {
+      "id": "tool-edit",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 103,
+      "wall_s": 1.43
+    },
+    {
+      "id": "tool-search",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 101,
+      "wall_s": 1.41
+    },
+    {
+      "id": "tool-search",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 175,
+      "wall_s": 2.23
+    },
+    {
+      "id": "tool-search",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 85,
+      "wall_s": 1.24
+    },
+    {
+      "id": "htool-nested",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 133,
+      "wall_s": 1.79
+    },
+    {
+      "id": "htool-nested",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 175,
+      "wall_s": 2.25
+    },
+    {
+      "id": "htool-nested",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 127,
+      "wall_s": 1.73
+    },
+    {
+      "id": "htool-escape",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": false,
+      "ran": true,
+      "reason": "degraded_to_prose",
+      "detail": "The user wants me to replace a line in app/main.py. They want to replace `msg = \"hello \\\"world\\\"\"` with `msg = f\"hello {name}\"`.\n\nLet me be very careful about t",
+      "completion_tokens": 2048,
+      "wall_s": 23.51
+    },
+    {
+      "id": "htool-escape",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 120,
+      "wall_s": 1.62
+    },
+    {
+      "id": "htool-escape",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 630,
+      "wall_s": 7.21
+    },
+    {
+      "id": "tool-edit2",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 81,
+      "wall_s": 1.2
+    },
+    {
+      "id": "tool-edit2",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 91,
+      "wall_s": 1.28
+    },
+    {
+      "id": "tool-edit2",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 89,
+      "wall_s": 1.27
+    },
+    {
+      "id": "hschema-enum",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 125,
+      "wall_s": 1.67
+    },
+    {
+      "id": "hschema-enum",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 114,
+      "wall_s": 1.55
+    },
+    {
+      "id": "hschema-enum",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 115,
+      "wall_s": 1.58
+    },
+    {
+      "id": "hschema-nested",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 148,
+      "wall_s": 1.92
+    },
+    {
+      "id": "hschema-nested",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 158,
+      "wall_s": 2.03
+    },
+    {
+      "id": "hschema-nested",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 158,
+      "wall_s": 2.04
+    },
+    {
+      "id": "hschema-semver",
+      "cat": "toolcall",
+      "rep": 0,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 99,
+      "wall_s": 1.38
+    },
+    {
+      "id": "hschema-semver",
+      "cat": "toolcall",
+      "rep": 1,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 94,
+      "wall_s": 1.33
+    },
+    {
+      "id": "hschema-semver",
+      "cat": "toolcall",
+      "rep": 2,
+      "ok": true,
+      "ran": true,
+      "reason": "usable",
+      "detail": "",
+      "completion_tokens": 113,
+      "wall_s": 1.54
+    }
+  ]
+}

@@ -1,0 +1,251 @@
+{
+  "label": "oq4e",
+  "model_id": "Qwen3.8-27B-oQ4e-mtp",
+  "request": {
+    "prompt_lengths": [
+      1024,
+      4096,
+      16384
+    ],
+    "generation_length": 128,
+    "batch_sizes": [],
+    "context_profile": "code_python",
+    "warmup_mode": "quick",
+    "align_prompt_to_ane": false
+  },
+  "variant": {
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_bits": 4.0,
+    "mtp_enabled": true,
+    "vlm_mtp_enabled": false,
+    "vlm_mtp_draft_model": null,
+    "vlm_mtp_draft_block_size": null,
+    "dflash_enabled": false,
+    "dflash_draft_model": null,
+    "specprefill_enabled": false
+  },
+  "summary": [
+    {
+      "test": "single",
+      "pp": 1024,
+      "tg": 128,
+      "batch_size": null,
+      "ttft_ms": 1134.6,
+      "tpot_ms": 17.05,
+      "prefill_tps": 902.6,
+      "decode_tps": 59.1,
+      "decode_tps_per_stream": 59.1,
+      "total_tps": 348.0,
+      "e2e_s": 3.31,
+      "gen_tokens": 128,
+      "gen_short": false,
+      "peak_gb": 18.35,
+      "mlx_active_peak_gb": 18.16,
+      "gpu_util_avg": 86.3
+    },
+    {
+      "test": "single",
+      "pp": 4096,
+      "tg": 128,
+      "batch_size": null,
+      "ttft_ms": 4540.8,
+      "tpot_ms": 17.45,
+      "prefill_tps": 902.0,
+      "decode_tps": 57.7,
+      "decode_tps_per_stream": 57.7,
+      "total_tps": 623.9,
+      "e2e_s": 6.77,
+      "gen_tokens": 128,
+      "gen_short": false,
+      "peak_gb": 19.83,
+      "mlx_active_peak_gb": 19.32,
+      "gpu_util_avg": 92.3
+    },
+    {
+      "test": "single",
+      "pp": 16384,
+      "tg": 128,
+      "batch_size": null,
+      "ttft_ms": 20527.1,
+      "tpot_ms": 17.13,
+      "prefill_tps": 798.2,
+      "decode_tps": 58.8,
+      "decode_tps_per_stream": 58.8,
+      "total_tps": 726.4,
+      "e2e_s": 22.731,
+      "gen_tokens": 128,
+      "gen_short": false,
+      "peak_gb": 21.78,
+      "mlx_active_peak_gb": 21.64,
+      "gpu_util_avg": 97.5
+    }
+  ],
+  "raw": {
+    "bench_id": "bench-de06abd0a7f5",
+    "status": "completed",
+    "context_profile": "code_python",
+    "results": [
+      {
+        "test_type": "single",
+        "pp": 1024,
+        "tg": 128,
+        "ttft_ms": 1134.6,
+        "tpot_ms": 17.05,
+        "gen_tps": 59.1,
+        "processing_tps": 902.6,
+        "e2e_latency_s": 3.31,
+        "total_throughput": 348.0,
+        "peak_memory_bytes": 19701572526,
+        "prompt_tokens": 1024,
+        "completion_tokens": 128,
+        "cached_tokens": 0,
+        "system_metrics": {
+          "sample_count": 12,
+          "interval_s": 0.25,
+          "cpu": {
+            "total_avg": 7.0,
+            "total_max": 12.6,
+            "p_avg": 10.3,
+            "e_avg": 5.4
+          },
+          "memory": {
+            "phys_footprint_peak": 20.46,
+            "mlx_active_peak": 18.16,
+            "mlx_cache_peak": 1.75,
+            "system_used_peak": 34.03,
+            "system_wired_peak": 23.37,
+            "total_ram": 128
+          },
+          "gpu": {
+            "util_avg": 86.3,
+            "util_max": 100.0
+          },
+          "thermal": {
+            "start": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "test_type": "single",
+        "pp": 4096,
+        "tg": 128,
+        "ttft_ms": 4540.8,
+        "tpot_ms": 17.45,
+        "gen_tps": 57.7,
+        "processing_tps": 902.0,
+        "e2e_latency_s": 6.77,
+        "total_throughput": 623.9,
+        "peak_memory_bytes": 21293788062,
+        "prompt_tokens": 4096,
+        "completion_tokens": 128,
+        "cached_tokens": 0,
+        "system_metrics": {
+          "sample_count": 26,
+          "interval_s": 0.25,
+          "cpu": {
+            "total_avg": 7.9,
+            "total_max": 18.5,
+            "p_avg": 10.9,
+            "e_avg": 6.4
+          },
+          "memory": {
+            "phys_footprint_peak": 21.11,
+            "mlx_active_peak": 19.32,
+            "mlx_cache_peak": 2.2,
+            "system_used_peak": 34.67,
+            "system_wired_peak": 23.92,
+            "total_ram": 128
+          },
+          "gpu": {
+            "util_avg": 92.3,
+            "util_max": 100.0
+          },
+          "thermal": {
+            "start": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "test_type": "single",
+        "pp": 16384,
+        "tg": 128,
+        "ttft_ms": 20527.1,
+        "tpot_ms": 17.13,
+        "gen_tps": 58.8,
+        "processing_tps": 798.2,
+        "e2e_latency_s": 22.731,
+        "total_throughput": 726.4,
+        "peak_memory_bytes": 23385674662,
+        "prompt_tokens": 16384,
+        "completion_tokens": 128,
+        "cached_tokens": 0,
+        "system_metrics": {
+          "sample_count": 88,
+          "interval_s": 0.25,
+          "cpu": {
+            "total_avg": 7.8,
+            "total_max": 21.1,
+            "p_avg": 14.1,
+            "e_avg": 4.7
+          },
+          "memory": {
+            "phys_footprint_peak": 23.84,
+            "mlx_active_peak": 21.64,
+            "mlx_cache_peak": 2.51,
+            "system_used_peak": 36.97,
+            "system_wired_peak": 26.28,
+            "total_ram": 128
+          },
+          "gpu": {
+            "util_avg": 97.5,
+            "util_max": 100.0
+          },
+          "thermal": {
+            "start": 0,
+            "max": 0
+          }
+        }
+      }
+    ],
+    "error": null,
+    "upload_state": {
+      "phase": "done",
+      "results": [
+        {
+          "context_length": 1024,
+          "error": "Internal server error"
+        },
+        {
+          "context_length": 4096,
+          "error": "Internal server error"
+        },
+        {
+          "context_length": 16384,
+          "error": "Internal server error"
+        }
+      ],
+      "total": 3,
+      "success_count": 0,
+      "failed_count": 3,
+      "owner_hash": "4cbb158a83d4a48f14a3b61678957e1187b07f58cc8b4880858b4a785602a8a3",
+      "skipped_reason": null,
+      "skipped_features": [],
+      "feature_flags": [
+        {
+          "key": "lightning_mtp",
+          "label": "Lightning MTP"
+        }
+      ],
+      "skipped_count": 0
+    }
+  }
+}

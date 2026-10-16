@@ -1,0 +1,65 @@
+{
+  "label": "fn_mtp_check",
+  "model_id": "Qwen3.8-Flash-Next-oQ4e-mtp",
+  "at": "2026-09-16T16:22:46+02:00",
+  "question": "does mtp_enabled change decode, and does presence_penalty 1.5 interact with it (FINDINGS §7)?",
+  "baseline_loaded": [
+    "Qwen2.5-Coder-3B-8bit",
+    "Qwen3.8-27B-8bit",
+    "Qwen3.8-27B-oQ4e-mtp"
+  ],
+  "request": {
+    "repeats": 5,
+    "max_tokens": 400
+  },
+  "arms": [
+    {
+      "presence_penalty": 0.0,
+      "n": 5,
+      "tok_per_s_median": 74.57,
+      "tok_per_s_min": 65.6,
+      "tok_per_s_max": 74.96,
+      "tok_per_s_stdev": 4.02,
+      "completion_tokens_median": 400,
+      "mtp_enabled": true,
+      "load_s": 12.6
+    },
+    {
+      "presence_penalty": 1.5,
+      "n": 5,
+      "tok_per_s_median": 74.07,
+      "tok_per_s_min": 68.67,
+      "tok_per_s_max": 74.38,
+      "tok_per_s_stdev": 2.44,
+      "completion_tokens_median": 400,
+      "mtp_enabled": true,
+      "load_s": 12.6
+    },
+    {
+      "presence_penalty": 0.0,
+      "n": 5,
+      "tok_per_s_median": 39.97,
+      "tok_per_s_min": 37.2,
+      "tok_per_s_max": 40.0,
+      "tok_per_s_stdev": 1.24,
+      "completion_tokens_median": 400,
+      "mtp_enabled": false,
+      "load_s": 11.7
+    },
+    {
+      "presence_penalty": 1.5,
+      "n": 5,
+      "tok_per_s_median": 39.43,
+      "tok_per_s_min": 38.63,
+      "tok_per_s_max": 40.01,
+      "tok_per_s_stdev": 0.58,
+      "completion_tokens_median": 400,
+      "mtp_enabled": false,
+      "load_s": 11.7
+    }
+  ],
+  "mtp_speedup": 1.866,
+  "verdict": "MTP changes decode (1.87x, delta 34.60 tok/s against noise 4.02)",
+  "penalty_cost_with_mtp": 0.007,
+  "exit_code": 0
+}

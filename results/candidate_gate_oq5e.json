@@ -1,0 +1,13 @@
+[
+  {
+    "model_id": "Qwen3.8-Flash-Next-oQ5e-mtp",
+    "at": "2026-09-21T17:49:00",
+    "disk_gib": 125.7,
+    "config_model_type": "qwen4_exp",
+    "context": 262144,
+    "mtp_compatible": true,
+    "mtp_reason": "",
+    "arch_supported": false,
+    "verdict": "reject: mlx_lm has no qwen4_exp.py"
+  }
+]

@@ -1,0 +1,19 @@
+id      = "deadend_hot_cache"
+title   = "In-memory hot cache"
+status  = "dead-end"
+models  = ["Qwen3.8-27B-8bit"]
+section = 8
+section_title = "What the validation runs settled"
+rationale = "Measured worse on every number at a 20 GB cost: repeat median 3.96 s with hot_cache_max_size=20GB against 3.49 s with it off, cold 14.39 s against 12.58 s, and the cache hit fraction does not move at all (0.886 vs 0.884). Repeats already reuse 88% of their blocks from the SSD tier; the residual 3.5 s is prefill of the uncached tail plus generation, not disk reads. There is no disk-read cost left for a RAM tier to remove. The earlier 'largest remaining win for agentic loops' claim was a plausible hypothesis and it was wrong."
+updated = 2026-09-22
+
+[[metrics]]
+name      = "repeat median latency, cache off"
+unit      = "s"
+direction = "lower"
+headline  = false
+tooltip_what     = "Median latency of a repeated prompt with the hot cache disabled."
+tooltip_how      = "cache_ab A/B, hot_cache_max_size 0 vs 20GB, same request."
+tooltip_evidence = "3.49 s off vs 3.96 s on; hit fraction 0.884 vs 0.886; see §8."
+source_file = "cache_ab.json"
+source_path  = "arms[0].summary.repeat_median_s"

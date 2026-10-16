@@ -1,0 +1,106 @@
+{
+  "arm_a": "acc_ship_reason",
+  "arm_b": "acc_optiq_reason",
+  "suites": {
+    "mmlu_pro": {
+      "n_shared": 500,
+      "both_correct": 293,
+      "neither_correct": 167,
+      "only_a_correct": 27,
+      "only_b_correct": 13,
+      "discordant": 40,
+      "net_to_b": -14,
+      "score_a": 64.0,
+      "score_b": 61.2,
+      "p_value": 0.03848,
+      "flips_to_a_sample": [
+        "10001",
+        "10003",
+        "10266",
+        "10370",
+        "10822",
+        "11194",
+        "11266",
+        "11560"
+      ],
+      "flips_to_b_sample": [
+        "11608",
+        "2072",
+        "370",
+        "5020",
+        "6275",
+        "7399",
+        "7628",
+        "7644"
+      ]
+    },
+    "gsm8k": {
+      "n_shared": 500,
+      "both_correct": 455,
+      "neither_correct": 27,
+      "only_a_correct": 13,
+      "only_b_correct": 5,
+      "discordant": 18,
+      "net_to_b": -8,
+      "score_a": 93.6,
+      "score_b": 92.0,
+      "p_value": 0.09625,
+      "flips_to_a_sample": [
+        "1140",
+        "1310",
+        "146",
+        "306",
+        "340",
+        "353",
+        "517",
+        "590"
+      ],
+      "flips_to_b_sample": [
+        "181",
+        "182",
+        "218",
+        "394",
+        "675"
+      ]
+    },
+    "mathqa": {
+      "n_shared": 500,
+      "both_correct": 183,
+      "neither_correct": 249,
+      "only_a_correct": 36,
+      "only_b_correct": 32,
+      "discordant": 68,
+      "net_to_b": -4,
+      "score_a": 43.8,
+      "score_b": 43.0,
+      "p_value": 0.7163,
+      "flips_to_a_sample": [
+        "1015",
+        "1018",
+        "1086",
+        "1087",
+        "1167",
+        "1276",
+        "1295",
+        "130"
+      ],
+      "flips_to_b_sample": [
+        "108",
+        "1138",
+        "1344",
+        "14",
+        "1415",
+        "156",
+        "1577",
+        "1637"
+      ]
+    }
+  },
+  "pooled": {
+    "questions": 1500,
+    "flips_to_a": 76,
+    "flips_to_b": 50,
+    "p_value": 0.02554
+  },
+  "verdict": "A is better (p=0.02554, pooled across suites)"
+}

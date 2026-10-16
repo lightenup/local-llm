@@ -1,0 +1,65 @@
+{
+  "arm_a": "acc_plain_reason",
+  "arm_b": "acc_ship_reason",
+  "suites": {
+    "mmlu_pro": {
+      "n_shared": 500,
+      "both_correct": 320,
+      "neither_correct": 180,
+      "only_a_correct": 0,
+      "only_b_correct": 0,
+      "discordant": 0,
+      "net_to_b": 0,
+      "score_a": 64.0,
+      "score_b": 64.0,
+      "p_value": 1.0,
+      "flips_to_a_sample": [],
+      "flips_to_b_sample": []
+    },
+    "gsm8k": {
+      "n_shared": 500,
+      "both_correct": 462,
+      "neither_correct": 30,
+      "only_a_correct": 2,
+      "only_b_correct": 6,
+      "discordant": 8,
+      "net_to_b": 4,
+      "score_a": 92.8,
+      "score_b": 93.6,
+      "p_value": 0.28906,
+      "flips_to_a_sample": [
+        "380",
+        "534"
+      ],
+      "flips_to_b_sample": [
+        "1190",
+        "1310",
+        "201",
+        "250",
+        "517",
+        "676"
+      ]
+    },
+    "mathqa": {
+      "n_shared": 500,
+      "both_correct": 219,
+      "neither_correct": 281,
+      "only_a_correct": 0,
+      "only_b_correct": 0,
+      "discordant": 0,
+      "net_to_b": 0,
+      "score_a": 43.8,
+      "score_b": 43.8,
+      "p_value": 1.0,
+      "flips_to_a_sample": [],
+      "flips_to_b_sample": []
+    }
+  },
+  "pooled": {
+    "questions": 1500,
+    "flips_to_a": 2,
+    "flips_to_b": 6,
+    "p_value": 0.28906
+  },
+  "verdict": "no significant difference (p=0.28906); B leads but within chance"
+}

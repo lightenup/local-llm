@@ -1,0 +1,456 @@
+# LiteLLM — local-only model list (wave 2, C1)
+#
+# Deliberately a TRANSPARENT PASS-THROUGH at this stage: every model_name here
+# is byte-identical to the ID oMLX already serves. That is what makes C5's
+# overhead measurement an honest A/B (same name, direct vs through the hop) and
+# what lets the C4 slice isolate a proxy fault from a naming fault.
+#
+# Role aliases (coder / reasoner / fast / diagram) are C3 and are layered on
+# top of these entries once the hop is proven. See docs/backlog.md step 11.
+
+model_list:
+  # ---- Qwen3.8-27B-8bit, the quality tier -------------------------------
+  - model_name: Qwen3.8-27B-8bit:qwen-code
+    litellm_params:
+      model: openai/Qwen3.8-27B-8bit:qwen-code
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "code quality at N=1 (FINDINGS 14)"
+
+  - model_name: Qwen3.8-27B-8bit:qwen-agent
+    litellm_params:
+      model: openai/Qwen3.8-27B-8bit:qwen-agent
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+
+  - model_name: Qwen3.8-27B-8bit:qwen-reason
+    litellm_params:
+      model: openai/Qwen3.8-27B-8bit:qwen-reason
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "thinking on, 8k budget - stays on, see FINDINGS 8"
+
+  - model_name: Qwen3.8-27B-8bit:qwen-long
+    litellm_params:
+      model: openai/Qwen3.8-27B-8bit:qwen-long
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 262144
+      notes: "262k verified; 262k cold prefill measured at 18.7 min"
+
+  # ---- Qwen3.8-27B-oQ4e-mtp, the speed tier -----------------------------
+  # Replaced Coder-Next 2026-09-12 (backlog A2c): 10.8 livecodebench points
+  # better (43.2 -> 54.0, p=0.00006), 16.0 GB against 64.7, and it coexists with
+  # the 8-bit with NO eviction where Coder-Next forced a ~20 s reload on every
+  # alternation. Coder-Next stays on disk but is no longer served.
+  - model_name: Qwen3.8-27B-oQ4e-mtp:oq-code
+    litellm_params:
+      model: openai/Qwen3.8-27B-oQ4e-mtp:oq-code
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "1.73x the 8-bit's decode for 5.8 livecodebench points"
+
+  - model_name: Qwen3.8-27B-oQ4e-mtp:oq-agent
+    litellm_params:
+      model: openai/Qwen3.8-27B-oQ4e-mtp:oq-agent
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+
+  - model_name: Qwen3.8-27B-oQ4e-mtp:oq-long
+    litellm_params:
+      model: openai/Qwen3.8-27B-oQ4e-mtp:oq-long
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 262144
+      notes: "262k WITHOUT evicting the 8-bit, unlike the retired cn-long"
+
+  # ---- Qwen3.8-Flash-Next-oQ4e-mtp, ON TRIAL (not a tier yet) -----------
+  # Present only so bench/taskbench.py can address the candidate through the
+  # proxy; taskbench has no direct-to-oMLX path. Deliberately NOT wired to any
+  # role alias below: nothing routes here until the residency gate and the
+  # paired code comparison say it earns a tier. Delete this block if it loses.
+  #
+  # max_input_tokens is 131072, half the checkpoint's claimed 262144, because
+  # QSA's retrieval budget above 131k is unmeasured here (we dropped the
+  # long-context axis) and an unverified ceiling has burned us before.
+  - model_name: Qwen3.8-Flash-Next-oQ4e-mtp:fn-code
+    litellm_params:
+      model: openai/Qwen3.8-Flash-Next-oQ4e-mtp:fn-code
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "trial arm; thinking pinned off, template default is ON"
+
+  - model_name: Qwen3.8-Flash-Next-oQ4e-mtp:fn-agent
+    litellm_params:
+      model: openai/Qwen3.8-Flash-Next-oQ4e-mtp:fn-agent
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "trial arm; the vendor's agentic claims are what this measures"
+
+  - model_name: Qwen3.8-Flash-Next-oQ4e-mtp:fn-reason
+    litellm_params:
+      model: openai/Qwen3.8-Flash-Next-oQ4e-mtp:fn-reason
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "trial arm; thinking ON, expect long completions and cap hits"
+
+  # ---- candidate arms, 2026-09-17 (backlog A7) --------------------------
+  # Both passed the D3 gate: they serve a 16k prompt with the pinned lineup
+  # still resident, which is what Flash-Next could not do. Neither is wired to
+  # any role alias below and neither should be until measured -- these entries
+  # exist so bench/taskbench.py can address them at all. B1b: a profile oMLX
+  # serves is still unreachable to every client without an entry here.
+  #
+  # NOTE both cap at 131072 against a declared 262144. Nothing has run
+  # bench/longctx_quality.py on either checkpoint.
+
+  - model_name: Qwen3.8-27B-OptiQ-4bit:opt-code
+    litellm_params:
+      model: openai/Qwen3.8-27B-OptiQ-4bit:opt-code
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "candidate; OptiQ mixed 5.14 bpw, no MTP available"
+
+  - model_name: Qwen3.8-27B-OptiQ-4bit:opt-agent
+    litellm_params:
+      model: openai/Qwen3.8-27B-OptiQ-4bit:opt-agent
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "candidate; taskbench toolcall/toolchain arm"
+
+  - model_name: Qwen3.8-27B-OptiQ-4bit:opt-reason
+    litellm_params:
+      model: openai/Qwen3.8-27B-OptiQ-4bit:opt-reason
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "candidate; the A2b arm -- does KL-driven allocation recover reasoning"
+
+  - model_name: gemma-4-31B-it-qat-OptiQ-4bit:g4-code
+    litellm_params:
+      model: openai/gemma-4-31B-it-qat-OptiQ-4bit:g4-code
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "candidate; non-Qwen family, top_k 64, tokenizer ~9% denser on code"
+
+  - model_name: gemma-4-31B-it-qat-OptiQ-4bit:g4-agent
+    litellm_params:
+      model: openai/gemma-4-31B-it-qat-OptiQ-4bit:g4-agent
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "candidate; tool-call behaviour wholly unknown for this family"
+
+  - model_name: gemma-4-31B-it-qat-OptiQ-4bit:g4-reason
+    litellm_params:
+      model: openai/gemma-4-31B-it-qat-OptiQ-4bit:g4-reason
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "candidate; the +11 mmlu_pro claim lives here, measure this first"
+
+
+  # ---- C3: role aliases -------------------------------------------------
+  # One alias per ROLE, not per model, so swapping the model behind a role is
+  # a one-line change here instead of an edit to every client. The mapping is
+  # the wave 1 rule (FINDINGS 14/15) written down: the 27B holds anything whose
+  # correctness is not independently checked, Coder-Next takes the
+  # speed-dominated work, and the verifier decides the rest.
+
+  - model_name: coder
+    litellm_params:
+      model: openai/Qwen3.8-27B-8bit:qwen-code
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: >-
+        27B because opencode sends N=1, which is FINDINGS 14's regime
+        (Coder-Next -16.6 on livecodebench at N=1). Flips to cn-code behind
+        best-of-4 when C9 lands - that is the one-line change this alias exists
+        to make possible.
+
+  - model_name: reasoner
+    litellm_params:
+      model: openai/Qwen3.8-27B-8bit:qwen-reason
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: >-
+        Thinking on, 8k budget. Coder-Next has no thinking mode and is behind
+        on multi-domain reasoning (mmlu_pro -6.0, p=0.007), so this stays 27B
+        regardless of C9. Above 131k it spills to qwen-long - see
+        context_window_fallbacks and the caveat there.
+
+  - model_name: fast
+    litellm_params:
+      model: openai/Qwen3.8-27B-oQ4e-mtp:oq-agent
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: >-
+        1.73x the 8-bit's decode, and resident alongside it with no eviction.
+        Was Coder-Next until 2026-09-12; that had 3.1x prefill but lost the role
+        on quality (-10.8 livecodebench) and on its 64.7 GB residency cost,
+        which charged ~20 s per alternation against a 13.9 s prefill saving.
+
+  - model_name: diagram
+    litellm_params:
+      model: openai/Qwen3.8-27B-8bit:qwen-code
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: >-
+        Points at the 8-bit and now stays there. The wave 1 rule said a
+        verifier-backed role should use a sampled cheaper model, but C9 measured
+        that and closed it: best-of-4 recovered 2/12 where the 8-bit alone
+        recovered 6/12, in the same wall-clock. Diagram work has a verifier and
+        still wants the better model.
+
+  # ---- §38: queued twins of the role aliases (soak) ---------------------
+  # Same model and profile as the role above, but via proxy/llm_queue.py
+  # (:8001): one inference request at a time across all models, grouped by
+  # model, 429 + Retry-After when the wait runs out. Opt-in per client by name.
+  # The plain aliases are untouched. When the soak is done, either OMLX_BASE_URL
+  # moves to :8001 and these go, or these go and the queue is retired.
+  # No context_window_fallbacks on purpose: a fallback would leave the queue.
+
+  - model_name: coder-q
+    litellm_params:
+      model: openai/Qwen3.8-27B-8bit:qwen-code
+      api_base: os.environ/OMLX_QUEUE_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "coder via llm_queue (§38 soak)"
+
+  - model_name: reasoner-q
+    litellm_params:
+      model: openai/Qwen3.8-27B-8bit:qwen-reason
+      api_base: os.environ/OMLX_QUEUE_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "reasoner via llm_queue (§38 soak)"
+
+  - model_name: fast-q
+    litellm_params:
+      model: openai/Qwen3.8-27B-oQ4e-mtp:oq-agent
+      api_base: os.environ/OMLX_QUEUE_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "fast via llm_queue (§38 soak)"
+
+  - model_name: diagram-q
+    litellm_params:
+      model: openai/Qwen3.8-27B-8bit:qwen-code
+      api_base: os.environ/OMLX_QUEUE_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "diagram via llm_queue (§38 soak)"
+
+  # ---- C3: retrieval roles ----------------------------------------------
+  # Added 2026-09-21 for homelab spec 065 (Hermes). Two more roles, same rule as
+  # above: one alias per role, so the model behind it is a one-line change here.
+  #
+  # These are the first NON-LLM entries in this file, which is why they carry a
+  # `mode`. Everything above is a chat deployment and LiteLLM infers that; an
+  # embedding or rerank deployment has to be declared, or the router treats it
+  # as a chat model and its health check probes the wrong endpoint.
+  #
+  # No profile suffix on the model id, unlike every entry above: profiles carry
+  # sampling and thinking fields (the one design rule) and an embedder has
+  # neither. definitions.py is scoped to the 27B and needs no entry for these.
+  #
+  # access_groups: ["local"] is load-bearing, not decoration — the homelab
+  # gateway's key is scoped to that group, and without it Hermes gets
+  # `key not allowed to access model … models=['local']` at first use rather
+  # than at deploy.
+
+  - model_name: embed
+    litellm_params:
+      model: openai/Qwen3-Embedding-0.6B-8bit
+      api_base: os.environ/OMLX_DIRECT_BASE_URL  # not queued, see compose
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      mode: embedding
+      notes: >-
+        1024 dimensions, 0.62 GB, multilingual (verified on Norwegian input).
+        0.6B on purpose: it is pinned alongside the 27Bs and oMLX does LRU
+        eviction, so a larger embedder would trade retrieval quality for
+        evicting the model doing the actual work. Bulk indexing is also the one
+        retrieval operation that runs at volume, where a 4B costs real time per
+        chunk.
+
+  # `infinity/`, not `openai/` — the one entry in this file that is not an
+  # openai-compatible pass-through, and it is not a style choice. LiteLLM's
+  # rerank API accepts only a fixed provider set (azure_ai, bedrock, cohere,
+  # deepinfra, fireworks_ai, hosted_vllm, infinity, jina_ai, litellm_proxy,
+  # nvidia_nim, together_ai, voyage, watsonx). `openai` is absent, and using it
+  # fails at call time with "Unsupported provider: openai" from
+  # rerank_api/main.py — not at load, so the config reads fine and does nothing.
+  #
+  # infinity is the right one of those because of URL construction: it appends
+  # `/rerank` to api_base, and OMLX_BASE_URL already ends in `/v1`, giving
+  # `/v1/rerank` — exactly what oMLX serves. hosted_vllm looks equally plausible
+  # and is wrong: it REWRITES `/v1/rerank` to `/rerank` and would miss.
+  # return_documents: false is REQUIRED, not an optimisation. oMLX returns
+  # `document` Cohere-shaped, as an object: {"text": "..."}. Infinity's handler
+  # assumes the upstream returns a bare string and wraps it, so the object
+  # double-nests and LiteLLM rejects its own response with
+  # "results.0.document.text: Input should be a valid string". Asking oMLX not
+  # to echo the documents sidesteps it entirely, and costs nothing: the only
+  # consumer, Open WebUI's ExternalReranker, reads just `index` and
+  # `relevance_score` (retrieval/models/external.py) and already holds the
+  # document text it sent.
+  - model_name: rerank
+    litellm_params:
+      model: infinity/Qwen3-Reranker-0.6B-mxfp8
+      api_base: os.environ/OMLX_DIRECT_BASE_URL  # not queued, see compose
+      api_key: os.environ/OMLX_API_KEY
+      return_documents: false
+    model_info:
+      access_groups: ["local"]
+      mode: rerank
+      notes: >-
+        0.60 GB, pairs with `embed` above. Verified 2026-09-21 directly against
+        oMLX: scored a relevant passage 1.0 and an irrelevant one 5.1e-06 on the
+        same query.
+
+  # ---- C2: the cloud tier, structure only ------------------------------
+  # Deliberately COMMENTED OUT, not omitted. Everything except a provider name
+  # and a credential is decided here, so enabling a sanctioned provider later is
+  # an edit rather than a design exercise. See proxy/CLOUD.md.
+  #
+  # The safety property this structure exists for: a cloud deployment must be
+  # reachable ONLY through a key that carries the `cloud-approved` access group,
+  # and ONLY under an explicit alias. It must never be reachable as a fallback
+  # from a local alias — see router_settings below for why that is the default
+  # and has to be actively prevented.
+  #
+  # - model_name: coder-cloud
+  #   litellm_params:
+  #     model: <provider>/<model>          # e.g. anthropic/claude-opus-5
+  #     api_key: os.environ/CLOUD_API_KEY
+  #   model_info:
+  #     access_groups: ["cloud-approved"]  # NOT "local"
+  #     max_input_tokens: 200000
+  #     notes: >-
+  #       Explicit alias, never a fallback target. Callers opt in by naming it.
+
+litellm_settings:
+  # oMLX profiles set force_sampling, so temperature/top_p/top_k sent by a
+  # client are ignored server-side anyway (FINDINGS 7). drop_params keeps
+  # LiteLLM from rejecting params oMLX does not advertise.
+  drop_params: true
+
+  # C5's headline constraint. Defaults fire during prefill: cold prefill at 16k
+  # is ~12.6 s here, and the measured 262k cold prefill was 18.7 min (1122 s).
+  # 2400 s leaves headroom above the worst case actually observed.
+  request_timeout: 2400
+
+  # Zero, on purpose. A retry against a local single-GPU server does not route
+  # around a fault, it re-queues the same 20-minute prefill behind itself and
+  # turns one slow request into two. Failures should surface, not multiply.
+  num_retries: 0
+
+  set_verbose: false
+  json_logs: false
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL
+
+router_settings:
+  # C2's warning, encoded now rather than after a leak: a router-level fallback
+  # fires even when the calling key is not permitted to call the fallback model
+  # directly, which makes local->cloud spill the DEFAULT rather than an opt-in.
+  # There is no cloud deployment here yet, so this stays empty - and it must
+  # stay empty until C2 introduces the two access groups deliberately.
+  # These MUST stay empty while any cloud deployment exists. LiteLLM fires a
+  # router-level fallback even when the calling key is not permitted to call the
+  # fallback model directly, which makes local->cloud spill the DEFAULT rather
+  # than an opt-in. The C3 context override below is the single exception and is
+  # local->local; see the note there.
+  fallbacks: []
+  content_policy_fallbacks: []
+
+  # C3: `qwen-long` folded into `reasoner` with a context override, rather than
+  # given a fifth role name. This is the one fallback that is enabled, and the
+  # distinction from the list above is the point: it is local->local, so it
+  # cannot spill work data across a trust boundary. It only ever fires on a
+  # request that would otherwise be rejected outright for length.
+  #
+  # CAVEAT, because it is not a pure context bump: qwen-reason runs thinking on
+  # with an 8k budget, qwen-long runs thinking OFF at temp 0.3. So crossing
+  # 131k silently trades reasoning depth for window. That is the right trade
+  # for whole-repo analysis and the wrong one for a hard architecture question
+  # that happens to carry a large context. If that bites, the honest fix is a
+  # fifth `long` role, not a cleverer fallback.
+  context_window_fallbacks:
+    - reasoner: ["Qwen3.8-27B-8bit:qwen-long"]
+
+  # Without this, max_input_tokens in model_info is inert METADATA: the router
+  # never pre-checks it, so context_window_fallbacks can only fire REACTIVELY
+  # on a backend error. Measured 2026-09-11: a 4,059-token request against a
+  # deployment declaring 2,048 was served anyway, no fallback, no log line.
+  enable_pre_call_checks: true
+
+  routing_strategy: simple-shuffle

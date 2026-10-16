@@ -1,0 +1,57 @@
+{
+  "model": "Qwen3.8-Flash-Next-oQ4e-mtp",
+  "shipped": "Qwen3.8-27B-8bit",
+  "baseline_loaded": [
+    "Qwen2.5-Coder-3B-8bit",
+    "Qwen3.8-27B-8bit",
+    "Qwen3.8-27B-oQ4e-mtp"
+  ],
+  "baseline_settings": {
+    "qwen4_ple_ssd_offload": null,
+    "mtp_enabled": null
+  },
+  "estimate": {
+    "model_id": "Qwen3.8-Flash-Next-oQ4e-mtp",
+    "engine_type": "vlm",
+    "mtp_compatible": true,
+    "mtp_compatibility_reason": "",
+    "dflash_compatible": true,
+    "model_context_length": 262144,
+    "ple_offload_supported": true,
+    "ple_offload_forced": false,
+    "ple_resident_gb": 111.61,
+    "ple_mmap_gb": 78.01,
+    "ple_table_gb": 33.6,
+    "admission_ceiling_gb": 115.45,
+    "resident_fits_ceiling": true,
+    "mmap_fits_ceiling": true
+  },
+  "arms": [
+    {
+      "arm": "mmap",
+      "qwen4_ple_ssd_offload": true,
+      "load_s": 0.0,
+      "load_error": "POST /admin/api/models/Qwen3.8-Flash-Next-oQ4e-mtp/load -> 500: {\"detail\":\"Cannot load Qwen3.8-Flash-Next-oQ4e-mtp: projected memory 126.33GB would exceed the metal_cap memory ceiling 107.52GB (current: 53.67GB, model: 72.65GB). Raise kernel iogpu.wired_limit_mb in Terminal (currently caps Metal at 107.52GB), or unload another model.\"}",
+      "loaded": [
+        "Qwen2.5-Coder-3B-8bit",
+        "Qwen3.8-27B-8bit",
+        "Qwen3.8-27B-oQ4e-mtp"
+      ]
+    },
+    {
+      "arm": "resident",
+      "qwen4_ple_ssd_offload": false,
+      "load_s": 0.0,
+      "load_error": "POST /admin/api/models/Qwen3.8-Flash-Next-oQ4e-mtp/load -> 500: {\"detail\":\"Cannot load Qwen3.8-Flash-Next-oQ4e-mtp: projected memory 157.62GB would exceed the metal_cap memory ceiling 107.52GB (current: 53.67GB, model: 103.94GB). Raise kernel iogpu.wired_limit_mb in Terminal (currently caps Metal at 107.52GB), or unload another model.\"}",
+      "loaded": [
+        "Qwen2.5-Coder-3B-8bit",
+        "Qwen3.8-27B-8bit",
+        "Qwen3.8-27B-oQ4e-mtp"
+      ]
+    }
+  ],
+  "coexistence": {
+    "skipped": "no residency arm loaded, nothing to coexist with"
+  },
+  "exit_code": 0
+}

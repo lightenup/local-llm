@@ -1,0 +1,118 @@
+{
+  "label": "ctl16k_p3",
+  "model_id": "Qwen3.8-27B-8bit",
+  "request": {
+    "prompt_lengths": [
+      16384
+    ],
+    "generation_length": 128,
+    "batch_sizes": [],
+    "context_profile": "code_python",
+    "warmup_mode": "quick",
+    "align_prompt_to_ane": false
+  },
+  "variant": {
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_bits": 4.0,
+    "mtp_enabled": false,
+    "vlm_mtp_enabled": true,
+    "vlm_mtp_draft_model": "Qwen3.8-27B-MTP-8bit",
+    "vlm_mtp_draft_block_size": 3,
+    "dflash_enabled": false,
+    "dflash_draft_model": null,
+    "specprefill_enabled": false,
+    "qwen4_ple_ssd_offload": false
+  },
+  "summary": [
+    {
+      "test": "single",
+      "pp": 16384,
+      "tg": 128,
+      "batch_size": null,
+      "ttft_ms": 21276.3,
+      "tpot_ms": 30.34,
+      "prefill_tps": 770.1,
+      "decode_tps": 33.2,
+      "decode_tps_per_stream": 33.2,
+      "total_tps": 656.4,
+      "e2e_s": 25.154,
+      "gen_tokens": 128,
+      "gen_short": false,
+      "peak_gb": 36.96,
+      "mlx_active_peak_gb": 36.73,
+      "gpu_util_avg": 93.8
+    }
+  ],
+  "raw": {
+    "bench_id": "bench-9517c9f4bb6c",
+    "status": "completed",
+    "context_profile": "code_python",
+    "results": [
+      {
+        "test_type": "single",
+        "pp": 16384,
+        "tg": 128,
+        "ttft_ms": 21276.3,
+        "tpot_ms": 30.34,
+        "gen_tps": 33.2,
+        "processing_tps": 770.1,
+        "e2e_latency_s": 25.154,
+        "total_throughput": 656.4,
+        "peak_memory_bytes": 39683743756,
+        "prompt_tokens": 16384,
+        "completion_tokens": 128,
+        "cached_tokens": 0,
+        "system_metrics": {
+          "sample_count": 97,
+          "interval_s": 0.25,
+          "cpu": {
+            "total_avg": 5.8,
+            "total_max": 15.7,
+            "p_avg": 7.6,
+            "e_avg": 4.9
+          },
+          "memory": {
+            "phys_footprint_peak": 38.69,
+            "mlx_active_peak": 36.73,
+            "mlx_cache_peak": 2.89,
+            "system_used_peak": 66.9,
+            "system_wired_peak": 41.78,
+            "total_ram": 128
+          },
+          "gpu": {
+            "util_avg": 93.8,
+            "util_max": 100.0
+          },
+          "thermal": {
+            "start": 0,
+            "max": 0
+          }
+        }
+      }
+    ],
+    "error": null,
+    "upload_state": {
+      "phase": "uploading",
+      "results": [],
+      "total": 0,
+      "success_count": 0,
+      "failed_count": 0,
+      "owner_hash": null,
+      "skipped_reason": null,
+      "skipped_features": [],
+      "feature_flags": [
+        {
+          "key": "vlm_mtp",
+          "label": "VLM MTP"
+        }
+      ]
+    }
+  }
+}

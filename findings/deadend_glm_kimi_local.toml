@@ -1,0 +1,9 @@
+id      = "deadend_glm_kimi_local"
+title   = "GLM-5.2 / Kimi-class models locally on 128 GB"
+status  = "dead-end"
+models  = ["GLM-5.2"]
+section = 34
+rationale = "Closed by argument: GLM-5.2 needs ~239-245 GB even at 2-bit and degrades below Q4, making a 256 GB Mac Studio the entry ticket. Expert streaming does not rescue it — streaming cost scales with active parameters, and GLM-5.2 is 40B active (~13 GB of expert reads per token at ~2.6 bits/param), so several GB come off SSD every token: sub-2 tok/s optimistically. Prefill is worse, since every prompt token routes independently and touches essentially all experts. The sane use of GLM-5.2 is remote, as a planner over its native API, with local doing execution."
+updated = 2026-09-22
+
+# no [[metrics]] — closed by argument, renders with a "no measurement" marker

@@ -1,0 +1,492 @@
+{
+  "label": "acc_codernext_code",
+  "model": "Qwen3-Coder-Next-6bit",
+  "system_prompt": "You are solving a competitive programming problem that will be run as a script.\n- Read ALL input from stdin. Values may be on separate lines or on one line; read robustly, for example with sys.stdin.read().split().\n- The program must execute and print its answer when run. Do not define a function and leave it uncalled.\n- Print only the required output, nothing else. Match the expected formatting exactly, including capitalisation of booleans.\n- Output one Python code block and no explanation.",
+  "retried": 60,
+  "recovered": 2,
+  "io_failures_in_suite": 200,
+  "baseline_accuracy": 0.432,
+  "projected_accuracy": 0.4453,
+  "rows": [
+    {
+      "id": "2857",
+      "bucket": "stdin_format_unpack",
+      "detail": "ValueError: not enough values to unpack (expected 2, got 1)",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 138
+    },
+    {
+      "id": "3416",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[13,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 313
+    },
+    {
+      "id": "3351",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[1,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 163
+    },
+    {
+      "id": "3298",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[2,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 274
+    },
+    {
+      "id": "2878",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[2,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 1176
+    },
+    {
+      "id": "3375",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[3'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 486
+    },
+    {
+      "id": "3773",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[5,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 336
+    },
+    {
+      "id": "2868",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[5,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 343
+    },
+    {
+      "id": "3613",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[[\"EUR\",'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 786
+    },
+    {
+      "id": "abc355_e",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: ''",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 6331
+    },
+    {
+      "id": "3421",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[12,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 283
+    },
+    {
+      "id": "3717",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[5,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 6958
+    },
+    {
+      "id": "3560",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[[0,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 926
+    },
+    {
+      "id": "3776",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[6,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 432
+    },
+    {
+      "id": "3347",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[2,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 120
+    },
+    {
+      "id": "abc341_f",
+      "bucket": "crash_nonzero_exit",
+      "detail": "    - **Time Complexity**: For each vertex `i`, the knapsack problem is solved in `O(deg(i) * W[i])` time, where `deg(i)` is the degree of vertex `i`. Given tha",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 7580
+    },
+    {
+      "id": "3045",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[3,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 362
+    },
+    {
+      "id": "3682",
+      "bucket": "passes_now",
+      "detail": "",
+      "passes": true,
+      "finish_reason": "stop",
+      "completion_tokens": 1023
+    },
+    {
+      "id": "3636",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '\"'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 95
+    },
+    {
+      "id": "3344",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[[3,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 8821
+    },
+    {
+      "id": "3192",
+      "bucket": "stdin_format_unpack",
+      "detail": "ValueError: not enough values to unpack (expected 3, got 1)",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 12683
+    },
+    {
+      "id": "3714",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[1,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 888
+    },
+    {
+      "id": "2952",
+      "bucket": "crash_SyntaxError",
+      "detail": "SyntaxError: invalid syntax",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 1189
+    },
+    {
+      "id": "3436",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[1,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 355
+    },
+    {
+      "id": "abc369_g",
+      "bucket": "no_output",
+      "detail": "expected '16\\n22\\n26\\n26\\n26'",
+      "passes": false,
+      "finish_reason": "length",
+      "completion_tokens": 16384
+    },
+    {
+      "id": "3478",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[[2,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 1041
+    },
+    {
+      "id": "2892",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[2,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 144
+    },
+    {
+      "id": "2849",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[2,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 421
+    },
+    {
+      "id": "2953",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[[1,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 313
+    },
+    {
+      "id": "3080",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[1,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 331
+    },
+    {
+      "id": "3621",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[5,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 834
+    },
+    {
+      "id": "3251",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[[9,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 183
+    },
+    {
+      "id": "3567",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '\"2080'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 112
+    },
+    {
+      "id": "3575",
+      "bucket": "no_output",
+      "detail": "expected '5'",
+      "passes": false,
+      "finish_reason": "length",
+      "completion_tokens": 16384
+    },
+    {
+      "id": "abc373_e",
+      "bucket": "no_output",
+      "detail": "expected '2 -1 1 -1 0'",
+      "passes": false,
+      "finish_reason": "length",
+      "completion_tokens": 16384
+    },
+    {
+      "id": "2902",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[51,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 267
+    },
+    {
+      "id": "3291",
+      "bucket": "no_output",
+      "detail": "expected 'true'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 314
+    },
+    {
+      "id": "3252",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[1,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 1037
+    },
+    {
+      "id": "3387",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[2,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 351
+    },
+    {
+      "id": "abc372_g",
+      "bucket": "no_output",
+      "detail": "expected '2\\n0'",
+      "passes": false,
+      "finish_reason": "length",
+      "completion_tokens": 16384
+    },
+    {
+      "id": "3437",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[1,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 387
+    },
+    {
+      "id": "3620",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[1,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 373
+    },
+    {
+      "id": "2872",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[2,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 278
+    },
+    {
+      "id": "2824",
+      "bucket": "case_mismatch",
+      "detail": "'True' vs 'true'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 170
+    },
+    {
+      "id": "abc390_g",
+      "bucket": "no_output",
+      "detail": "expected '1332'",
+      "passes": false,
+      "finish_reason": "length",
+      "completion_tokens": 16384
+    },
+    {
+      "id": "arc182_c",
+      "bucket": "no_output",
+      "detail": "expected '16'",
+      "passes": false,
+      "finish_reason": "length",
+      "completion_tokens": 16384
+    },
+    {
+      "id": "3374",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[0,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 214
+    },
+    {
+      "id": "3224",
+      "bucket": "crash_UnboundLocalError",
+      "detail": "UnboundLocalError: cannot access local variable 'sick' where it is not associated with a value",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 637
+    },
+    {
+      "id": "3219",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[1,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 350
+    },
+    {
+      "id": "3464",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[1,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 3237
+    },
+    {
+      "id": "3456",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[1,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 1033
+    },
+    {
+      "id": "3413",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[4,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 218
+    },
+    {
+      "id": "3725",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[1,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 4591
+    },
+    {
+      "id": "abc399_e",
+      "bucket": "passes_now",
+      "detail": "",
+      "passes": true,
+      "finish_reason": "stop",
+      "completion_tokens": 8059
+    },
+    {
+      "id": "3213",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[1'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 282
+    },
+    {
+      "id": "3423",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[3,'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 8535
+    },
+    {
+      "id": "3025",
+      "bucket": "crash_ValueError",
+      "detail": "ValueError: invalid literal for int() with base 10: '[1'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 719
+    },
+    {
+      "id": "2854",
+      "bucket": "wrong_output",
+      "detail": "'16' vs '4'",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 551
+    },
+    {
+      "id": "3235",
+      "bucket": "crash_IndexError",
+      "detail": "IndexError: list index out of range",
+      "passes": false,
+      "finish_reason": "stop",
+      "completion_tokens": 1523
+    },
+    {
+      "id": "arc188_d",
+      "bucket": "no_output",
+      "detail": "expected '1'",
+      "passes": false,
+      "finish_reason": "length",
+      "completion_tokens": 16384
+    }
+  ]
+}

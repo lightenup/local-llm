@@ -1,0 +1,42 @@
+[
+  {
+    "model_id": "gemma-4-31B-it-qat-OptiQ-4bit",
+    "at": "2026-09-17T07:34:08",
+    "disk_gib": 21.88,
+    "config_model_type": "gemma4",
+    "context": 262144,
+    "mtp_compatible": false,
+    "mtp_reason": "model has no MTP heads in config",
+    "arch_supported": true,
+    "lineup": [
+      "Qwen2.5-Coder-3B-8bit",
+      "Qwen3.8-27B-8bit",
+      "Qwen3.8-27B-oQ4e-mtp"
+    ],
+    "load_s": 5.0,
+    "resident_gib": 21.88,
+    "pool_gib": 70.53,
+    "lineup_survived_load": true,
+    "calls": [
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 18196,
+        "wall_s": 16.4,
+        "finish": "length",
+        "head": "This codebase is a comprehensive benchmarking and tuning suite for **oMLX**, a local LLM i"
+      },
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 18196,
+        "wall_s": 15.7,
+        "finish": "length",
+        "head": "This collection of Python scripts constitutes a benchmarking and optimization suite for **"
+      }
+    ],
+    "lineup_survived_serving": true,
+    "coexists": true,
+    "verdict": "PASS -- coexists and serves"
+  }
+]

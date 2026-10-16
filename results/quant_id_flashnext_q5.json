@@ -1,0 +1,207 @@
+{
+  "generated": "2026-09-21T17:08:34",
+  "models": [
+    {
+      "repo": "GBP-DE/Qwen3.8-Flash-Next-oQ5e-mtp",
+      "quantized": true,
+      "build": "mixed-up",
+      "base_bits": 5,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 128.5,
+      "modules_graded": 871,
+      "modules_above_base": 707,
+      "modules_above_base_non_router": 658,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "5": 164,
+        "6": 499,
+        "8": 208
+      },
+      "effective_bits_over_graded": 6.29,
+      "name_signal": [
+        "oq"
+      ],
+      "converted_by": "5.8.0.dev0"
+    },
+    {
+      "repo": "tls20/Qwen3.8-Flash-Next-oQ5e-mtp",
+      "quantized": true,
+      "build": "mixed-up",
+      "base_bits": 5,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 128.5,
+      "modules_graded": 871,
+      "modules_above_base": 707,
+      "modules_above_base_non_router": 658,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "5": 164,
+        "6": 499,
+        "8": 208
+      },
+      "effective_bits_over_graded": 6.29,
+      "name_signal": [
+        "oq"
+      ],
+      "converted_by": "5.8.0.dev0"
+    },
+    {
+      "repo": "himefei/Qwen3.8-Flash-Next-oQ5e-mtp",
+      "quantized": true,
+      "build": "mixed-up",
+      "base_bits": 5,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 128.5,
+      "modules_graded": 871,
+      "modules_above_base": 707,
+      "modules_above_base_non_router": 658,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "5": 164,
+        "6": 499,
+        "8": 208
+      },
+      "effective_bits_over_graded": 6.29,
+      "name_signal": [
+        "oq"
+      ],
+      "converted_by": "5.8.0.dev0"
+    },
+    {
+      "repo": "txgsync/Qwen3.8-Flash-Next-Dynamic-oQ5e-BF16-PLE-mtp",
+      "quantized": true,
+      "build": "mixed-up",
+      "base_bits": 4,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 187.4,
+      "modules_graded": 668,
+      "modules_above_base": 668,
+      "modules_above_base_non_router": 620,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "5": 45,
+        "8": 623
+      },
+      "effective_bits_over_graded": 7.8,
+      "name_signal": [
+        "oq"
+      ],
+      "converted_by": "5.8.0.dev0"
+    },
+    {
+      "repo": "mensaprodigy/Qwen3.8-Flash-Next-REAP-384-oQ5e-BF16-MTP-PLE",
+      "quantized": true,
+      "build": "mixed-up",
+      "base_bits": 5,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 174.6,
+      "modules_graded": 238,
+      "modules_above_base": 202,
+      "modules_above_base_non_router": 154,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "5": 36,
+        "6": 7,
+        "8": 195
+      },
+      "effective_bits_over_graded": 7.49,
+      "name_signal": [
+        "oq"
+      ],
+      "converted_by": "5.8.0.dev0"
+    },
+    {
+      "repo": "TheDrainFlorist/Qwen3.8-Flash-Next-VQ-5.5bpw",
+      "quantized": true,
+      "build": "uniform",
+      "base_bits": 8,
+      "group_size": 32,
+      "mode": "affine",
+      "size_gb": 123.0,
+      "modules_graded": 726,
+      "modules_above_base": 0,
+      "modules_above_base_non_router": 0,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "8": 726
+      },
+      "effective_bits_over_graded": 8.0,
+      "name_signal": [],
+      "converted_by": "5.8.0.dev0"
+    },
+    {
+      "repo": "mlx-community/Qwen3.8-Flash-Next-Uncensored-oQ5e-mtp",
+      "quantized": true,
+      "build": "mixed-up",
+      "base_bits": 5,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 128.5,
+      "modules_graded": 871,
+      "modules_above_base": 707,
+      "modules_above_base_non_router": 658,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "5": 164,
+        "6": 498,
+        "8": 209
+      },
+      "effective_bits_over_graded": 6.29,
+      "name_signal": [
+        "oq"
+      ],
+      "converted_by": "5.8.0.dev0"
+    },
+    {
+      "repo": "Jundot/Qwen3.8-Flash-Next-oQ4e-mtp",
+      "quantized": true,
+      "build": "mixed-up",
+      "base_bits": 4,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 106.3,
+      "modules_graded": 631,
+      "modules_above_base": 503,
+      "modules_above_base_non_router": 454,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "4": 128,
+        "5": 181,
+        "6": 99,
+        "8": 223
+      },
+      "effective_bits_over_graded": 6.01,
+      "name_signal": [
+        "oq"
+      ],
+      "converted_by": "5.8.0.dev0"
+    },
+    {
+      "repo": "mlx-community/Qwen3.8-Flash-Next-oQ6e-mtp",
+      "quantized": true,
+      "build": "mixed-up",
+      "base_bits": 6,
+      "group_size": 64,
+      "mode": "affine",
+      "size_gb": 150.4,
+      "modules_graded": 383,
+      "modules_above_base": 219,
+      "modules_above_base_non_router": 170,
+      "modules_below_base": 0,
+      "bit_histogram": {
+        "6": 164,
+        "8": 219
+      },
+      "effective_bits_over_graded": 7.14,
+      "name_signal": [
+        "oq"
+      ],
+      "converted_by": "5.8.0.dev0"
+    }
+  ]
+}

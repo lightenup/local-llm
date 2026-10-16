@@ -1,0 +1,14 @@
+[
+  {
+    "label": "short prefix (~30 tok)",
+    "n1_s": 0.39,
+    "n4_s": 1.2,
+    "ratio": 3.08
+  },
+  {
+    "label": "realistic prefix (~4.5k tok)",
+    "n1_s": 3.73,
+    "n4_s": 7.95,
+    "ratio": 2.13
+  }
+]

@@ -1,0 +1,122 @@
+{
+  "marks": [
+    {
+      "label": "session-start",
+      "at": "2026-09-11T11:09:58+00:00",
+      "uptime_s": 588506.1,
+      "cumulative_efficiency_pct": 81.4,
+      "avg_prefill_tps": 465.6,
+      "avg_generation_tps": 38.3,
+      "total_requests": 729,
+      "total_prompt_tokens": 15030232,
+      "total_cached_tokens": 12234752,
+      "total_completion_tokens": 1124605,
+      "total_tokens_served": 16154837
+    },
+    {
+      "label": "after-c1-c4",
+      "at": "2026-09-11T11:21:42+00:00",
+      "uptime_s": 589209.9,
+      "cumulative_efficiency_pct": 81.4,
+      "avg_prefill_tps": 465.5,
+      "avg_generation_tps": 38.3,
+      "total_requests": 735,
+      "total_prompt_tokens": 15031817,
+      "total_cached_tokens": 12234752,
+      "total_completion_tokens": 1124841,
+      "total_tokens_served": 16156658
+    },
+    {
+      "label": "after-a2b-gate",
+      "at": "2026-09-11T11:35:23+00:00",
+      "uptime_s": 590031.1,
+      "cumulative_efficiency_pct": 81.3,
+      "avg_prefill_tps": 463.4,
+      "avg_generation_tps": 38.3,
+      "total_requests": 773,
+      "total_prompt_tokens": 15040907,
+      "total_cached_tokens": 12234752,
+      "total_completion_tokens": 1126357,
+      "total_tokens_served": 16167264
+    },
+    {
+      "label": "session-end",
+      "at": "2026-09-11T11:37:36+00:00",
+      "uptime_s": 590163.5,
+      "cumulative_efficiency_pct": 81.3,
+      "avg_prefill_tps": 463.4,
+      "avg_generation_tps": 38.3,
+      "total_requests": 773,
+      "total_prompt_tokens": 15040907,
+      "total_cached_tokens": 12234752,
+      "total_completion_tokens": 1126357,
+      "total_tokens_served": 16167264
+    },
+    {
+      "label": "after-c9-cost",
+      "at": "2026-09-11T12:15:31+00:00",
+      "uptime_s": 592439.1,
+      "cumulative_efficiency_pct": 81.3,
+      "avg_prefill_tps": 456.1,
+      "avg_generation_tps": 38.3,
+      "total_requests": 846,
+      "total_prompt_tokens": 15043709,
+      "total_cached_tokens": 12234752,
+      "total_completion_tokens": 1133024,
+      "total_tokens_served": 16176733
+    },
+    {
+      "label": "session-2-end",
+      "at": "2026-09-11T12:23:04+00:00",
+      "uptime_s": 592892.0,
+      "cumulative_efficiency_pct": 80.6,
+      "avg_prefill_tps": 464.1,
+      "avg_generation_tps": 38.3,
+      "total_requests": 1017,
+      "total_prompt_tokens": 15573485,
+      "total_cached_tokens": 12550144,
+      "total_completion_tokens": 1148298,
+      "total_tokens_served": 16721783
+    },
+    {
+      "label": "before-opencode-task",
+      "at": "2026-09-11T21:51:28+00:00",
+      "uptime_s": 626995.4,
+      "cumulative_efficiency_pct": 77.2,
+      "avg_prefill_tps": 383.1,
+      "avg_generation_tps": 38.1,
+      "total_requests": 1159,
+      "total_prompt_tokens": 16888162,
+      "total_cached_tokens": 13029376,
+      "total_completion_tokens": 1174868,
+      "total_tokens_served": 18063030
+    },
+    {
+      "label": "after-opencode-task",
+      "at": "2026-09-11T21:51:58+00:00",
+      "uptime_s": 627025.5,
+      "cumulative_efficiency_pct": 77.2,
+      "avg_prefill_tps": 383.2,
+      "avg_generation_tps": 38.1,
+      "total_requests": 1164,
+      "total_prompt_tokens": 16923602,
+      "total_cached_tokens": 13060096,
+      "total_completion_tokens": 1175008,
+      "total_tokens_served": 18098610
+    },
+    {
+      "label": "run-B-analysis",
+      "at": "2026-09-13T12:31:23+00:00",
+      "uptime_s": 85037.0,
+      "cumulative_efficiency_pct": 93.3,
+      "avg_prefill_tps": 398.5,
+      "avg_generation_tps": 20.3,
+      "total_requests": 568,
+      "total_prompt_tokens": 20758135,
+      "total_cached_tokens": 19363840,
+      "total_completion_tokens": 262099,
+      "total_tokens_served": 21020234
+    }
+  ],
+  "prefix_probes": []
+}

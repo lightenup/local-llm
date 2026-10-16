@@ -1,0 +1,42 @@
+[
+  {
+    "model_id": "Tiel-Coder-35B-A3B-MLX-oQ4e",
+    "at": "2026-09-21T20:43:53",
+    "disk_gib": 20.64,
+    "config_model_type": "qwen3_5_moe",
+    "context": 262144,
+    "mtp_compatible": false,
+    "mtp_reason": "model has no MTP heads in config",
+    "arch_supported": true,
+    "lineup": [
+      "Qwen2.5-Coder-3B-8bit",
+      "Qwen3.8-27B-8bit",
+      "Qwen3.8-27B-oQ4e-mtp"
+    ],
+    "load_s": 8.3,
+    "resident_gib": 20.64,
+    "pool_gib": 69.29,
+    "lineup_survived_load": true,
+    "calls": [
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 16776,
+        "wall_s": 8.9,
+        "finish": "length",
+        "head": "The user has shared five Python scripts (bench/accuracy.py, bench/ane_tune.py, bench/best_"
+      },
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 16776,
+        "wall_s": 3.3,
+        "finish": "length",
+        "head": "The user has pasted several Python files (bench scripts) and asks me to \"Describe what the"
+      }
+    ],
+    "lineup_survived_serving": true,
+    "coexists": true,
+    "verdict": "PASS -- coexists and serves"
+  }
+]

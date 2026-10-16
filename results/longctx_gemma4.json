@@ -1,0 +1,392 @@
+{
+  "timestamp": "2026-09-18T17:44:50.941172+00:00",
+  "model_id": "gemma-4-31B-it-qat-OptiQ-4bit:g4-long",
+  "variant": {},
+  "request": {
+    "lengths": [
+      65536,
+      131072,
+      262144
+    ],
+    "depths": [
+      0.05,
+      0.25,
+      0.5,
+      0.75,
+      0.95
+    ],
+    "max_tokens": 64,
+    "max_length_seconds": 5400.0,
+    "sections": 240,
+    "seed": 20260906,
+    "safety_tokens": 256
+  },
+  "calibration": {
+    "slope": 0.16346666666666668,
+    "intercept": 1781.0,
+    "fitted": true,
+    "probes": [
+      {
+        "chars": 60000,
+        "prompt_tokens": 11589,
+        "ok": true,
+        "error": null
+      },
+      {
+        "chars": 180000,
+        "prompt_tokens": 31205,
+        "ok": true,
+        "error": null
+      }
+    ]
+  },
+  "records": [
+    {
+      "target_tokens": 65536,
+      "kind": "retrieval",
+      "depth": 0.05,
+      "expected": "80804",
+      "got": "80804",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 65215,
+      "cached_tokens": 0,
+      "wall_s": 140.102,
+      "error": null
+    },
+    {
+      "target_tokens": 65536,
+      "kind": "retrieval",
+      "depth": 0.25,
+      "expected": "32779",
+      "got": "32779",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 65215,
+      "cached_tokens": 64512,
+      "wall_s": 19.354,
+      "error": null
+    },
+    {
+      "target_tokens": 65536,
+      "kind": "retrieval",
+      "depth": 0.5,
+      "expected": "11492",
+      "got": "11492",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 65215,
+      "cached_tokens": 64512,
+      "wall_s": 3.284,
+      "error": null
+    },
+    {
+      "target_tokens": 65536,
+      "kind": "retrieval",
+      "depth": 0.75,
+      "expected": "64419",
+      "got": "64419",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 65215,
+      "cached_tokens": 64512,
+      "wall_s": 3.149,
+      "error": null
+    },
+    {
+      "target_tokens": 65536,
+      "kind": "retrieval",
+      "depth": 0.95,
+      "expected": "91134",
+      "got": "91134",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 65215,
+      "cached_tokens": 64512,
+      "wall_s": 3.139,
+      "error": null
+    },
+    {
+      "target_tokens": 65536,
+      "kind": "multihop",
+      "depth": null,
+      "expected": "171938",
+      "got": "171938",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 65225,
+      "cached_tokens": 64512,
+      "wall_s": 3.246,
+      "error": null
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.05,
+      "expected": "12548",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "KeyError: 'choices'"
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.25,
+      "expected": "42445",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=130716, min_chunk=32): predicted peak would require ~98.41 GB (current 23.08 GB + KV 20.76 GB + min-chunk transient 54"
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.5,
+      "expected": "99961",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=130716, min_chunk=32): predicted peak would require ~98.41 GB (current 23.08 GB + KV 20.76 GB + min-chunk transient 54"
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.75,
+      "expected": "10506",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=130716, min_chunk=32): predicted peak would require ~98.41 GB (current 23.08 GB + KV 20.76 GB + min-chunk transient 54"
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.95,
+      "expected": "91126",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=130716, min_chunk=32): predicted peak would require ~98.41 GB (current 23.08 GB + KV 20.76 GB + min-chunk transient 54"
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "multihop",
+      "depth": null,
+      "expected": "103674",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=130726, min_chunk=32): predicted peak would require ~98.42 GB (current 23.08 GB + KV 20.76 GB + min-chunk transient 54"
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.05,
+      "expected": "36478",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill would require ~118.41 GB peak (current 23.08 GB + KV+SDPA 95.33 GB) but metal_cap ceiling is 102.14 GB. Raise kernel iogpu.wired_limit_mb in Terminal (currently caps Metal at 107.52 GB), or"
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.25,
+      "expected": "74064",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill would require ~118.41 GB peak (current 23.08 GB + KV+SDPA 95.33 GB) but metal_cap ceiling is 102.14 GB. Raise kernel iogpu.wired_limit_mb in Terminal (currently caps Metal at 107.52 GB), or"
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.5,
+      "expected": "64656",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill would require ~118.41 GB peak (current 23.08 GB + KV+SDPA 95.33 GB) but metal_cap ceiling is 102.14 GB. Raise kernel iogpu.wired_limit_mb in Terminal (currently caps Metal at 107.52 GB), or"
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.75,
+      "expected": "65111",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill would require ~118.41 GB peak (current 23.08 GB + KV+SDPA 95.33 GB) but metal_cap ceiling is 102.14 GB. Raise kernel iogpu.wired_limit_mb in Terminal (currently caps Metal at 107.52 GB), or"
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.95,
+      "expected": "37145",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill would require ~118.41 GB peak (current 23.08 GB + KV+SDPA 95.33 GB) but metal_cap ceiling is 102.14 GB. Raise kernel iogpu.wired_limit_mb in Terminal (currently caps Metal at 107.52 GB), or"
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "multihop",
+      "depth": null,
+      "expected": "73623",
+      "got": "",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 0,
+      "cached_tokens": 0,
+      "wall_s": 0.0,
+      "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill would require ~118.42 GB peak (current 23.08 GB + KV+SDPA 95.33 GB) but metal_cap ceiling is 102.14 GB. Raise kernel iogpu.wired_limit_mb in Terminal (currently caps Metal at 107.52 GB), or"
+    }
+  ],
+  "summary": {
+    "lengths": [
+      65536,
+      131072,
+      262144
+    ],
+    "depths": [
+      0.05,
+      0.25,
+      0.5,
+      0.75,
+      0.95
+    ],
+    "by_length": {
+      "65536": {
+        "asked": 5,
+        "scored": 5,
+        "correct": 5,
+        "skipped": 0,
+        "accuracy": 1.0,
+        "verified_prompt_tokens": 65225,
+        "repeat_requests": 5,
+        "mean_cached_fraction": 0.989
+      },
+      "131072": {
+        "asked": 5,
+        "scored": 5,
+        "correct": 0,
+        "skipped": 0,
+        "accuracy": 0.0,
+        "verified_prompt_tokens": null,
+        "repeat_requests": 5,
+        "mean_cached_fraction": null
+      },
+      "262144": {
+        "asked": 5,
+        "scored": 5,
+        "correct": 0,
+        "skipped": 0,
+        "accuracy": 0.0,
+        "verified_prompt_tokens": null,
+        "repeat_requests": 5,
+        "mean_cached_fraction": null
+      }
+    },
+    "by_depth": {
+      "0.05": {
+        "asked": 3,
+        "scored": 3,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 0.333
+      },
+      "0.25": {
+        "asked": 3,
+        "scored": 3,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 0.333
+      },
+      "0.5": {
+        "asked": 3,
+        "scored": 3,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 0.333
+      },
+      "0.75": {
+        "asked": 3,
+        "scored": 3,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 0.333
+      },
+      "0.95": {
+        "asked": 3,
+        "scored": 3,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 0.333
+      }
+    },
+    "multihop": {
+      "65536": {
+        "correct": true,
+        "skipped": false,
+        "expected": "171938",
+        "got": "171938",
+        "error": null
+      },
+      "131072": {
+        "correct": false,
+        "skipped": false,
+        "expected": "103674",
+        "got": "",
+        "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=130726, min_chunk=32): predicted peak would require ~98.42 GB (current 23.08 GB + KV 20.76 GB + min-chunk transient 54"
+      },
+      "262144": {
+        "correct": false,
+        "skipped": false,
+        "expected": "73623",
+        "got": "",
+        "error": "OmlxError: POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill would require ~118.42 GB peak (current 23.08 GB + KV+SDPA 95.33 GB) but metal_cap ceiling is 102.14 GB. Raise kernel iogpu.wired_limit_mb in Terminal (currently caps Metal at 107.52 GB), or"
+      }
+    },
+    "overall_retrieval": {
+      "asked": 15,
+      "scored": 15,
+      "correct": 5,
+      "skipped": 0,
+      "accuracy": 0.333
+    }
+  }
+}

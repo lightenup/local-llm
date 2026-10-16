@@ -1,0 +1,392 @@
+{
+  "timestamp": "2026-09-10T15:22:20.758972+00:00",
+  "model_id": "Qwen3-Coder-Next-6bit",
+  "variant": {},
+  "request": {
+    "lengths": [
+      65536,
+      131072,
+      262144
+    ],
+    "depths": [
+      0.05,
+      0.25,
+      0.5,
+      0.75,
+      0.95
+    ],
+    "max_tokens": 64,
+    "max_length_seconds": 5400.0,
+    "sections": 240,
+    "seed": 20260906,
+    "safety_tokens": 256
+  },
+  "calibration": {
+    "slope": 0.16828333333333334,
+    "intercept": 1036.0,
+    "fitted": true,
+    "probes": [
+      {
+        "chars": 60000,
+        "prompt_tokens": 11133,
+        "ok": true,
+        "error": null
+      },
+      {
+        "chars": 180000,
+        "prompt_tokens": 31327,
+        "ok": true,
+        "error": null
+      }
+    ]
+  },
+  "records": [
+    {
+      "target_tokens": 65536,
+      "kind": "retrieval",
+      "depth": 0.05,
+      "expected": "80804",
+      "got": "80804",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 65211,
+      "cached_tokens": 0,
+      "wall_s": 38.678,
+      "error": null
+    },
+    {
+      "target_tokens": 65536,
+      "kind": "retrieval",
+      "depth": 0.25,
+      "expected": "32779",
+      "got": "32779",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 65211,
+      "cached_tokens": 63488,
+      "wall_s": 2.601,
+      "error": null
+    },
+    {
+      "target_tokens": 65536,
+      "kind": "retrieval",
+      "depth": 0.5,
+      "expected": "11492",
+      "got": "11492",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 65211,
+      "cached_tokens": 63488,
+      "wall_s": 2.189,
+      "error": null
+    },
+    {
+      "target_tokens": 65536,
+      "kind": "retrieval",
+      "depth": 0.75,
+      "expected": "64419",
+      "got": "64419",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 65211,
+      "cached_tokens": 63488,
+      "wall_s": 2.249,
+      "error": null
+    },
+    {
+      "target_tokens": 65536,
+      "kind": "retrieval",
+      "depth": 0.95,
+      "expected": "91134",
+      "got": "91134",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 65211,
+      "cached_tokens": 63488,
+      "wall_s": 2.143,
+      "error": null
+    },
+    {
+      "target_tokens": 65536,
+      "kind": "multihop",
+      "depth": null,
+      "expected": "171938",
+      "got": "171938",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 65221,
+      "cached_tokens": 63488,
+      "wall_s": 2.123,
+      "error": null
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.05,
+      "expected": "12548",
+      "got": "12548",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 130745,
+      "cached_tokens": 0,
+      "wall_s": 126.081,
+      "error": null
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.25,
+      "expected": "42445",
+      "got": "42445",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 130745,
+      "cached_tokens": 129024,
+      "wall_s": 5.386,
+      "error": null
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.5,
+      "expected": "99961",
+      "got": "99961",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 130745,
+      "cached_tokens": 129024,
+      "wall_s": 3.94,
+      "error": null
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.75,
+      "expected": "10506",
+      "got": "10506",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 130745,
+      "cached_tokens": 129024,
+      "wall_s": 4.091,
+      "error": null
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.95,
+      "expected": "91126",
+      "got": "91126",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 130745,
+      "cached_tokens": 129024,
+      "wall_s": 4.011,
+      "error": null
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "multihop",
+      "depth": null,
+      "expected": "103674",
+      "got": "103674",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 130755,
+      "cached_tokens": 129024,
+      "wall_s": 4.009,
+      "error": null
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.05,
+      "expected": "36478",
+      "got": "36478",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 261803,
+      "cached_tokens": 0,
+      "wall_s": 468.435,
+      "error": null
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.25,
+      "expected": "74064",
+      "got": "74064",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 261803,
+      "cached_tokens": 260096,
+      "wall_s": 16.079,
+      "error": null
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.5,
+      "expected": "64656",
+      "got": "64656",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 261803,
+      "cached_tokens": 260096,
+      "wall_s": 7.517,
+      "error": null
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.75,
+      "expected": "65111",
+      "got": "65111",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 261803,
+      "cached_tokens": 260096,
+      "wall_s": 7.577,
+      "error": null
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.95,
+      "expected": "37145",
+      "got": "37145",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 261803,
+      "cached_tokens": 260096,
+      "wall_s": 7.526,
+      "error": null
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "multihop",
+      "depth": null,
+      "expected": "73623",
+      "got": "36478 + 37145 = 73623",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 261813,
+      "cached_tokens": 260096,
+      "wall_s": 7.634,
+      "error": null
+    }
+  ],
+  "summary": {
+    "lengths": [
+      65536,
+      131072,
+      262144
+    ],
+    "depths": [
+      0.05,
+      0.25,
+      0.5,
+      0.75,
+      0.95
+    ],
+    "by_length": {
+      "65536": {
+        "asked": 5,
+        "scored": 5,
+        "correct": 5,
+        "skipped": 0,
+        "accuracy": 1.0,
+        "verified_prompt_tokens": 65221,
+        "repeat_requests": 5,
+        "mean_cached_fraction": 0.974
+      },
+      "131072": {
+        "asked": 5,
+        "scored": 5,
+        "correct": 5,
+        "skipped": 0,
+        "accuracy": 1.0,
+        "verified_prompt_tokens": 130755,
+        "repeat_requests": 5,
+        "mean_cached_fraction": 0.987
+      },
+      "262144": {
+        "asked": 5,
+        "scored": 5,
+        "correct": 5,
+        "skipped": 0,
+        "accuracy": 1.0,
+        "verified_prompt_tokens": 261813,
+        "repeat_requests": 5,
+        "mean_cached_fraction": 0.993
+      }
+    },
+    "by_depth": {
+      "0.05": {
+        "asked": 3,
+        "scored": 3,
+        "correct": 3,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.25": {
+        "asked": 3,
+        "scored": 3,
+        "correct": 3,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.5": {
+        "asked": 3,
+        "scored": 3,
+        "correct": 3,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.75": {
+        "asked": 3,
+        "scored": 3,
+        "correct": 3,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.95": {
+        "asked": 3,
+        "scored": 3,
+        "correct": 3,
+        "skipped": 0,
+        "accuracy": 1.0
+      }
+    },
+    "multihop": {
+      "65536": {
+        "correct": true,
+        "skipped": false,
+        "expected": "171938",
+        "got": "171938",
+        "error": null
+      },
+      "131072": {
+        "correct": true,
+        "skipped": false,
+        "expected": "103674",
+        "got": "103674",
+        "error": null
+      },
+      "262144": {
+        "correct": true,
+        "skipped": false,
+        "expected": "73623",
+        "got": "36478 + 37145 = 73623",
+        "error": null
+      }
+    },
+    "overall_retrieval": {
+      "asked": 15,
+      "scored": 15,
+      "correct": 15,
+      "skipped": 0,
+      "accuracy": 1.0
+    }
+  }
+}

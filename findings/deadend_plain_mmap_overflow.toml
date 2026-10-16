@@ -1,0 +1,10 @@
+id      = "deadend_plain_mmap_overflow"
+title   = "Plain mmap with macOS swap for overflow"
+status  = "dead-end"
+models  = []
+section = 34
+rationale = "Closed by argument plus one measurement: plain mmap with macOS swap handling overflow produces documented thrashing, kernel panics and page-out death spirals — one measurement had mmap at 0.017 tok/s. --cpu-moe / --n-cpu-moe buy nothing on unified memory; there is no separate VRAM pool to spill from. Do not attempt the naive version."
+updated = 2026-09-22
+
+# no [[metrics]] — the single 0.017 tok/s datapoint is not a stored results file;
+# closed by argument, renders with a "no measurement" marker

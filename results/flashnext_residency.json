@@ -1,0 +1,148 @@
+{
+  "model": "Qwen3.8-Flash-Next-oQ4e-mtp",
+  "shipped": "Qwen3.8-27B-8bit",
+  "baseline_loaded": [
+    "Qwen2.5-Coder-3B-8bit",
+    "Qwen3.8-27B-8bit",
+    "Qwen3.8-27B-oQ4e-mtp"
+  ],
+  "baseline_settings": {
+    "qwen4_ple_ssd_offload": false,
+    "mtp_enabled": true
+  },
+  "estimate": {
+    "model_id": "Qwen3.8-Flash-Next-oQ4e-mtp",
+    "engine_type": "vlm",
+    "mtp_compatible": true,
+    "mtp_compatibility_reason": "",
+    "dflash_compatible": true,
+    "model_context_length": 262144,
+    "ple_offload_supported": true,
+    "ple_offload_forced": false,
+    "ple_resident_gb": 111.61,
+    "ple_mmap_gb": 78.01,
+    "ple_table_gb": 33.6,
+    "admission_ceiling_gb": 115.45,
+    "resident_fits_ceiling": true,
+    "mmap_fits_ceiling": true
+  },
+  "arms": [
+    {
+      "arm": "mmap",
+      "qwen4_ple_ssd_offload": true,
+      "unloaded_to_make_room": [
+        "Qwen2.5-Coder-3B-8bit",
+        "Qwen3.8-27B-8bit",
+        "Qwen3.8-27B-oQ4e-mtp"
+      ],
+      "load_s": 30.9,
+      "loaded": [
+        "Qwen3.8-Flash-Next-oQ4e-mtp"
+      ],
+      "actual_size": "69.37 GB",
+      "host_mem_delta_gb": 71.54,
+      "pool_model_memory_gb": 78.01,
+      "evicted_on_load": [
+        "Qwen2.5-Coder-3B-8bit",
+        "Qwen3.8-27B-8bit",
+        "Qwen3.8-27B-oQ4e-mtp"
+      ],
+      "decode": {
+        "completion_tokens": 200,
+        "wall_s": 7.213,
+        "tok_per_s_overall": 27.73,
+        "finish_reason": "length"
+      }
+    },
+    {
+      "arm": "resident",
+      "qwen4_ple_ssd_offload": false,
+      "unloaded_to_make_room": [],
+      "load_s": 103.1,
+      "loaded": [
+        "Qwen3.8-Flash-Next-oQ4e-mtp"
+      ],
+      "actual_size": "99.21 GB",
+      "host_mem_delta_gb": 88.54,
+      "pool_model_memory_gb": 111.61,
+      "evicted_on_load": [
+        "Qwen2.5-Coder-3B-8bit",
+        "Qwen3.8-27B-8bit",
+        "Qwen3.8-27B-oQ4e-mtp"
+      ],
+      "decode": {
+        "error": "POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill context too large for available memory (preflight safety guard, kv_len=32, min_chunk=32): predicted peak would require ~99.73 GB (current 99.73 GB + KV 1.73 MB + min-chunk transient 2.21 MB"
+      }
+    }
+  ],
+  "coexistence_arm": "mmap",
+  "coexistence": {
+    "question": "does Qwen3.8-Flash-Next-oQ4e-mtp coexist with Qwen3.8-27B-8bit without eviction?",
+    "rounds": [
+      {
+        "27B": {
+          "s": 8.8,
+          "loaded": [
+            "Qwen3.8-27B-8bit"
+          ],
+          "mem_gb": 52.92
+        },
+        "flashnext": {
+          "error": "POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill would require ~102.18 GB peak (current 102.01 GB + KV+SDPA 174.84 MB) but metal_cap ceili",
+          "s": 63.5,
+          "loaded": [
+            "Qwen3.8-27B-8bit",
+            "Qwen3.8-Flash-Next-oQ4e-mtp"
+          ],
+          "mem_gb": 124.55
+        }
+      },
+      {
+        "27B": {
+          "s": 3.0,
+          "loaded": [
+            "Qwen3.8-27B-8bit"
+          ],
+          "mem_gb": 51.04
+        },
+        "flashnext": {
+          "error": "POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill would require ~102.18 GB peak (current 102.01 GB + KV+SDPA 174.84 MB) but metal_cap ceili",
+          "s": 69.8,
+          "loaded": [
+            "Qwen3.8-27B-8bit",
+            "Qwen3.8-Flash-Next-oQ4e-mtp"
+          ],
+          "mem_gb": 124.44
+        }
+      },
+      {
+        "27B": {
+          "s": 3.9,
+          "loaded": [
+            "Qwen3.8-27B-8bit"
+          ],
+          "mem_gb": 50.85
+        },
+        "flashnext": {
+          "error": "POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill would require ~102.19 GB peak (current 102.02 GB + KV+SDPA 174.84 MB) but metal_cap ceili",
+          "s": 57.6,
+          "loaded": [
+            "Qwen3.8-27B-8bit",
+            "Qwen3.8-Flash-Next-oQ4e-mtp"
+          ],
+          "mem_gb": 123.87
+        }
+      }
+    ],
+    "both_loaded": [
+      "Qwen3.8-27B-8bit",
+      "Qwen3.8-Flash-Next-oQ4e-mtp"
+    ],
+    "mem_after_load_gb": 121.91,
+    "pool_model_memory_gb": 108.99,
+    "evictions_observed": 3,
+    "calls": 6,
+    "verdict": "3 evictions across 6 calls — replacement only, as Coder-Next was"
+  },
+  "exit_code": 0
+}

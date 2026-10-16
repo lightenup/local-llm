@@ -1,0 +1,100 @@
+{
+  "arm_a": "acc_oq4e_code",
+  "arm_b": "acc_gemma4_code",
+  "suites": {
+    "humaneval": {
+      "n_shared": 164,
+      "both_correct": 152,
+      "neither_correct": 5,
+      "only_a_correct": 3,
+      "only_b_correct": 4,
+      "discordant": 7,
+      "net_to_b": 1,
+      "score_a": 94.51,
+      "score_b": 95.12,
+      "p_value": 1.0,
+      "flips_to_a_sample": [
+        "HumanEval/101",
+        "HumanEval/103",
+        "HumanEval/129"
+      ],
+      "flips_to_b_sample": [
+        "HumanEval/115",
+        "HumanEval/118",
+        "HumanEval/140",
+        "HumanEval/91"
+      ]
+    },
+    "mbpp": {
+      "n_shared": 500,
+      "both_correct": 375,
+      "neither_correct": 56,
+      "only_a_correct": 18,
+      "only_b_correct": 51,
+      "discordant": 69,
+      "net_to_b": 33,
+      "score_a": 78.6,
+      "score_b": 85.2,
+      "p_value": 9e-05,
+      "flips_to_a_sample": [
+        "125",
+        "139",
+        "142",
+        "183",
+        "184",
+        "236",
+        "289",
+        "301"
+      ],
+      "flips_to_b_sample": [
+        "103",
+        "104",
+        "108",
+        "110",
+        "112",
+        "119",
+        "121",
+        "140"
+      ]
+    },
+    "livecodebench": {
+      "n_shared": 500,
+      "both_correct": 249,
+      "neither_correct": 112,
+      "only_a_correct": 21,
+      "only_b_correct": 118,
+      "discordant": 139,
+      "net_to_b": 97,
+      "score_a": 54.0,
+      "score_b": 73.4,
+      "p_value": 0.0,
+      "flips_to_a_sample": [
+        "2847",
+        "2854",
+        "2916",
+        "3026",
+        "3045",
+        "3344",
+        "3406",
+        "3646"
+      ],
+      "flips_to_b_sample": [
+        "1883_B",
+        "1899_C",
+        "2730",
+        "2785",
+        "2808",
+        "2834",
+        "2844",
+        "2848"
+      ]
+    }
+  },
+  "pooled": {
+    "questions": 1164,
+    "flips_to_a": 42,
+    "flips_to_b": 173,
+    "p_value": 0.0
+  },
+  "verdict": "B is better (p=0.00000, pooled across suites)"
+}
