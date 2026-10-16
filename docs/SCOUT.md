@@ -21,6 +21,25 @@ re-reports repos already seen; add `--dry-run` to leave the state untouched.
 Exit status: 0 normally, 1 if every Hub request failed, 2 if `--notify` could
 not deliver (or has no sink configured).
 
+## Under Hermes Agent (the intended home)
+
+Homelab backlog `083` (homelab-proxmox, `docs/backlog/083-hermes-agent-runtime.md`) runs this
+as a Hermes Agent **no-agent cron job**: Hermes runs a script on a schedule and delivers its
+stdout (here to ntfy, backlog `082`); empty stdout is a silent tick and a non-zero exit is
+reported as a failed run. No LLM is involved.
+
+`scout/hermes-cron.sh` is that script. It clones or updates this repo under `$HERMES_HOME`,
+keeps the seen-repo state there too (so the agent's backup covers it), and runs
+`scan --quiet`, which prints the markdown report only when there is news:
+
+    cp scout/hermes-cron.sh "$HERMES_HOME/scripts/model-scout.sh"
+    hermes cron create "30 7 * * *" --no-agent --script model-scout.sh \
+      --deliver ntfy --name model-scout
+    hermes cron run <job_id>
+
+Set `NTFY_MARKDOWN=true` in the agent's `.env` so the report renders. The `--notify` sinks
+below are the alternative for running without Hermes Agent.
+
 ## Notifications
 
 `scan --notify` posts what is new and stops there; no LLM is involved, so it

@@ -331,5 +331,36 @@ class NotifyTests(unittest.TestCase):
             ms.send(note, {"SCOUT_OPENWEBUI_WEBHOOK": "https://x"}, boom)
 
 
+class QuietModeTests(unittest.TestCase):
+    """--quiet is what a stdout-delivering scheduler runs: silence means no news."""
+
+    def run_main(self, report, argv):
+        import contextlib, io
+        from unittest import mock
+        out = io.StringIO()
+        with mock.patch.object(ms, "scan", return_value=report), \
+             mock.patch.object(ms, "load_policy", return_value=POLICY), \
+             mock.patch.object(ms, "load_setup", return_value=SETUP), \
+             mock.patch.object(sys, "argv", ["model_scout.py", "scan", *argv]), \
+             contextlib.redirect_stdout(out):
+            code = ms.main()
+        return code, out.getvalue()
+
+    def report(self, families=()):
+        return {"since": "2026-10-15T00:00:00+00:00", "families": list(families),
+                "warnings": [], "errors": [], "results": [{"repo": "x", "verdict": "skip"}],
+                "counts": {}}
+
+    def test_nothing_new_prints_nothing(self):
+        code, out = self.run_main(self.report(), ["--quiet", "--dry-run"])
+        self.assertEqual((code, out), (0, ""))
+
+    def test_news_prints_markdown(self):
+        fam = NotifyTests.fam(NotifyTests(), "promising")
+        code, out = self.run_main(self.report([fam]), ["--quiet", "--dry-run"])
+        self.assertEqual(code, 0)
+        self.assertIn("**1 promising MLX model**", out)
+
+
 if __name__ == "__main__":
     unittest.main()

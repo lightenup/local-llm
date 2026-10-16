@@ -11,6 +11,7 @@ worth a look and the exact commands to gate it.
     python3 bench/model_scout.py scan --since 14      # last 14 days, ignore state
     python3 bench/model_scout.py scan --format json   # for an agent
     python3 bench/model_scout.py scan --notify        # daily job: post what is new
+    python3 bench/model_scout.py scan --quiet         # stdout only when there is news
     python3 bench/model_scout.py export               # on the Mac: refresh setup.json
     python3 bench/model_scout.py download REPO        # on the Mac: queue in oMLX
 
@@ -541,7 +542,11 @@ def main() -> int:
                    help="send promising/blocked models to the sinks in the "
                         "environment (see send()); state is kept only if delivery works")
     s.add_argument("--notify-consider", action="store_true",
-                   help="with --notify, include 'consider' too")
+                   help="with --notify or --quiet, include 'consider' too")
+    s.add_argument("--quiet", action="store_true",
+                   help="print the notification markdown only when there is news, "
+                        "else nothing: for schedulers that deliver stdout "
+                        "(Hermes Agent --no-agent cron)")
     sub.add_parser("export", help="on the Mac: write scout/setup.json")
     d = sub.add_parser("download", help="on the Mac: queue a Hub download in oMLX")
     d.add_argument("repo")
@@ -584,8 +589,14 @@ def main() -> int:
     if not args.dry_run:
         STATE.parent.mkdir(parents=True, exist_ok=True)
         STATE.write_text(json.dumps(state, indent=1) + "\n")
-    print(json.dumps(report, indent=2) if args.format == "json"
-          else render_text(report, args.show_skips))
+    if args.quiet:
+        verdicts = NOTIFY_ON + (("consider",) if args.notify_consider else ())
+        note = notification(report, verdicts)
+        if note:
+            print(note["markdown"])
+    else:
+        print(json.dumps(report, indent=2) if args.format == "json"
+              else render_text(report, args.show_skips))
     return 1 if report["errors"] and not report["results"] else 0
 
 
