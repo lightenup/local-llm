@@ -5,7 +5,7 @@
 # overhead measurement an honest A/B (same name, direct vs through the hop) and
 # what lets the C4 slice isolate a proxy fault from a naming fault.
 #
-# Role aliases (coder / reasoner / fast / diagram) are C3 and are layered on
+# Role aliases (coder / reasoner / fast) are C3 and are layered on
 # top of these entries once the hop is proven. See docs/backlog.md step 11.
 
 model_list:
@@ -122,45 +122,16 @@ model_list:
       max_input_tokens: 131072
       notes: "trial arm; thinking ON, expect long completions and cap hits"
 
-  # ---- candidate arms, 2026-09-17 (backlog A7) --------------------------
-  # Both passed the D3 gate: they serve a 16k prompt with the pinned lineup
-  # still resident, which is what Flash-Next could not do. Neither is wired to
-  # any role alias below and neither should be until measured -- these entries
-  # exist so bench/taskbench.py can address them at all. B1b: a profile oMLX
-  # serves is still unreachable to every client without an entry here.
+  # ---- candidate arm, 2026-09-17 (backlog A7) ---------------------------
+  # Passed the D3 gate: it serves a 16k prompt with the pinned lineup still
+  # resident, which is what Flash-Next could not do. Not wired to any role
+  # alias below -- these entries exist so bench/taskbench.py can address it at
+  # all. B1b: a profile oMLX serves is still unreachable to every client
+  # without an entry here. The OptiQ 27B arm that gated alongside it was
+  # removed 2026-10-18: closed by FINDINGS §29, dominated by oQ4e.
   #
-  # NOTE both cap at 131072 against a declared 262144. Nothing has run
-  # bench/longctx_quality.py on either checkpoint.
-
-  - model_name: Qwen3.8-27B-OptiQ-4bit:opt-code
-    litellm_params:
-      model: openai/Qwen3.8-27B-OptiQ-4bit:opt-code
-      api_base: os.environ/OMLX_BASE_URL
-      api_key: os.environ/OMLX_API_KEY
-    model_info:
-      access_groups: ["local"]
-      max_input_tokens: 131072
-      notes: "candidate; OptiQ mixed 5.14 bpw, no MTP available"
-
-  - model_name: Qwen3.8-27B-OptiQ-4bit:opt-agent
-    litellm_params:
-      model: openai/Qwen3.8-27B-OptiQ-4bit:opt-agent
-      api_base: os.environ/OMLX_BASE_URL
-      api_key: os.environ/OMLX_API_KEY
-    model_info:
-      access_groups: ["local"]
-      max_input_tokens: 131072
-      notes: "candidate; taskbench toolcall/toolchain arm"
-
-  - model_name: Qwen3.8-27B-OptiQ-4bit:opt-reason
-    litellm_params:
-      model: openai/Qwen3.8-27B-OptiQ-4bit:opt-reason
-      api_base: os.environ/OMLX_BASE_URL
-      api_key: os.environ/OMLX_API_KEY
-    model_info:
-      access_groups: ["local"]
-      max_input_tokens: 131072
-      notes: "candidate; the A2b arm -- does KL-driven allocation recover reasoning"
+  # NOTE caps at 131072 against a declared 262144; §32-§33 put gemma's
+  # dependable ceiling at 65,536.
 
   - model_name: gemma-4-31B-it-qat-OptiQ-4bit:g4-code
     litellm_params:
@@ -199,6 +170,15 @@ model_list:
   # the wave 1 rule (FINDINGS 14/15) written down: the 27B holds anything whose
   # correctness is not independently checked, Coder-Next takes the
   # speed-dominated work, and the verifier decides the rest.
+  #
+  # `diagram` was removed 2026-10-18: it pointed at the same model and profile
+  # as `coder` (C9 closed the case for moving it), and outside the doctor it
+  # had 6 calls in 20 days. Backlog E (diagram fine-tuning) brings it back if
+  # a tuned model ever exists.
+  #
+  # The §38 queued twins (coder-q, reasoner-q, fast-q, diagram-q) were removed
+  # the same day. OMLX_BASE_URL has pointed at llm_queue (:8001) since
+  # 2026-10-11, so every alias here is queued and each twin was a duplicate.
 
   - model_name: coder
     litellm_params:
@@ -241,69 +221,6 @@ model_list:
         Was Coder-Next until 2026-09-12; that had 3.1x prefill but lost the role
         on quality (-10.8 livecodebench) and on its 64.7 GB residency cost,
         which charged ~20 s per alternation against a 13.9 s prefill saving.
-
-  - model_name: diagram
-    litellm_params:
-      model: openai/Qwen3.8-27B-8bit:qwen-code
-      api_base: os.environ/OMLX_BASE_URL
-      api_key: os.environ/OMLX_API_KEY
-    model_info:
-      access_groups: ["local"]
-      max_input_tokens: 131072
-      notes: >-
-        Points at the 8-bit and now stays there. The wave 1 rule said a
-        verifier-backed role should use a sampled cheaper model, but C9 measured
-        that and closed it: best-of-4 recovered 2/12 where the 8-bit alone
-        recovered 6/12, in the same wall-clock. Diagram work has a verifier and
-        still wants the better model.
-
-  # ---- §38: queued twins of the role aliases (soak) ---------------------
-  # Same model and profile as the role above, but via proxy/llm_queue.py
-  # (:8001): one inference request at a time across all models, grouped by
-  # model, 429 + Retry-After when the wait runs out. Opt-in per client by name.
-  # The plain aliases are untouched. When the soak is done, either OMLX_BASE_URL
-  # moves to :8001 and these go, or these go and the queue is retired.
-  # No context_window_fallbacks on purpose: a fallback would leave the queue.
-
-  - model_name: coder-q
-    litellm_params:
-      model: openai/Qwen3.8-27B-8bit:qwen-code
-      api_base: os.environ/OMLX_QUEUE_BASE_URL
-      api_key: os.environ/OMLX_API_KEY
-    model_info:
-      access_groups: ["local"]
-      max_input_tokens: 131072
-      notes: "coder via llm_queue (§38 soak)"
-
-  - model_name: reasoner-q
-    litellm_params:
-      model: openai/Qwen3.8-27B-8bit:qwen-reason
-      api_base: os.environ/OMLX_QUEUE_BASE_URL
-      api_key: os.environ/OMLX_API_KEY
-    model_info:
-      access_groups: ["local"]
-      max_input_tokens: 131072
-      notes: "reasoner via llm_queue (§38 soak)"
-
-  - model_name: fast-q
-    litellm_params:
-      model: openai/Qwen3.8-27B-oQ4e-mtp:oq-agent
-      api_base: os.environ/OMLX_QUEUE_BASE_URL
-      api_key: os.environ/OMLX_API_KEY
-    model_info:
-      access_groups: ["local"]
-      max_input_tokens: 131072
-      notes: "fast via llm_queue (§38 soak)"
-
-  - model_name: diagram-q
-    litellm_params:
-      model: openai/Qwen3.8-27B-8bit:qwen-code
-      api_base: os.environ/OMLX_QUEUE_BASE_URL
-      api_key: os.environ/OMLX_API_KEY
-    model_info:
-      access_groups: ["local"]
-      max_input_tokens: 131072
-      notes: "diagram via llm_queue (§38 soak)"
 
   # ---- C3: retrieval roles ----------------------------------------------
   # Added 2026-09-21 for homelab spec 065 (Hermes). Two more roles, same rule as

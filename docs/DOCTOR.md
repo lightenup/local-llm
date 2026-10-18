@@ -54,7 +54,7 @@ Layers run in this order: the cheapest and most fundamental first.
 |---|---|---|
 | **host** | the Mac under everything (§37) | sleep prevented during inference (`inference_awake` running, or AC sleep 0), AC wake-on-network off, on AC power, lid open, no thermal-emergency sleep in 24 h |
 | **engine** | oMLX | server responds; profiles match `profiles/definitions.py` (and carry no engine fields); 8-bit base engine variant equals `SHIPPED_VARIANT` (`plain`, §39); no retired profiles served; *full only:* each profile in `SAMPLING_PROFILES` actually samples (4 identical requests, at least 2 distinct, §39); oQ4e speculative decode above its floor (§23) |
-| **queue** | `proxy/llm_queue.py` (§38) | queue reachable; the LiteLLM container's `OMLX_BASE_URL` matches the compose file (reports LIVE/SOAK); *full only:* a LiteLLM request is granted by the queue |
+| **queue** | `proxy/llm_queue.py` (§38) | queue reachable; the LiteLLM container's `OMLX_BASE_URL` matches the compose file (reports LIVE, or BYPASSED after a rollback); *full only:* a LiteLLM request is granted by the queue |
 | **proxy** | LiteLLM, the contract every client uses | reachable; each role alias answers; access group refuses out-of-group models; `enable_pre_call_checks` on (§16); router fallbacks empty (C2) |
 | **harness** | opencode | provider env vars visible to non-interactive shells (§24); every agent's model is declared; Spec Kit commands are stock |
 
