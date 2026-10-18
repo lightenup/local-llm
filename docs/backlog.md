@@ -1589,6 +1589,65 @@ out loud whenever it returns a null.
 **Cost:** ~2 days. **Depends on:** nothing, but only worth building if a
 candidate's wiring actually hinges on the agentic axis — gemma's currently does.
 
+### D7. Model scout: know the lineup, its roles, and say so on quiet days
+
+The scout is now a daily Hermes Agent no-agent cron job (`scout/hermes-cron.sh`,
+`docs/SCOUT.md`). Observations from its first runs, 2026-10-17/18:
+
+**What went wrong**
+- **A quiet day looks like a broken scout.** On 2026-10-18 the 07:30 run succeeded with
+  `Status: silent (empty output)`: nothing was new since a manual run the day before, so
+  `--quiet` printed nothing. From the phone, that cannot be told apart from a scout that
+  never ran.
+- **It proposes models already on the Mac.** `prefilter()` treats a repo as local only
+  when its exact name, or an entry in `setup.json` `source_repos`, matches. The 2026-10-16
+  export has `source_repos: []`. So `Jundot/Qwen3.8-27B-oQ6e-fp16-mtp` and
+  `Jundot/gemma-4-31B-it-oQ8e-mtp` were reported as promising, while four Qwen3.8-27B builds
+  and a gemma-4-31B build are local. A new quant of a base model already in the lineup is a
+  quant comparison (A2b) at most, not a new model.
+- **No concept of roles.** `scout.toml [lineup]` names hand-kept tiers (quality, fast,
+  additive, embedding, reranker). Clients call role aliases instead: `fast`, `coder`,
+  `reasoner`, and the embed/rerank pair in `proxy/litellm-config.yaml`; also
+  `ROLE_ALIASES` in `bench/doctor.py`. The report says only "alongside" or "replaces
+  quality". It never says which role a candidate would compete for, or against which
+  incumbent and evidence.
+- **The setup goes stale silently.** `setup.json` is exported by hand on the Mac, and
+  `SETUP_STALE_DAYS` is 30.
+
+**The work**
+1. **Quiet-day line.** In `--quiet` mode with no news, print one line, e.g.
+   `Model scout: nothing new since <last_scan> (<n> repos scanned)`. A run that errors
+   still exits non-zero, as today.
+   - Put this in `model_scout.py`, not the wrapper. The deployed wrapper is a copy in the
+     agent's `scripts/`, and only the clone updates, via `git pull`.
+   - Better: make the wrapper a two-line `exec` of `scout/hermes-cron.sh` from the clone,
+     so wrapper changes deploy themselves, and re-copy it once.
+2. **Roles in the export.** `export` reads the LiteLLM role aliases (role → oMLX model
+   id) and writes them to `setup.json` as `roles`. It also fills `source_repos`, or
+   records why oMLX does not report them. `[lineup]` is then derived from `roles`, or
+   references them, rather than being maintained by hand.
+3. **Family-level "already local".** Compare `family()` and the parameter class against
+   every local model.
+   - A new build of a local base model is reported as "variant of <local id>
+     (role <r>)" and demoted to `consider`.
+   - The exception is when it brings a signal the incumbent lacks (DWQ, MTP on a model
+     without it, a build method not measured in A2b).
+4. **Role-aware report.** Each candidate states the role it competes for, the incumbent,
+   the size delta, and the finding that put the incumbent there. For example: "competes
+   for `coder` (incumbent Qwen3.8-27B-8bit, §19); 21.3 GiB, fits alongside".
+5. **Freshness.** Refresh `setup.json` now. Then either run `export` on a schedule on
+   the Mac (launchd, committing only when it changes), or make the scan put a stale-setup
+   warning in the report itself past a few days.
+
+**Settles:** whether the daily scout is a signal the owner reads or noise to be muted.
+**Cost:** an evening. **Depends on:** nothing; needs the Mac for items 2 and 5.
+
+**Done when:**
+- A no-news run delivers the one-line message.
+- `scan --since 3` no longer reports Qwen3.8-27B or gemma-4-31B variants as new
+  models.
+- Every reported candidate names a role.
+
 ### D4. Make `bench/report.py` honour `gen_short`
 
 `bench/throughput.py` now records `gen_short` per row and prints a SHORT
