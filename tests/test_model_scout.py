@@ -421,6 +421,104 @@ class NotifyTests(unittest.TestCase):
             ms.send(note, {"SCOUT_OPENWEBUI_WEBHOOK": "https://x"}, boom)
 
 
+class AssessGateTests(unittest.TestCase):
+    """The Hermes assessment job's gate: silent unless something is pending and the Mac answers."""
+
+    T0 = datetime(2026, 10, 19, 8, 0, tzinfo=timezone.utc)
+
+    def report(self, *verdicts):
+        return {"families": [{"family": f"F{i}", "verdict": v} for i, v in enumerate(verdicts)],
+                "roles": {"coder": {"incumbent": "Qwen3.8-27B-8bit:qwen-code"}},
+                "free_beside_lineup_gib": 24.7}
+
+    def gate(self, state, report=None, job=None, up=True, at=None):
+        calls = []
+
+        def probe():
+            calls.append(1)
+            return up
+        out = ms.assess_gate(state, report, job, probe, at or self.T0, "Assess this.")
+        return out, calls
+
+    def test_mac_away_is_silent_and_leaves_it_pending(self):
+        state = {"families": {}}
+        out, calls = self.gate(state, self.report("promising"), up=False)
+        self.assertIsNone(out)
+        self.assertEqual(calls, [1])
+        self.assertEqual(state["families"]["F0"]["status"], "pending")
+
+    def test_nothing_pending_never_probes(self):
+        # The probe is a model call; it must not run on an idle tick.
+        out, calls = self.gate({"families": {}}, self.report("consider", "blocked"))
+        self.assertIsNone(out)
+        self.assertEqual(calls, [])
+
+    def test_pending_and_up_hands_over_one_family(self):
+        state = {"families": {}}
+        out, _ = self.gate(state, self.report("promising", "promising"))
+        self.assertIn("Assess this.", out)
+        payload = json.loads(out.split("```json\n")[1].split("```")[0])
+        self.assertEqual(payload["family"]["family"], "F0")
+        self.assertEqual(payload["roles"]["coder"]["incumbent"], "Qwen3.8-27B-8bit:qwen-code")
+        self.assertEqual([e["status"] for e in state["families"].values()], ["handed", "pending"])
+
+    def test_only_one_hand_over_at_a_time(self):
+        state = {"families": {}}
+        self.gate(state, self.report("promising", "promising"))
+        out, calls = self.gate(state, at=self.T0 + timedelta(minutes=15))
+        self.assertIsNone(out)
+        self.assertEqual(calls, [])
+
+    def test_ok_run_after_hand_over_marks_assessed(self):
+        state = {"families": {}}
+        self.gate(state, self.report("promising"))
+        job = {"last_run_at": "2026-10-19T10:03:00+02:00", "last_status": "ok"}
+        out, calls = self.gate(state, job=job, at=self.T0 + timedelta(minutes=15))
+        self.assertEqual(state["families"]["F0"]["status"], "assessed")
+        self.assertIsNone(out)
+        self.assertEqual(calls, [])
+
+    def test_failed_run_hands_it_over_again(self):
+        state = {"families": {}}
+        self.gate(state, self.report("promising"))
+        job = {"last_run_at": "2026-10-19T08:03:00+00:00", "last_status": "error"}
+        out, _ = self.gate(state, job=job, at=self.T0 + timedelta(minutes=15))
+        self.assertIsNotNone(out)
+        self.assertEqual(state["families"]["F0"]["attempts"], 2)
+
+    def test_run_before_hand_over_does_not_settle_it(self):
+        state = {"families": {}}
+        self.gate(state, self.report("promising"))
+        job = {"last_run_at": "2026-10-19T07:45:00+00:00", "last_status": "ok"}
+        self.gate(state, job=job, at=self.T0 + timedelta(minutes=15))
+        self.assertEqual(state["families"]["F0"]["status"], "handed")
+
+    def test_gives_up_after_three_failed_attempts(self):
+        state = {"families": {}}
+        at = self.T0
+        self.gate(state, self.report("promising"), at=at)
+        for _ in range(3):
+            at += timedelta(minutes=15)
+            job = {"last_run_at": (at - timedelta(minutes=10)).isoformat(),
+                   "last_status": "error"}
+            self.gate(state, job=job, at=at)
+        self.assertEqual(state["families"]["F0"]["status"], "gave_up")
+        self.assertEqual(state["families"]["F0"]["attempts"], 3)
+
+    def test_a_family_is_queued_once(self):
+        state = {"families": {}}
+        self.gate(state, self.report("promising"))
+        state["families"]["F0"]["status"] = "assessed"
+        out, _ = self.gate(state, self.report("promising"), at=self.T0 + timedelta(days=1))
+        self.assertIsNone(out)
+
+    def test_find_job_by_name(self):
+        jobs = [{"name": "model-scout"}, {"name": "scout-assess", "last_status": "ok"}]
+        self.assertEqual(ms.find_job(jobs, "scout-assess")["last_status"], "ok")
+        self.assertEqual(ms.find_job({"jobs": jobs}, "scout-assess")["last_status"], "ok")
+        self.assertIsNone(ms.find_job(None, "scout-assess"))
+
+
 class QuietModeTests(unittest.TestCase):
     """--quiet is what a stdout-delivering scheduler runs: silence means no news."""
 

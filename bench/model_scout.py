@@ -12,6 +12,7 @@ worth a look and the exact commands to gate it.
     python3 bench/model_scout.py scan --format json   # for an agent
     python3 bench/model_scout.py scan --notify        # daily job: post what is new
     python3 bench/model_scout.py scan --quiet         # news as markdown, else one line
+    python3 bench/model_scout.py assess-gate          # Hermes agent job: hand over one family
     python3 bench/model_scout.py export               # on the Mac: refresh setup.json
     python3 bench/model_scout.py download REPO        # on the Mac: queue in oMLX
 
@@ -630,6 +631,107 @@ def send(note: dict, env: dict, post: Callable[[str, dict], None] = _post) -> li
     return sent
 
 
+# ---- assessment hand-over ---------------------------------------------------
+#
+# A Hermes agent job runs `assess-gate` every tick as its --script. Empty stdout
+# is a silent tick with no model call, so the gate decides when the agent runs:
+# only when a promising family is pending AND the Mac answers through the
+# router. Hermes' own re-run ladder never fires here, because the router is up
+# and answers 500/429 for a sleeping Mac; the gate's next tick is the retry.
+
+ASSESS_STATE = Path(os.environ.get(
+    "SCOUT_ASSESS_STATE", Path.home() / ".cache" / "local-llm" / "scout_assess.json"))
+ASSESS_PROMPT = ROOT / "scout" / "assess.md"
+ASSESS_ATTEMPTS = 3          # failed hand-overs before a family is given up on
+ASSESS_STALE = timedelta(hours=2)  # a hand-over with no recorded run since
+
+
+def load_assess_state(path: Path) -> dict:
+    try:
+        return json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return {"families": {}}
+
+
+def queue_promising(state: dict, report: dict, now: datetime) -> None:
+    """Add promising families not seen before. A family is assessed once."""
+    for f in report.get("families", []):
+        if f["verdict"] == "promising" and f["family"] not in state["families"]:
+            state["families"][f["family"]] = {
+                "status": "pending", "queued": now.isoformat(timespec="seconds"),
+                "attempts": 0, "family": f}
+    if report.get("roles"):
+        state["roles"] = report["roles"]
+        state["free_beside_lineup_gib"] = report.get("free_beside_lineup_gib")
+
+
+def settle(state: dict, job: dict | None, now: datetime) -> None:
+    """Resolve hand-overs from the job's last completed run.
+
+    Hermes stamps last_run_at when a run completes, so a run at or after the
+    hand-over is the one that got it: `ok` means the assessment was delivered.
+    Anything else puts the family back, until ASSESS_ATTEMPTS is reached.
+    """
+    last = _when(job["last_run_at"]) if job and job.get("last_run_at") else None
+    for e in state["families"].values():
+        if e["status"] != "handed":
+            continue
+        handed = _when(e["handed_at"])
+        if last and last >= handed:
+            ok = job.get("last_status") == "ok"
+            e["status"] = "assessed" if ok else (
+                "gave_up" if e["attempts"] >= ASSESS_ATTEMPTS else "pending")
+            e["outcome"] = job.get("last_status")
+        elif now - handed > ASSESS_STALE:
+            e["status"] = "gave_up" if e["attempts"] >= ASSESS_ATTEMPTS else "pending"
+            e["outcome"] = "no run recorded"
+
+
+def find_job(jobs: object, name: str) -> dict | None:
+    rows = jobs.get("jobs", []) if isinstance(jobs, dict) else jobs or []
+    return next((j for j in rows if j.get("name") == name), None)
+
+
+def assess_gate(state: dict, report: dict | None, job: dict | None,
+                probe: Callable[[], bool], now: datetime, prompt: str) -> str | None:
+    """The text to hand the agent, or None for a silent tick. Updates `state`."""
+    if report:
+        queue_promising(state, report, now)
+    settle(state, job, now)
+    fams = state["families"].values()
+    if any(e["status"] == "handed" for e in fams):
+        return None  # one at a time; the run that has it has not finished
+    pending = sorted((e for e in fams if e["status"] == "pending"), key=lambda e: e["queued"])
+    if not pending or not probe():
+        return None
+    e = pending[0]
+    e.update(status="handed", handed_at=now.isoformat(timespec="seconds"),
+             attempts=e["attempts"] + 1)
+    payload = {"family": e["family"], "roles": state.get("roles", {}),
+               "free_beside_lineup_gib": state.get("free_beside_lineup_gib")}
+    return f"{prompt.strip()}\n\n```json\n{json.dumps(payload, indent=1)}\n```\n"
+
+
+def router_probe(base_url: str, key: str, model: str, timeout: int = 20) -> bool:
+    """One 1-token request through the router: True only if the Mac answered.
+
+    A 500 (Mac away), a 429 (router cooldown after a wake) or a timeout all
+    mean "not now". Backlog 075: the first request after the Mac leaves can
+    hang, which the timeout bounds.
+    """
+    req = urllib.request.Request(
+        base_url.rstrip("/") + "/chat/completions", method="POST",
+        data=json.dumps({"model": model, "max_tokens": 1,
+                         "messages": [{"role": "user", "content": "ok"}]}).encode(),
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}",
+                 "User-Agent": "local-llm/scout"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.status == 200
+    except (urllib.error.URLError, TimeoutError, OSError):
+        return False
+
+
 # ---- on the Mac -------------------------------------------------------------
 
 def export_setup() -> dict:
@@ -662,6 +764,34 @@ def export_setup() -> dict:
     }
 
 
+def assess_main(args: argparse.Namespace) -> int:
+    """Environment, never the repo: SCOUT_ROUTER_URL (the router's /v1 base),
+    SCOUT_ROUTER_KEY_ENV (name of the variable holding the key, default
+    AUXILIARY_HERMES_API_KEY) and SCOUT_PROBE_MODEL (default hermes-deep, the
+    model the assessment runs on, so the probe proves that one answers)."""
+    def read(path: Path | None) -> object:
+        try:
+            return json.loads(path.read_text()) if path else None
+        except (OSError, json.JSONDecodeError):
+            return None
+
+    base = os.environ.get("SCOUT_ROUTER_URL")
+    if not base:
+        print("assess-gate: SCOUT_ROUTER_URL is not set", file=sys.stderr)
+        return 2
+    key = os.environ.get(os.environ.get("SCOUT_ROUTER_KEY_ENV", "AUXILIARY_HERMES_API_KEY"), "")
+    model = os.environ.get("SCOUT_PROBE_MODEL", "hermes-deep")
+    state = load_assess_state(ASSESS_STATE)
+    text = assess_gate(state, read(args.report), find_job(read(args.jobs), args.job_name),
+                       lambda: router_probe(base, key, model),
+                       datetime.now(timezone.utc), ASSESS_PROMPT.read_text())
+    ASSESS_STATE.parent.mkdir(parents=True, exist_ok=True)
+    ASSESS_STATE.write_text(json.dumps(state, indent=1) + "\n")
+    if text:
+        print(text)
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -681,6 +811,15 @@ def main() -> int:
                    help="print the notification markdown when there is news, "
                         "else one line saying so: for schedulers that deliver "
                         "stdout (Hermes Agent --no-agent cron)")
+    s.add_argument("--report-out", type=Path, metavar="PATH",
+                   help="also write the JSON report here, for assess-gate")
+    g = sub.add_parser("assess-gate", help="Hermes agent job script: print one pending "
+                       "promising family for assessment when the Mac answers, else nothing")
+    g.add_argument("--report", type=Path, required=True,
+                   help="the report `scan --report-out` wrote")
+    g.add_argument("--jobs", type=Path, help="Hermes cron/jobs.json, to see whether the "
+                   "last hand-over was delivered")
+    g.add_argument("--job-name", default="scout-assess")
     sub.add_parser("export", help="on the Mac: write scout/setup.json")
     d = sub.add_parser("download", help="on the Mac: queue a Hub download in oMLX")
     d.add_argument("repo")
@@ -690,6 +829,8 @@ def main() -> int:
         SETUP.write_text(json.dumps(export_setup(), indent=2) + "\n")
         print(f"wrote {SETUP}")
         return 0
+    if args.cmd == "assess-gate":
+        return assess_main(args)
     if args.cmd == "download":
         from omlx_client import Omlx  # noqa: PLC0415
         rec = Omlx().hf_download(args.repo)
@@ -723,6 +864,9 @@ def main() -> int:
     if not args.dry_run:
         STATE.parent.mkdir(parents=True, exist_ok=True)
         STATE.write_text(json.dumps(state, indent=1) + "\n")
+    if args.report_out:
+        args.report_out.parent.mkdir(parents=True, exist_ok=True)
+        args.report_out.write_text(json.dumps(report, indent=1) + "\n")
     if args.quiet:
         verdicts = NOTIFY_ON + (("consider",) if args.notify_consider else ())
         note = notification(report, verdicts)
