@@ -130,8 +130,8 @@ model_list:
   # without an entry here. The OptiQ 27B arm that gated alongside it was
   # removed 2026-10-18: closed by FINDINGS §29, dominated by oQ4e.
   #
-  # NOTE caps at 131072 against a declared 262144; §32-§33 put gemma's
-  # dependable ceiling at 65,536.
+  # NOTE caps at 122880 against a declared 262144: retrieval verified 5/5
+  # there and the guard admits up to 126,976 (§40, 2026-10-19).
 
   - model_name: gemma-4-31B-it-qat-OptiQ-4bit:g4-code
     litellm_params:
@@ -140,7 +140,7 @@ model_list:
       api_key: os.environ/OMLX_API_KEY
     model_info:
       access_groups: ["local"]
-      max_input_tokens: 131072
+      max_input_tokens: 122880
       notes: "candidate; non-Qwen family, top_k 64, tokenizer ~9% denser on code"
 
   - model_name: gemma-4-31B-it-qat-OptiQ-4bit:g4-agent
@@ -150,7 +150,7 @@ model_list:
       api_key: os.environ/OMLX_API_KEY
     model_info:
       access_groups: ["local"]
-      max_input_tokens: 131072
+      max_input_tokens: 122880
       notes: "candidate; tool-call behaviour wholly unknown for this family"
 
   - model_name: gemma-4-31B-it-qat-OptiQ-4bit:g4-reason
@@ -160,7 +160,7 @@ model_list:
       api_key: os.environ/OMLX_API_KEY
     model_info:
       access_groups: ["local"]
-      max_input_tokens: 131072
+      max_input_tokens: 122880
       notes: "candidate; the +11 mmlu_pro claim lives here, measure this first"
 
 

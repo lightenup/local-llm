@@ -68,10 +68,13 @@ from __future__ import annotations
 # 8-bit serves 131k and was verified to 261,826 (B2), so this is a property of
 # gemma-4's attention workspace in this runtime, not of the machine.
 #
-# 65536 is what was VERIFIED, not the ceiling -- the true limit is somewhere in
-# (65536, 131072] and nothing has bisected it. Set to the verified figure
-# because a cap that promises what the guard will refuse is worse than a low one.
-VERIFIED_CONTEXT = 65536
+# 65536 was what §32 verified. RE-MEASURED 2026-10-19 (FINDINGS §40) on oMLX
+# 0.7.1rc1: the guard admits up to 126,976 with chunked_prefill off, and
+# longctx_quality.py retrieved 5/5 at 122,556 prompt tokens. Repeat questions
+# reuse the prefix (3-19 s) only with ssd_cache_max_size above 100 GB; at
+# 100 GB each paid an ~8 min prefill. 131,072 needs the global chunked_prefill,
+# unmeasured on the other models, so it is not taken.
+VERIFIED_CONTEXT = 122880
 CHECKPOINT_CONTEXT = 262144
 
 # From the checkpoint's generation_config.json. Named rather than inlined so a

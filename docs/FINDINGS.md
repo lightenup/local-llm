@@ -3484,5 +3484,12 @@ question, as long as the same prefix is resent.
 Owner's decision, 2026-10-19. Retrieval supports 122,880 with today's
 settings and 131,072 with `chunked_prefill` on. At the time, every question
 cost 8–10 minutes, so a 120k+ context could only be used once.
-The cap was to be re-decided after the cache test. That test has now passed
-(above), so the decision is open again (backlog A10).
+The cap was to be re-decided after the cache test.
+
+**Re-decided the same day: the cap is 122,880** (owner). It needs no other
+setting change, retrieval was verified there, and with the 300 GB SSD cache a
+repeat question costs seconds. 131,072 is not taken because it needs the
+global `chunked_prefill`, whose effect on the other models is unmeasured.
+Applied to `profiles/gemma4.py` (`VERIFIED_CONTEXT`), the LiteLLM
+`max_input_tokens` for the three gemma entries, `verify_wiring.py`, and
+opencode's `g4-reason` limit.
