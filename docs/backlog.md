@@ -1432,7 +1432,12 @@ what now exists.
 
 ---
 
-### A8. `plan` runs on gemma-4-31B — wired 2026-09-17
+### A8. `plan` runs on gemma-4-31B — wired 2026-09-17, **silently reverted, date unknown**
+
+**Correction 2026-10-19:** the wiring never reached a commit. In the dotfiles history
+`plan` is `qwen-reason` in every revision, and so is the live file. The likely cause is
+the `omlx launch opencode` overwrite this item warns about. The "week of real `plan`
+use" below therefore never happened. Re-decided in A10.
 
 The one role the evidence unambiguously supports: reasoning-dominated
 (+9.0 mmlu_pro, p = 0.00006), not latency-critical (0.54x decode is invisible on
@@ -1455,6 +1460,65 @@ change.
 quality gain available here, and against it sit a 65k ceiling on whole-repo work
 and 1.6x on every call. §33 settled the context half against it. The remaining
 question is workload, not measurement.
+
+---
+
+### A10. The gemma round: is the speed objection dead, and can gemma serve 131k?
+
+Raised 2026-10-19 from the first Hermes role assessments (backlog D7, homelab 088).
+**Status: written up, not started.**
+
+**Why now: §30's main objection has been invalidated.**
+- §30 kept gemma-4-31B as an addition partly on decode: "0.54x the shipped 8-bit",
+  18.5 against 34.0 t/s at 16k.
+- That 34.0 was the 8-bit on the `vlm_mtp` path, which §39 showed decoded greedily.
+- Since 2026-10-12 the 8-bit runs `plain` at about 16.7 t/s. So the QAT gemma already
+  on the Mac is plausibly the faster model now, as well as:
+  - livecodebench +13.6 (73.4 vs 59.8, §30)
+  - mmlu_pro +9.0 (73.0 vs 64.0, p = 0.00006, §29)
+  - 6.9 GiB smaller (21.88 vs 28.20)
+- Caveat: those are two different runs; step 0 puts them on one harness.
+
+**What is left against it is context.**
+- Above about 65k, the single-chunk prefill transient (~54.6 GB at 131k, §32) breaks
+  the ceiling. The KV cache is not the problem.
+- 65,536 is dependable. About 116k is admitted 1 time in 3 (§33).
+- The transient is per chunk, so a smaller prefill chunk is an untested lever. It is
+  unrelated to the `chunked_prefill` closed for the dense 27B.
+
+**New builds the scout found** (Hermes assessed both on 10-19; both verdicts need
+correcting, see below):
+- `Jundot/gemma-4-26B-A4B-it-oQ6e-mtp` (21.3 GiB, MTP in the checkpoint): a fast-slot
+  challenger to oQ4e (livecodebench 54.0, §19).
+- `Jundot/gemma-4-31B-it-oQ8e-mtp` (32.3 GiB): **out of this round.** It has less
+  memory headroom than the build that already fails above 65k, and its MTP path carries
+  the §39 risk. Revisit only if step 1 fixes context.
+
+**Steps, cheapest and most decisive first:**
+
+| # | Step | Mac cost | Decides |
+|---|---|---|---|
+| 0 | `bench/throughput.py`: 8-bit `plain` against gemma-31B QAT, same harness, 1k/4k/16k, `gen_short` guard on. Doctor "profile samples" on `g4-code`, `g4-reason` | ~30 min | whether §30's speed objection is dead |
+| 1 | `bench/ctx_bisect.py` for gemma-31B at the current oMLX, then again with a smaller prefill chunk. Retrieval at the admitted length with `bench/longctx_quality.py`: admitting is not attending (§33) | 1–2 h | replacement (131k) or addition (65k) |
+| 2 | gemma-26B-A4B-oQ6e-mtp: download, `candidate_gate.py`, profile-samples check (does its MTP path honour the sampler? §39), decode with MTP against oQ4e | ~2 h + download | fast-slot contender or not |
+| 3 | Paired n=500 runs for the surviving arms: livecodebench, mmlu_pro, sampled decoding. Leave mathqa out (§29) | overnight | the role change itself |
+| 4 | Wiring: `plan` → `g4-reason` (re-do A8, committed this time); `coder` → `g4-code` if step 1 reaches 131k. `long` stays on `qwen-long` | an edit + `verify_wiring.py` | — |
+
+**Run condition: an exclusive window.**
+- Pause Hermes `scout-assess`.
+- The owner stops opencode and Hermes chats for the duration.
+- Benchmarks share the single llm_queue slot otherwise (§38), and the numbers would not
+  be clean.
+
+**The assessments to correct.** Hermes judged gemma-26B-A4B only against the
+quality-slot bar ("pass") and carried the 31B's 65k ceiling over to a model with a
+different memory profile. It called the 31B oQ8e "gate it" in order to "confirm 262k",
+which is the wrong axis. `scout/assess.md` now compares against both slots and does not
+carry one checkpoint's measured ceiling over to another.
+
+**Settles:** whether the best-measured model on the Mac stays unwired.
+**Cost:** steps 0–1 one afternoon, 2 an afternoon, 3 one night.
+**Depends on:** nothing.
 
 ---
 
