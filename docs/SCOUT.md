@@ -42,6 +42,36 @@ apart from a scout that did not run:
 Set `NTFY_MARKDOWN=true` in the agent's `.env` so the report renders. The `--notify` sinks
 below are the alternative for running without Hermes Agent.
 
+## Assessment job
+
+A second Hermes job turns a `promising` family into a short role assessment on the
+phone (homelab-proxmox backlog 088). It is an **agent** job whose `--script` is
+`scout/hermes-assess.sh`, which runs `model_scout.py assess-gate`:
+
+- The daily scan writes its JSON report (`scan --report-out`); the gate queues every
+  `promising` family from it once, in `$SCOUT_ASSESS_STATE`.
+- Each tick (every 15 minutes) the gate prints nothing unless a family is pending
+  **and** the Mac answers a 1-token request through the router (`SCOUT_ROUTER_URL`,
+  model `SCOUT_PROBE_MODEL`, default `hermes-deep`). Empty output is a silent tick with
+  no model call, so a sleeping Mac costs nothing.
+- When both hold, it hands over one family: `scout/assess.md` as instructions, then
+  the family, the role table and the free memory as JSON. The agent's reply is
+  delivered to ntfy.
+- A family is `assessed` when the job's next completed run (Hermes stamps
+  `last_run_at` on completion) is `ok`. Otherwise it goes back to `pending`, and is
+  given up after 3 attempts, so a broken router cannot notify every 15 minutes.
+
+**Why not Hermes' own retry:** its re-run ladder (5, 15, 30 minutes) fires only on
+transport errors to the provider. The provider is the llm-router, which is up and
+answers 500 or 429 while the Mac sleeps. Here the gate's next tick is the retry, and
+it waits for the Mac however long that takes.
+
+Measured on the Mac 2026-10-19: one hand-over is ~2.7k prompt tokens; `reasoner` took
+8 minutes to answer (8,191 thinking tokens at 17.8 t/s), holding the queue for that time.
+
+Install: see the header of `scout/hermes-assess.sh`. The installed wrapper sets
+`SCOUT_ROUTER_URL`, which must not live in this repo.
+
 ## Notifications
 
 `scan --notify` posts what is new and stops there; no LLM is involved, so it
