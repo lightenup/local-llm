@@ -1,0 +1,43 @@
+{
+  "model": "gemma-4-31B-it-qat-OptiQ-4bit",
+  "profile": "gemma-4-31B-it-qat-OptiQ-4bit:g4-reason",
+  "low": 65536,
+  "high": 131072,
+  "probes": [
+    {
+      "target": 98304,
+      "admitted": false,
+      "prompt_tokens": 0,
+      "error": "POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"Prompt is too long: 98269 tokens > 65536 maximum context length\",\"type\":\"invalid_request_error\",\"param\":null,\"code\":\"context_length_exceeded\"}}"
+    },
+    {
+      "target": 81920,
+      "admitted": false,
+      "prompt_tokens": 0,
+      "error": "POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"Prompt is too long: 81673 tokens > 65536 maximum context length\",\"type\":\"invalid_request_error\",\"param\":null,\"code\":\"context_length_exceeded\"}}"
+    },
+    {
+      "target": 73728,
+      "admitted": false,
+      "prompt_tokens": 0,
+      "error": "POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"Prompt is too long: 73485 tokens > 65536 maximum context length\",\"type\":\"invalid_request_error\",\"param\":null,\"code\":\"context_length_exceeded\"}}"
+    },
+    {
+      "target": 69632,
+      "admitted": false,
+      "prompt_tokens": 0,
+      "error": "POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"Prompt is too long: 69350 tokens > 65536 maximum context length\",\"type\":\"invalid_request_error\",\"param\":null,\"code\":\"context_length_exceeded\"}}"
+    }
+  ],
+  "original_window": 65536,
+  "max_admitted": 65536,
+  "min_refused": 69632,
+  "retrieval": {
+    "tokens": 65536,
+    "asked": 3,
+    "correct": 0
+  },
+  "recommended_cap": 65536,
+  "recommendation": "keep 65536: ~65536 is admitted but retrieval was 0/3, and admitting is not attending",
+  "note": "INVALID: probed through g4-reason while raising g4code's window, so the guard measured the wrong profile's declaration. Rerun as a10_g4_ctx_baseline.json."
+}

@@ -1,0 +1,44 @@
+{
+  "model": "gemma-4-31B-it-qat-OptiQ-4bit",
+  "profile": "gemma-4-31B-it-qat-OptiQ-4bit:g4-code",
+  "low": 65536,
+  "high": 131072,
+  "probes": [
+    {
+      "target": 98304,
+      "admitted": true,
+      "prompt_tokens": 98275,
+      "error": ""
+    },
+    {
+      "target": 114688,
+      "admitted": true,
+      "prompt_tokens": 115018,
+      "error": ""
+    },
+    {
+      "target": 122880,
+      "admitted": true,
+      "prompt_tokens": 122643,
+      "error": ""
+    },
+    {
+      "target": 126976,
+      "admitted": true,
+      "prompt_tokens": 126247,
+      "error": ""
+    }
+  ],
+  "original_window": 65536,
+  "max_admitted": 126976,
+  "min_refused": 131072,
+  "retrieval": {
+    "tokens": 118055,
+    "asked": 3,
+    "correct": 0,
+    "errors": 3
+  },
+  "recommended_cap": 65536,
+  "recommendation": "keep 65536: ~118055 is admitted but retrieval was 0/3, and admitting is not attending",
+  "note": "2026-10-19: the retrieval check did not run. All three requests errored because oMLX had crashed (teardown after a long request, FINDINGS \u00a740), so 'correct: 0' is not a retrieval result. Retrieval was measured with longctx_quality.py instead (a10_g4_longctx_*.json)."
+}

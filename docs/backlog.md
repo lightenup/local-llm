@@ -1466,7 +1466,16 @@ question is workload, not measurement.
 ### A10. The gemma round: is the speed objection dead, and can gemma serve 131k?
 
 Raised 2026-10-19 from the first Hermes role assessments (backlog D7, homelab 088).
-**Status: written up, not started.**
+**Status: steps 0–1 done 2026-10-19 (§40); cap unchanged at 65,536 by owner decision.**
+- Step 0: the speed objection is dead. Gemma decodes at 1.15x / 1.12x / 0.94x the
+  8-bit `plain` at 1k/4k/16k.
+- Step 1: retrieval 5/5 at 98k, 122k and 131k. The guard admits up to 126,976 with
+  `chunked_prefill` off and 151,552 with it on.
+- Correction to the plan below: there is no separate prefill chunk size. The lever
+  is the global `scheduler.chunked_prefill`, which affects every model.
+- Next, before the cap is re-decided: raise `ssd_cache_max_size` (100 GB, full) and
+  re-run 122k to see whether repeat questions stop paying an ~8 min prefill.
+- Engine was oMLX 0.7.1rc1. Unloading after a 100k+ request crashed it twice (§40).
 
 **Why now: §30's main objection has been invalidated.**
 - §30 kept gemma-4-31B as an addition partly on decode: "0.54x the shipped 8-bit",

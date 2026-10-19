@@ -1,0 +1,334 @@
+{
+  "timestamp": "2026-10-19T12:54:40.873202+00:00",
+  "model_id": "gemma-4-31B-it-qat-OptiQ-4bit:g4-code",
+  "variant": {
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_bits": 4.0,
+    "turboquant_skip_last": true,
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_tail_padding_min_tokens": 0,
+    "qwen35_ane_prefill_fraction": null,
+    "qwen35_ane_prefill_shared_fraction": 1.0,
+    "qwen35_ane_prefill_fused_down": false,
+    "qwen35_ane_prefill_max_layers": 64,
+    "qwen35_ane_prefill_dual_ane": true,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_gdn_max_layers": 48,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "qwen35_ane_prefill_cpu_down_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_gdn_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_threads": 8,
+    "qwen35_ane_prefill_cpu_shared_resource": true,
+    "specprefill_enabled": false,
+    "specprefill_draft_model": null,
+    "specprefill_keep_pct": null,
+    "specprefill_threshold": null,
+    "dflash_enabled": false,
+    "dflash_draft_model": null,
+    "dflash_draft_quant_enabled": null,
+    "dflash_draft_quant_weight_bits": null,
+    "dflash_draft_quant_group_size": null,
+    "dflash_draft_window_size": null,
+    "dflash_block_size": null,
+    "dflash_verify_mode": null,
+    "mtp_enabled": false,
+    "mtp_adaptive_max_depth": null,
+    "mtp_fixed_depth": null,
+    "vlm_mtp_enabled": false,
+    "vlm_mtp_draft_model": null,
+    "vlm_mtp_draft_block_size": null
+  },
+  "request": {
+    "lengths": [
+      98304,
+      122880
+    ],
+    "depths": [
+      0.05,
+      0.25,
+      0.5,
+      0.75,
+      0.95
+    ],
+    "max_tokens": 64,
+    "max_length_seconds": 5400.0,
+    "sections": 240,
+    "seed": 20260906,
+    "safety_tokens": 256
+  },
+  "calibration": {
+    "slope": 0.16346666666666668,
+    "intercept": 1781.0,
+    "fitted": true,
+    "probes": [
+      {
+        "chars": 60000,
+        "prompt_tokens": 11589,
+        "ok": true,
+        "error": null
+      },
+      {
+        "chars": 180000,
+        "prompt_tokens": 31205,
+        "ok": true,
+        "error": null
+      }
+    ]
+  },
+  "records": [
+    {
+      "target_tokens": 98304,
+      "kind": "retrieval",
+      "depth": 0.05,
+      "expected": "86541",
+      "got": "86541",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 97981,
+      "cached_tokens": 0,
+      "wall_s": 374.072,
+      "error": null
+    },
+    {
+      "target_tokens": 98304,
+      "kind": "retrieval",
+      "depth": 0.25,
+      "expected": "43595",
+      "got": "43595",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 97981,
+      "cached_tokens": 97280,
+      "wall_s": 37.714,
+      "error": null
+    },
+    {
+      "target_tokens": 98304,
+      "kind": "retrieval",
+      "depth": 0.5,
+      "expected": "38137",
+      "got": "38137",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 97981,
+      "cached_tokens": 97280,
+      "wall_s": 6.004,
+      "error": null
+    },
+    {
+      "target_tokens": 98304,
+      "kind": "retrieval",
+      "depth": 0.75,
+      "expected": "84925",
+      "got": "84925",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 97981,
+      "cached_tokens": 97280,
+      "wall_s": 5.806,
+      "error": null
+    },
+    {
+      "target_tokens": 98304,
+      "kind": "retrieval",
+      "depth": 0.95,
+      "expected": "41761",
+      "got": "41761",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 97981,
+      "cached_tokens": 97280,
+      "wall_s": 5.747,
+      "error": null
+    },
+    {
+      "target_tokens": 98304,
+      "kind": "multihop",
+      "depth": null,
+      "expected": "128302",
+      "got": "128202",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 97991,
+      "cached_tokens": 97280,
+      "wall_s": 5.793,
+      "error": null
+    },
+    {
+      "target_tokens": 122880,
+      "kind": "retrieval",
+      "depth": 0.05,
+      "expected": "32607",
+      "got": "32607",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 122556,
+      "cached_tokens": 0,
+      "wall_s": 489.744,
+      "error": null
+    },
+    {
+      "target_tokens": 122880,
+      "kind": "retrieval",
+      "depth": 0.25,
+      "expected": "26856",
+      "got": "26856",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 122556,
+      "cached_tokens": 0,
+      "wall_s": 491.797,
+      "error": null
+    },
+    {
+      "target_tokens": 122880,
+      "kind": "retrieval",
+      "depth": 0.5,
+      "expected": "52632",
+      "got": "52632",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 122556,
+      "cached_tokens": 0,
+      "wall_s": 460.521,
+      "error": null
+    },
+    {
+      "target_tokens": 122880,
+      "kind": "retrieval",
+      "depth": 0.75,
+      "expected": "13911",
+      "got": "13911",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 122556,
+      "cached_tokens": 0,
+      "wall_s": 466.974,
+      "error": null
+    },
+    {
+      "target_tokens": 122880,
+      "kind": "retrieval",
+      "depth": 0.95,
+      "expected": "55152",
+      "got": "55152",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 122556,
+      "cached_tokens": 0,
+      "wall_s": 515.249,
+      "error": null
+    },
+    {
+      "target_tokens": 122880,
+      "kind": "multihop",
+      "depth": null,
+      "expected": "87759",
+      "got": "87309",
+      "correct": false,
+      "skipped": false,
+      "prompt_tokens": 122566,
+      "cached_tokens": 0,
+      "wall_s": 544.492,
+      "error": null
+    }
+  ],
+  "summary": {
+    "lengths": [
+      98304,
+      122880
+    ],
+    "depths": [
+      0.05,
+      0.25,
+      0.5,
+      0.75,
+      0.95
+    ],
+    "by_length": {
+      "98304": {
+        "asked": 5,
+        "scored": 5,
+        "correct": 5,
+        "skipped": 0,
+        "accuracy": 1.0,
+        "verified_prompt_tokens": 97991,
+        "repeat_requests": 5,
+        "mean_cached_fraction": 0.993
+      },
+      "122880": {
+        "asked": 5,
+        "scored": 5,
+        "correct": 5,
+        "skipped": 0,
+        "accuracy": 1.0,
+        "verified_prompt_tokens": 122566,
+        "repeat_requests": 5,
+        "mean_cached_fraction": 0.0
+      }
+    },
+    "by_depth": {
+      "0.05": {
+        "asked": 2,
+        "scored": 2,
+        "correct": 2,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.25": {
+        "asked": 2,
+        "scored": 2,
+        "correct": 2,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.5": {
+        "asked": 2,
+        "scored": 2,
+        "correct": 2,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.75": {
+        "asked": 2,
+        "scored": 2,
+        "correct": 2,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.95": {
+        "asked": 2,
+        "scored": 2,
+        "correct": 2,
+        "skipped": 0,
+        "accuracy": 1.0
+      }
+    },
+    "multihop": {
+      "98304": {
+        "correct": false,
+        "skipped": false,
+        "expected": "128302",
+        "got": "128202",
+        "error": null
+      },
+      "122880": {
+        "correct": false,
+        "skipped": false,
+        "expected": "87759",
+        "got": "87309",
+        "error": null
+      }
+    },
+    "overall_retrieval": {
+      "asked": 10,
+      "scored": 10,
+      "correct": 10,
+      "skipped": 0,
+      "accuracy": 1.0
+    }
+  }
+}
