@@ -8,11 +8,17 @@
 # answers a 1-token probe through the router. So a sleeping Mac costs nothing,
 # and the first tick after it wakes is the retry.
 #
+# Hermes strips the agent's own router key from job scripts (homelab 083 R-004),
+# so the probe uses a key of its own, passed in through the agent's
+# env_passthrough (homelab backlog 088 FR-008). Without it the probe gets 401
+# and every tick stays silent.
+#
 # The installed copy sets what must not live in this public repo, then execs
 # this file in the clone:
 #   cat > "$HERMES_HOME/scripts/scout-assess.sh" <<'WRAP'
 #   #!/usr/bin/env bash
 #   export SCOUT_ROUTER_URL=http://<llm-router-prod>:4000/v1
+#   export SCOUT_ROUTER_KEY_ENV=LLM_ROUTER_CLIENT_SCOUT_PROBE_KEY
 #   exec bash "$HERMES_HOME/workspace/local-llm/scout/hermes-assess.sh"
 #   WRAP
 #   hermes cron create "*/15 * * * *" --script scout-assess.sh --model hermes-deep \
