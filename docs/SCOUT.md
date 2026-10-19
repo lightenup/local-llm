@@ -69,8 +69,13 @@ it waits for the Mac however long that takes.
 Measured on the Mac 2026-10-19: one hand-over is ~2.7k prompt tokens; `reasoner` took
 8 minutes to answer (8,191 thinking tokens at 17.8 t/s), holding the queue for that time.
 
+The probe needs a router key **of its own**: Hermes strips the agent's key from job
+scripts. The first two ticks on PROD probed with an empty key, got 401, and stayed
+silent, while a test through `docker exec`, which sees the full container environment,
+had passed. Test from a real tick.
+
 Install: see the header of `scout/hermes-assess.sh`. The installed wrapper sets
-`SCOUT_ROUTER_URL`, which must not live in this repo.
+`SCOUT_ROUTER_URL` and `SCOUT_ROUTER_KEY_ENV`, which must not live in this repo.
 
 ## Notifications
 
