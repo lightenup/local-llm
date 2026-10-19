@@ -3446,7 +3446,7 @@ them). It never unloads the model, which avoided the crash below.
   tokens" and still "re-prefills 130749 of 130749". The SSD cache was at its
   100 GB cap (`ssd_cache_max_size`), with 99.7 GB of it other models' blocks.
   So the likely cause is that a 120k+ sequence cannot be kept. At 98k reuse
-  worked (97,280 cached). **Not yet tested:** raise the cap and re-run.
+  worked (97,280 cached). Confirmed by the test below.
 
 ### oMLX 0.7.1rc1 crashes on teardown after a long request
 
@@ -3462,9 +3462,27 @@ both times. The first crash also left `g4code`'s window raised, which
 requests on this build; `longctx_quality.py` avoided them and did not crash.
 Not reproduced on 0.7.0, which was not available to compare.
 
+### The SSD cache cap was the cause: 300 GB makes 122k reusable
+
+Same 122,880-token run, chunked prefill off, after raising
+`ssd_cache_max_size` from 100 GB to 300 GB (1.1 TB free;
+`results/a10_g4_longctx_ssd300.json`):
+
+| question | 100 GB cap | 300 GB cap |
+|---|---|---|
+| first (cold prefill) | 490 s | 441 s |
+| repeats (4 retrieval + multi-hop) | 461–544 s each, 0 cached | **3–19 s each, 121,856+ cached** |
+| retrieval | 5/5 | 5/5, same answers |
+
+The cache manager logged `max_size=300.00 GB` on the next load, so the
+setting took effect without a restart. **The cap stays at 300 GB.**
+A 120k+ context now costs one ~7.5-minute prefill and then seconds per
+question, as long as the same prefix is resent.
+
 ### Decision: record only, cap stays at 65,536
 
 Owner's decision, 2026-10-19. Retrieval supports 122,880 with today's
-settings and 131,072 with `chunked_prefill` on. But at 8–10 minutes per
-question, a 120k+ context is only usable once until the SSD cache keeps it.
-The cap is re-decided after that test (backlog A10).
+settings and 131,072 with `chunked_prefill` on. At the time, every question
+cost 8–10 minutes, so a 120k+ context could only be used once.
+The cap was to be re-decided after the cache test. That test has now passed
+(above), so the decision is open again (backlog A10).

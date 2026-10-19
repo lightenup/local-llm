@@ -1473,8 +1473,10 @@ Raised 2026-10-19 from the first Hermes role assessments (backlog D7, homelab 08
   `chunked_prefill` off and 151,552 with it on.
 - Correction to the plan below: there is no separate prefill chunk size. The lever
   is the global `scheduler.chunked_prefill`, which affects every model.
-- Next, before the cap is re-decided: raise `ssd_cache_max_size` (100 GB, full) and
-  re-run 122k to see whether repeat questions stop paying an ~8 min prefill.
+- Disk-cache test done: with `ssd_cache_max_size` raised from 100 GB to 300 GB (kept),
+  repeat questions at 122k take 3–19 s instead of ~8 min.
+- Next: re-decide the cap. 122,880 needs no other change; 131,072 needs the
+  global `chunked_prefill`.
 - Engine was oMLX 0.7.1rc1. Unloading after a 100k+ request crashed it twice (§40).
 
 **Why now: §30's main objection has been invalidated.**
