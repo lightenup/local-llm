@@ -11,7 +11,7 @@ worth a look and the exact commands to gate it.
     python3 bench/model_scout.py scan --since 14      # last 14 days, ignore state
     python3 bench/model_scout.py scan --format json   # for an agent
     python3 bench/model_scout.py scan --notify        # daily job: post what is new
-    python3 bench/model_scout.py scan --quiet         # stdout only when there is news
+    python3 bench/model_scout.py scan --quiet         # news as markdown, else one line
     python3 bench/model_scout.py export               # on the Mac: refresh setup.json
     python3 bench/model_scout.py download REPO        # on the Mac: queue in oMLX
 
@@ -67,6 +67,11 @@ ORDER = {"promising": 0, "consider": 1, "blocked": 2, "skip": 3}
 Fetch = Callable[[str], object]
 
 
+def _hub(url: str) -> object:
+    """_fetch, reading a chat template as text rather than JSON."""
+    return _fetch(url, raw=url.endswith(".jinja"))
+
+
 # ---- inputs ---------------------------------------------------------------
 
 def load_policy(path: Path = POLICY) -> dict:
@@ -81,7 +86,7 @@ def _when(stamp: str) -> datetime:
     return datetime.fromisoformat(stamp.replace("Z", "+00:00"))
 
 
-def list_new(author: str, since: datetime, fetch: Fetch = _fetch) -> list[dict]:
+def list_new(author: str, since: datetime, fetch: Fetch = _hub) -> list[dict]:
     """Repos by `author` created after `since`, newest first.
 
     The listing is sorted by createdAt. A daily scan fits in the first 100;
@@ -100,11 +105,12 @@ def list_new(author: str, since: datetime, fetch: Fetch = _fetch) -> list[dict]:
     return new
 
 
-def inspect(repo: str, fetch: Fetch = _fetch) -> dict:
+def inspect(repo: str, fetch: Fetch = _hub) -> dict:
     """What evaluate() needs about one repo, without downloading weights.
 
     config.json, the weight size in GiB, and whether MTP weights are actually
-    present: two requests, three when the config claims an MTP head. Raises
+    present, plus the chat template: three requests, four when the config
+    claims an MTP head. Raises
     LookupError when there is no readable config.json: a gated repo, a
     GGUF-only repo, or an upload still in progress.
     """
@@ -126,11 +132,35 @@ def inspect(repo: str, fetch: Fetch = _fetch) -> dict:
     except (urllib.error.URLError, json.JSONDecodeError):
         pass
     return {"config": config, "size": size,
-            "mtp": mtp_weights(repo, config, files, fetch)}
+            "mtp": mtp_weights(repo, config, files, fetch),
+            "template": chat_template(repo, files, fetch)}
+
+
+def chat_template(repo: str, files: list[dict], fetch: Fetch = _hub) -> str | None:
+    """The chat template, or None when the repo has none that can be read.
+
+    Newer conversions ship chat_template.jinja; older ones keep the template
+    inside tokenizer_config.json. It is code, not prose, and is only searched
+    for the hooks a role needs (role_fit), never shown to anyone.
+    """
+    names = {f["rfilename"] for f in files}
+    base = f"https://huggingface.co/{repo}/resolve/main/"
+    try:
+        if "chat_template.jinja" in names:
+            text = fetch(base + "chat_template.jinja")
+            return text if isinstance(text, str) else None
+        if "tokenizer_config.json" in names:
+            tpl = (fetch(base + "tokenizer_config.json") or {}).get("chat_template")
+            if isinstance(tpl, list):  # named templates: [{"name", "template"}]
+                tpl = "\n".join(t.get("template", "") for t in tpl)
+            return tpl if isinstance(tpl, str) else None
+    except (urllib.error.URLError, json.JSONDecodeError, AttributeError):
+        pass
+    return None
 
 
 def mtp_weights(repo: str, config: dict, files: list[dict],
-                fetch: Fetch = _fetch) -> str | None:
+                fetch: Fetch = _hub) -> str | None:
     """'in-checkpoint', 'sidecar', or None.
 
     The config is not evidence. mlx-community conversions keep
@@ -181,6 +211,25 @@ def family(repo: str) -> str:
     return name
 
 
+# Packaging words that do not change which model it is: an instruct tune and
+# its QAT build are the same weights for the lineup's purposes.
+_SAME_MODEL = re.compile(r"-(?:it|instruct|qat)(?=-|$)", re.I)
+
+
+def base_key(name: str) -> str:
+    """Comparable name of the model a repo or local id is a build of."""
+    name = name.split("/", 1)[-1]
+    while (stripped := _BUILD.sub("", name)) != name:
+        name = stripped
+    return _SAME_MODEL.sub("", name).lower()
+
+
+def local_variant(repo: str, setup: dict) -> list[str]:
+    """Local model ids that are other builds of the same model as `repo`."""
+    key = base_key(repo)
+    return sorted(m["id"] for m in setup["models"] if base_key(m["id"]) == key)
+
+
 def params_b(repo: str, size: float, bits: int | None) -> float:
     """Total parameters in billions: from the name if it says, else estimated.
 
@@ -192,6 +241,58 @@ def params_b(repo: str, size: float, bits: int | None) -> float:
         return float(m.group(1))
     per_weight = (bits + 0.5) if bits else 16
     return round(size * GIB * 8 / per_weight / 1e9, 1)
+
+
+def context_length(config: dict) -> int | None:
+    for holder in (config, config.get("text_config") or {}):
+        if holder.get("max_position_embeddings"):
+            return int(holder["max_position_embeddings"])
+    return None
+
+
+# What a chat template has to contain for a role's `requires`. A thinking
+# template switches on enable_thinking or emits a <think> block; a tool-calling
+# one renders the `tools` it is passed.
+_TEMPLATE_HOOKS = {
+    "thinking": re.compile(r"enable_thinking|<think>|reasoning_content|thinking", re.I),
+    "tools": re.compile(r"\btools\b"),
+}
+
+
+def role_fit(facts: dict, policy: dict) -> list[dict]:
+    """Each role in scout.toml, and whether this checkpoint could hold it.
+
+    `eligible` is True, False, or None when a fact is missing (no template, no
+    context length in the config). Eligible is not a verdict: it means the
+    config does not rule the role out, and the bar is still to beat. The
+    incumbents and bars are in the report once, under `roles` (role_table).
+    """
+    ctx = context_length(facts["config"])
+    tpl = facts.get("template")
+    out = []
+    for name, role in policy.get("roles", {}).items():
+        gaps, unknown = [], []
+        for need, want in role.get("requires", {}).items():
+            if need == "min_context":
+                if ctx is None:
+                    unknown.append("no context length in config.json")
+                elif ctx < want:
+                    gaps.append(f"{ctx:,} context < {want:,}")
+            elif want:
+                if tpl is None:
+                    unknown.append("no chat template to check")
+                elif not _TEMPLATE_HOOKS[need].search(tpl):
+                    gaps.append(f"chat template has no {need}")
+        out.append({"role": name,
+                    "eligible": False if gaps else None if unknown else True,
+                    "why": "; ".join(gaps or unknown) or "config allows it"})
+    return out
+
+
+def role_table(policy: dict) -> dict:
+    """What each role is held by and the bar a candidate has to beat."""
+    return {name: {k: v for k, v in role.items()}
+            for name, role in policy.get("roles", {}).items()}
 
 
 def claims_mtp(config: dict) -> bool:
@@ -254,6 +355,7 @@ def evaluate(repo: str, facts: dict, policy: dict, setup: dict) -> dict:
     out = {"repo": repo, "url": f"https://huggingface.co/{repo}",
            "model_type": mtype, "size_gib": size, "build": q["build"],
            "bits": q.get("base_bits"), "fit": None, "signals": [],
+           "context": context_length(config),
            "warnings": [], "next_steps": []}
 
     def skip(why: str) -> dict:
@@ -288,6 +390,13 @@ def evaluate(repo: str, facts: dict, policy: dict, setup: dict) -> dict:
                                    "not yet seen loading in oMLX")
     if _arch(mtype) not in {_arch(t) for t in setup.get("local_model_types", [])}:
         out["signals"].append(sig["new_architecture"])
+    # A new build of a model already on the Mac is a quant comparison (A2b),
+    # not a new model. It stays promising only for a signal no local build has.
+    if variants := local_variant(repo, setup):
+        out["variant_of"] = variants
+        local_mtp = any("mtp" in v.lower() for v in variants)
+        out["signals"] = [x for x in out["signals"]
+                          if x == sig["dwq"] or (x == sig["mtp"] and not local_mtp)]
     if not q["quantized"]:
         out["warnings"].append("unquantized: size is the full-precision weights")
     if rule:
@@ -299,12 +408,18 @@ def evaluate(repo: str, facts: dict, policy: dict, setup: dict) -> dict:
                    why=f"oMLX (mlx_lm {setup.get('mlx_lm')}, mlx_vlm "
                        f"{setup.get('mlx_vlm')}) has no '{mtype}' architecture")
         return out
+    variant = (f"another build of {', '.join(out['variant_of'])}, already on the Mac"
+               if out.get("variant_of") else None)
     if out["signals"] and not rule:
-        out.update(verdict="promising", why="; ".join(out["signals"]))
+        why = "; ".join(out["signals"])
+        out.update(verdict="promising",
+                   why=f"{why} ({variant}, which lacks it)" if variant else why)
     else:
         out.update(verdict="consider",
                    why=f"§{rule['section']}: {rule['why']}" if rule
-                   else "fits and loads; no signal")
+                   else f"{variant}: a quant comparison (backlog A2b) at most"
+                   if variant else "fits and loads; no signal")
+    out["roles"] = role_fit(facts, policy)
     name = repo.split("/", 1)[1]
     out["next_steps"] = [
         f"read the leaderboard first (backlog D3): {LEADERBOARD.format(name=name)}",
@@ -325,7 +440,7 @@ def _load_state(path: Path) -> dict:
 
 
 def scan(policy: dict, setup: dict, state: dict, since: datetime,
-         now: datetime, fetch: Fetch = _fetch, include_seen: bool = False) -> dict:
+         now: datetime, fetch: Fetch = _hub, include_seen: bool = False) -> dict:
     """Evaluate everything new and update `state` in place."""
     results, errors = [], []
     recheck = state.get("setup_generated") != setup.get("generated")
@@ -367,7 +482,8 @@ def scan(policy: dict, setup: dict, state: dict, since: datetime,
     families = group(results)
     free, _ = headroom(policy, setup)
     return {"generated": state["last_scan"], "since": since.isoformat(timespec="seconds"),
-            "free_beside_lineup_gib": free, "warnings": warnings, "errors": errors,
+            "free_beside_lineup_gib": free, "roles": role_table(policy),
+            "warnings": warnings, "errors": errors,
             "counts": {v: sum(f["verdict"] == v for f in families) for v in ORDER
                        if v != "skip"} | {"skip": sum(r["verdict"] == "skip"
                                                        for r in results)},
@@ -400,12 +516,24 @@ def group(results: list[dict]) -> list[dict]:
             "family": name, "verdict": pick["verdict"], "why": pick["why"],
             "pick": pick["repo"], "fit": pick.get("fit"),
             "params_b": pick.get("params_b"), "model_type": pick.get("model_type"),
+            "variant_of": pick.get("variant_of", []),
+            "context": pick.get("context"), "roles": pick.get("roles", []),
             "warnings": pick.get("warnings", []), "next_steps": pick.get("next_steps", []),
             "builds": [{k: b.get(k) for k in ("repo", "verdict", "size_gib", "bits", "fit")}
                        for b in builds],
         })
     out.sort(key=lambda f: (ORDER[f["verdict"]], -len(f["builds"])))
     return out
+
+
+def role_lines(f: dict) -> list[str]:
+    """The roles a family could compete for, and those its config rules out."""
+    roles = f.get("roles", [])
+    can = [r["role"] + ("" if r["eligible"] else f" (unchecked: {r['why']})")
+           for r in roles if r["eligible"] is not False]
+    cannot = [f"{r['role']} ({r['why']})" for r in roles if r["eligible"] is False]
+    return ([f"could compete for: {', '.join(can)}"] if can else []) + \
+           ([f"cannot hold: {'; '.join(cannot)}"] if cannot else [])
 
 
 def render_text(report: dict, show_skips: bool) -> str:
@@ -415,11 +543,16 @@ def render_text(report: dict, show_skips: bool) -> str:
              f"({c['skip']} repos skipped)",
              f"  free beside the lineup: {report['free_beside_lineup_gib']} GiB"]
     lines += [f"  ! {w}" for w in report["warnings"] + report["errors"]]
+    if report["families"]:
+        lines.append("\nroles (incumbent: bar to beat):")
+        lines += [f"  {n:<9} {r['incumbent']}: {r['bar']}"
+                  for n, r in report.get("roles", {}).items()]
     for f in report["families"]:
         lines.append(f"\n[{f['verdict'].upper()}] {f['family']}  ~{f['params_b']}B  "
                      f"{f.get('model_type') or ''}")
         lines.append(f"  {f['why']}")
         lines += [f"  warning: {w}" for w in f["warnings"] if w != f["why"]]
+        lines += [f"  {r}" for r in role_lines(f)]
         for b in f["builds"]:
             mark = "*" if b["repo"] == f["pick"] else " "
             lines.append(f"  {mark} {b['repo']:<58} {b['size_gib']!s:>6} GiB  "
@@ -469,6 +602,7 @@ def notification(report: dict, verdicts: tuple[str, ...] = NOTIFY_ON) -> dict | 
                   f"{pick['size_gib']} GiB, {pick['fit']}"
                   + (f" ({len(f['builds'])} builds)" if len(f["builds"]) > 1 else "")]
         lines += [f"- warning: {w}" for w in f["warnings"] if w != f["why"]]
+        lines += [f"- {r}" for r in role_lines(f)]
         lines += [f"{i}. {s}" for i, s in enumerate(f["next_steps"], 1)]
     summary = ", ".join(f["family"] for f in fams) or alerts[0]
     return {"title": title, "markdown": "\n".join(lines), "summary": summary[:500]}
@@ -544,9 +678,9 @@ def main() -> int:
     s.add_argument("--notify-consider", action="store_true",
                    help="with --notify or --quiet, include 'consider' too")
     s.add_argument("--quiet", action="store_true",
-                   help="print the notification markdown only when there is news, "
-                        "else nothing: for schedulers that deliver stdout "
-                        "(Hermes Agent --no-agent cron)")
+                   help="print the notification markdown when there is news, "
+                        "else one line saying so: for schedulers that deliver "
+                        "stdout (Hermes Agent --no-agent cron)")
     sub.add_parser("export", help="on the Mac: write scout/setup.json")
     d = sub.add_parser("download", help="on the Mac: queue a Hub download in oMLX")
     d.add_argument("repo")
@@ -594,6 +728,10 @@ def main() -> int:
         note = notification(report, verdicts)
         if note:
             print(note["markdown"])
+        elif not report["errors"]:
+            # Silence looked the same as a scout that never ran (backlog D7).
+            print(f"Model scout: nothing new since {report['since'][:16].replace('T', ' ')} "
+                  f"UTC ({len(report['results'])} repos checked)")
     else:
         print(json.dumps(report, indent=2) if args.format == "json"
               else render_text(report, args.show_skips))

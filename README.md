@@ -88,8 +88,8 @@ its job, so normal use needs no switching:
 | `speckit` | `Qwen3.8-27B-8bit:qwen-reason` | reasoning |
 | `speckit-wide` | `Qwen3.8-27B-8bit:qwen-long` | 262k; `oq-long` also reaches it without eviction |
 
-Or address them by **role** through the proxy — `coder`, `reasoner`, `fast`,
-`diagram` — so the model behind a role changes in one line. See `proxy/`.
+Or address them by **role** through the proxy — `coder`, `reasoner`, `fast` —
+so the model behind a role changes in one line. See `proxy/`.
 
 The split is quality against speed: `oQ4e` is 1.73× the 8-bit's decode and
 measurably worse on both code (p = 0.00119) and reasoning (p = 0.0095), so it

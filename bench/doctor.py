@@ -88,7 +88,7 @@ SAMPLING_PROFILES = ["Qwen3.8-27B-8bit:qwen-code", "Qwen3.8-27B-8bit:qwen-agent"
                      "Qwen3.8-27B-oQ4e-mtp:oq-agent"]
 
 ROLE_ALIASES = {"coder": "qwen-code", "reasoner": "qwen-reason",
-                "fast": "oq-agent", "diagram": "qwen-code"}
+                "fast": "oq-agent"}
 
 
 @dataclass
@@ -389,7 +389,7 @@ def check_queue(d: Doctor) -> None:
                      if ln.startswith("OMLX_BASE_URL=")), "?")
         if want != have:
             return False, f"compose wants {want}, container runs {have} — recreate"
-        mode = "LIVE (queued)" if ":8001" in have else "SOAK (LiteLLM bypasses queue)"
+        mode = "LIVE (queued)" if ":8001" in have else "BYPASSED (rollback, LiteLLM skips the queue)"
         return True, f"{mode}: {have}"
     d.check("queue", "LiteLLM upstream matches compose", "config", routing)
 
@@ -398,11 +398,9 @@ def check_queue(d: Doctor) -> None:
 
     def proves_path():
         # Send one request through LiteLLM and require the queue to grant it.
-        # LIVE: the plain `fast` alias must be queued. SOAK: the `fast-q` twin.
-        compose = (ROOT / "proxy" / "docker-compose.yml").read_text()
-        base = next((ln.split(":", 1)[1].strip() for ln in compose.splitlines()
-                     if ln.strip().startswith("OMLX_BASE_URL:")), "")
-        alias = "fast" if ":8001" in base else "fast-q"
+        # The queued `-q` twins are gone (2026-10-18), so with OMLX_BASE_URL
+        # rolled back to :8000 no alias reaches the queue and this fails.
+        alias = "fast"
         before = _queue_status()["stats"]["granted"]
         r = _post(PROXY, _key_file(Path.home() / ".omlx" / "litellm_local_key"),
                   {"model": alias, "max_tokens": 8,

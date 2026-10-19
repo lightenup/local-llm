@@ -30,7 +30,9 @@ reported as a failed run. No LLM is involved.
 
 `scout/hermes-cron.sh` is that script. It clones or updates this repo under `$HERMES_HOME`,
 keeps the seen-repo state there too (so the agent's backup covers it), and runs
-`scan --quiet`, which prints the markdown report only when there is news:
+`scan --quiet`, which prints the markdown report when there is news and one line
+(`Model scout: nothing new since …`) when there is not, so a quiet day can be told
+apart from a scout that did not run:
 
     cp scout/hermes-cron.sh "$HERMES_HOME/scripts/model-scout.sh"
     hermes cron create "30 7 * * *" --no-agent --script model-scout.sh \
@@ -92,12 +94,32 @@ The JSON has `families`, one per model, each grouping that model's builds
 | `consider` | fits and loads, nothing stands out; or the family was closed by a finding (`why` cites it) | in a weekly digest, or not at all |
 | `blocked` | would fit, but this oMLX cannot load the architecture yet | once; it is rechecked after the next `export` |
 
-`skip` entries appear only in `results`, never in `families`. Also pass on
+A family that is another build of a model already on the Mac carries `variant_of` and
+is `consider` ("a quant comparison at most"), unless it brings a signal no local build
+has: DWQ, or MTP when the local build lacks it.
+
+`skip` entries appear only in `results`, never in `families`.
+
+## Roles
+
+`scout/scout.toml [roles]` names the four roles a candidate competes for: `coder`,
+`reasoner`, `agent` and `long`. Each has an incumbent profile (and a `fast` slot where
+one exists), the clients that call it, the measured bar to beat with its FINDINGS
+section, and how a challenger would be measured. The report carries this table once,
+as `roles`.
+
+Each family has `roles`: per role, `eligible` true, false, or null when a fact was
+missing, and `why`. Only what config.json and the chat template show is checked:
+the context length against `min_context`, and the template for a thinking mode
+(`reasoner`) and tool calling (`agent`). So `eligible: true` means "not ruled out",
+never "better": the bar is cleared only by a paired run on the Mac. The template is
+searched for those hooks and never shown or followed. Also pass on
 anything in `warnings`: in particular a stale `scout/setup.json`, which means
 the owner should run `python3 bench/model_scout.py export` on the Mac.
 
 A notification should carry, per family: the family name, verdict, `why`,
-`pick` with its size and `fit`, and the `next_steps` verbatim. For example:
+`pick` with its size and `fit`, the roles it could compete for, and the
+`next_steps` verbatim. For example:
 
     New MLX model worth a look: Qwen3.8-27B (promising)
     Ships MTP weights; MTP measured 1.66-2.12x decode here (§19, §34)

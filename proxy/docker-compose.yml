@@ -58,8 +58,6 @@ services:
       # (:8001, one inference request at a time, §38). Roll back by pointing
       # this at :8000 and `docker compose up -d`.
       OMLX_BASE_URL: http://host.docker.internal:8001/v1
-      # Kept for the *-q aliases opencode already declares; same path now.
-      OMLX_QUEUE_BASE_URL: http://host.docker.internal:8001/v1
       # embed/rerank only: small calls that would stall Hermes retrieval behind
       # a multi-minute agent turn, and Hermes does not retry a 429.
       OMLX_DIRECT_BASE_URL: http://host.docker.internal:8000/v1

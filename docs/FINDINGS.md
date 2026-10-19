@@ -3280,6 +3280,21 @@ happens; the backend is busy.
   token). Router traffic succeeds again from 18:20:24 UTC (`reasoner`,
   `coder`), now through the queue. PR #235 merged (`0331de8`).
 
+### Soak closed: the queued twins retired (2026-10-18)
+
+The soak ended the first way the C3 note in `litellm-config.yaml` allowed:
+`OMLX_BASE_URL` moved to `:8001`, so the `*-q` twins duplicated their plain
+aliases byte for byte. Removed: `coder-q`, `reasoner-q`, `fast-q`,
+`diagram-q` and `OMLX_QUEUE_BASE_URL`. The doctor's queue check now proves the
+path with plain `fast` only, and reports BYPASSED rather than SOAK after a
+rollback. The rollback itself is unchanged.
+
+LiteLLM spend logs at removal: `coder-q` had 505 calls (438 from the local
+key, 10-11 and 10-12; 67 from the homelab gateway key on 10-18, a client
+on the owner's Linux laptop, repointed to `coder` the same day). `fast-q` had 1, `reasoner-q` and
+`diagram-q` none. The same cleanup removed `diagram` (same model and profile
+as `coder`; 6 calls in the 20 days before) and the OptiQ 27B arms (§29).
+
 ---
 
 ## 39. The agent loops were greedy decoding: oMLX's vlm_mtp path ignores the sampler

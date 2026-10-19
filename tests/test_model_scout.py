@@ -7,6 +7,7 @@ measured case (gemma fits, Flash-Next is closed) fails here.
 """
 
 import json
+import re
 import sys
 import unittest
 import urllib.error
@@ -73,12 +74,32 @@ class BudgetTests(unittest.TestCase):
 
 class VerdictTests(unittest.TestCase):
     def test_in_checkpoint_mtp_is_promising(self):
-        r = verdict("Jundot/Qwen3.8-27B-oQ6e-fp16-mtp", 22.9, bits=6,
+        r = verdict("Jundot/AREX-2-32B-oQ6e-fp16-mtp", 22.9, bits=6,
                     mtp_layers=1, mtp="in-checkpoint")
         self.assertEqual(r["verdict"], "promising")
         self.assertEqual(r["fit"], "alongside")
-        self.assertTrue(any("candidate_gate.py Qwen3.8-27B-oQ6e-fp16-mtp" in s
+        self.assertTrue(any("candidate_gate.py AREX-2-32B-oQ6e-fp16-mtp" in s
                             for s in r["next_steps"]))
+
+    def test_new_build_of_a_local_model_is_a_variant(self):
+        # Reported as promising on 2026-10-17 while four 27B builds were local.
+        r = verdict("Jundot/Qwen3.8-27B-oQ6e-fp16-mtp", 22.9, bits=6,
+                    mtp_layers=1, mtp="in-checkpoint")
+        self.assertEqual(r["verdict"], "consider")
+        self.assertIn("Qwen3.8-27B-oQ4e-mtp", r["variant_of"])
+        self.assertIn("A2b", r["why"])
+
+    def test_variant_with_mtp_the_local_build_lacks_stays_promising(self):
+        # The local gemma is a QAT OptiQ build without MTP.
+        r = verdict("Jundot/gemma-4-31B-it-oQ8e-mtp", 21.0, model_type="gemma4",
+                    bits=8, mtp_layers=1, mtp="in-checkpoint")
+        self.assertEqual(r["verdict"], "promising")
+        self.assertEqual(r["variant_of"], ["gemma-4-31B-it-qat-OptiQ-4bit"])
+        self.assertIn("which lacks it", r["why"])
+
+    def test_dwq_variant_stays_promising(self):
+        r = verdict("mlx-community/Qwen3.8-27B-4bit-DWQ", 15.7)
+        self.assertEqual(r["verdict"], "promising")
 
     def test_mtp_claimed_in_config_only_is_not_a_signal(self):
         # mlx-community conversions keep mtp_num_hidden_layers and drop the tensors.
@@ -140,7 +161,76 @@ class VerdictTests(unittest.TestCase):
         self.assertIn("does not fit", r["why"])
 
 
+class RoleTests(unittest.TestCase):
+    THINKING = "{% if tools %}{{ tools }}{% endif %}{% if enable_thinking %}<think>{% endif %}"
+
+    def roles(self, ctx=262144, template=THINKING):
+        c = config()
+        c["text_config"] = {"max_position_embeddings": ctx}
+        return {r["role"]: r for r in ms.role_fit(
+            {"config": c, "template": template}, POLICY)}
+
+    def test_the_four_roles(self):
+        self.assertEqual(list(POLICY["roles"]), ["coder", "reasoner", "agent", "long"])
+
+    def test_incumbents_are_served_by_litellm(self):
+        # A role whose incumbent LiteLLM no longer serves is a stale policy.
+        served = set(re.findall(r"model_name: (\S+)",
+                                (ms.ROOT / "proxy" / "litellm-config.yaml").read_text()))
+        for name, role in POLICY["roles"].items():
+            for slot in ("incumbent", "fast"):
+                if slot in role:
+                    self.assertIn(role[slot], served, f"{name}.{slot}")
+
+    def test_full_context_and_template_fit_every_role(self):
+        self.assertTrue(all(r["eligible"] for r in self.roles().values()))
+
+    def test_short_context_rules_out_long(self):
+        r = self.roles(ctx=131072)
+        self.assertIs(r["long"]["eligible"], False)
+        self.assertIn("131,072 context < 262,144", r["long"]["why"])
+        self.assertTrue(r["coder"]["eligible"])
+
+    def test_template_without_thinking_rules_out_reasoner(self):
+        r = self.roles(template="{% for tool in tools %}{{ tool }}{% endfor %}")
+        self.assertIs(r["reasoner"]["eligible"], False)
+        self.assertTrue(r["agent"]["eligible"])
+
+    def test_missing_template_is_unknown_not_ineligible(self):
+        r = self.roles(template=None)
+        self.assertIsNone(r["reasoner"]["eligible"])
+        self.assertTrue(r["long"]["eligible"])
+
+    def test_role_table_carries_incumbent_and_bar(self):
+        r = ms.role_table(POLICY)["coder"]
+        self.assertEqual(r["incumbent"], "Qwen3.8-27B-8bit:qwen-code")
+        self.assertIn("59.8", r["bar"])
+
+    def test_notification_lists_roles(self):
+        fam = {"roles": [{"role": "coder", "eligible": True, "why": ""},
+                         {"role": "long", "eligible": False, "why": "131,072 context < 262,144"}]}
+        self.assertEqual(ms.role_lines(fam), ["could compete for: coder",
+                                              "cannot hold: long (131,072 context < 262,144)"])
+
+    def test_evaluate_attaches_roles(self):
+        r = verdict("mlx-community/AREX-2-6bit", 21.2, bits=6)
+        self.assertEqual([x["role"] for x in r["roles"]],
+                         ["coder", "reasoner", "agent", "long"])
+
+    def test_template_read_from_tokenizer_config(self):
+        hub = FakeHub({"https://huggingface.co/x/y/resolve/main/tokenizer_config.json":
+                       {"chat_template": self.THINKING}})
+        self.assertEqual(ms.chat_template("x/y", [{"rfilename": "tokenizer_config.json"}],
+                                          hub), self.THINKING)
+
+
 class NamingTests(unittest.TestCase):
+    def test_base_key_ignores_instruct_and_qat(self):
+        self.assertEqual(ms.base_key("gemma-4-31B-it-qat-OptiQ-4bit"),
+                         ms.base_key("Jundot/gemma-4-31B-it-oQ8e-mtp"))
+        self.assertNotEqual(ms.base_key("Qwen3.8-27B-8bit"),
+                            ms.base_key("Qwen3.8-Flash-Next-oQ4e-mtp"))
+
     def test_family_strips_build_suffixes(self):
         self.assertEqual(ms.family("Jundot/Qwen3.8-27B-oQ6e-fp16-mtp"), "Qwen3.8-27B")
         self.assertEqual(ms.family("mlx-community/AREX-2-6bit"), "AREX-2")
@@ -351,9 +441,11 @@ class QuietModeTests(unittest.TestCase):
                 "warnings": [], "errors": [], "results": [{"repo": "x", "verdict": "skip"}],
                 "counts": {}}
 
-    def test_nothing_new_prints_nothing(self):
+    def test_nothing_new_prints_one_line(self):
+        # A silent run could not be told apart from one that never ran (D7).
         code, out = self.run_main(self.report(), ["--quiet", "--dry-run"])
-        self.assertEqual((code, out), (0, ""))
+        self.assertEqual((code, out), (0, "Model scout: nothing new since "
+                                          "2026-10-15 00:00 UTC (1 repos checked)\n"))
 
     def test_news_prints_markdown(self):
         fam = NotifyTests.fam(NotifyTests(), "promising")

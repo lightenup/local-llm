@@ -1639,6 +1639,20 @@ The scout is now a daily Hermes Agent no-agent cron job (`scout/hermes-cron.sh`,
    the Mac (launchd, committing only when it changes), or make the scan put a stale-setup
    warning in the report itself past a few days.
 
+**Status 2026-10-18:**
+- Done: items 1, 3 and 4, and the refresh in item 5.
+- Item 2 changed course. The roles are the four profile-level ones (`coder`,
+  `reasoner`, `agent`, `long`), kept by hand in `scout.toml [roles]`. Reading them
+  from LiteLLM does not work: `agent` and `long` have no alias. A test fails if an
+  incumbent stops being served by LiteLLM. `source_repos` stays empty because oMLX
+  does not record it; `base_key()` matching replaces it.
+- Still open:
+  - a scheduled `export`. Today the stale warning fires at 30 days.
+  - item 3's "build method not measured in A2b" exception. Only DWQ and missing MTP
+    count today.
+- Next: a Hermes agent job reads `scan --format json` and judges role fit. See
+  homelab-proxmox.
+
 **Settles:** whether the daily scout is a signal the owner reads or noise to be muted.
 **Cost:** an evening. **Depends on:** nothing; needs the Mac for items 2 and 5.
 

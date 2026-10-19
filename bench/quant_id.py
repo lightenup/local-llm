@@ -68,7 +68,7 @@ ROUTER_SUFFIXES = ("mlp.gate", "mlp.shared_expert_gate", "block_sparse_moe.gate"
 NAME_SIGNALS = ("dwq", "awq", "gptq", "oq", "qx", "hqq")
 
 
-def _fetch(url: str, timeout: int = 30) -> dict:
+def _fetch(url: str, timeout: int = 30, raw: bool = False) -> dict | str:
     """GET a JSON document, surviving a TLS-inspecting proxy.
 
     urllib validates against Python's own CA bundle, which does not contain the
@@ -76,12 +76,14 @@ def _fetch(url: str, timeout: int = 30) -> dict:
     CERTIFICATE_VERIFY_FAILED on the corporate network. curl reads the system
     trust store and succeeds. Try urllib first so the script stays dependency-free
     off-network, and fall back rather than disabling verification, which would
-    trade a working setup for an insecure one.
+    trade a working setup for an insecure one. `raw` returns the body as text,
+    for files that are not JSON (a chat_template.jinja).
     """
     req = urllib.request.Request(url, headers={"User-Agent": "local-llm/quant_id"})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return json.loads(resp.read())
+            body = resp.read().decode()
+            return body if raw else json.loads(body)
     except urllib.error.URLError as exc:
         if not isinstance(getattr(exc, "reason", None), ssl.SSLError):
             raise
@@ -91,7 +93,7 @@ def _fetch(url: str, timeout: int = 30) -> dict:
     )
     if out.returncode != 0:
         raise urllib.error.URLError(f"curl failed: {out.stderr.strip()}")
-    return json.loads(out.stdout)
+    return out.stdout if raw else json.loads(out.stdout)
 
 
 def _quant_block(config: dict) -> dict:
