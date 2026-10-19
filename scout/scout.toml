@@ -78,7 +78,7 @@ fast = "Qwen3.8-27B-oQ4e-mtp:oq-code"
 clients = "LiteLLM `coder` (Hermes); opencode `build` and the default model"
 bar = "livecodebench 59.8, humaneval 93.9, mbpp 80.4 (§8); fast slot livecodebench 54.0 (§19)"
 measure = "paired livecodebench at n=500, detects ~4 points (§30); decode is ~16.7 t/s since §39"
-note = "gemma-4-31B g4-code measured livecodebench 73.4 (§30) and is not wired: its context is dependable only to 65k (§32-33)"
+note = "gemma-4-31B QAT (on the Mac) measured livecodebench 73.4 (§30) and is not wired: that checkpoint is dependable only to 65k (§32-33). §30's decode objection compared it with the 8-bit on vlm_mtp, which §39 invalidated (backlog A10)"
 section = 8
 requires = { min_context = 131072 }
 
@@ -87,7 +87,7 @@ incumbent = "Qwen3.8-27B-8bit:qwen-reason"
 clients = "LiteLLM `reasoner` (Hermes); opencode `plan` and `speckit`"
 bar = "mmlu_pro 64.0, gsm8k 93.6 (§8, §29); no fast slot: oQ4e loses reasoning, p=0.0095 (§19)"
 measure = "paired mmlu_pro at n=500, detects ~2.9 points; leave mathqa out, its token cap zeroes reasoners (§29)"
-note = "gemma-4-31B g4-reason measured mmlu_pro 73.0 (§29); §33 says `plan` runs on it, the live opencode config does not"
+note = "gemma-4-31B QAT g4-reason measured mmlu_pro 73.0 (§29); A8 wired `plan` to it but the change was never committed and reverted (backlog A10)"
 section = 29
 requires = { min_context = 131072, thinking = true }
 
