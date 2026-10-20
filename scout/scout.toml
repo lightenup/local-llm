@@ -50,9 +50,9 @@ model = "Qwen3.8-27B-8bit"
 core = true
 section = 19
 [lineup.fast]
-model = "Qwen3.8-27B-oQ4e-mtp"
+model = "gemma-4-26B-A4B-it-oQ6e-mtp"
 core = true
-section = 19
+section = 41
 [lineup.additive]
 model = "gemma-4-31B-it-qat-OptiQ-4bit"
 core = false
@@ -71,14 +71,14 @@ core = true
 # is what config.json and the chat template can show before any GPU time:
 # `min_context` against max_position_embeddings, `thinking` and `tools`
 # against the template. Everything else is the bar, and only a paired run on
-# the Mac clears it. Numbers were checked against FINDINGS on 2026-10-18.
+# the Mac clears it. Numbers were checked against FINDINGS on 2026-10-20.
 [roles.coder]
 incumbent = "Qwen3.8-27B-8bit:qwen-code"
-fast = "Qwen3.8-27B-oQ4e-mtp:oq-code"
+fast = "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-code"
 clients = "LiteLLM `coder` (Hermes); opencode `build` and the default model"
-bar = "livecodebench 59.8, humaneval 93.9, mbpp 80.4 (§8); fast slot livecodebench 54.0 (§19)"
+bar = "livecodebench 59.8, humaneval 93.9, mbpp 80.4 (§8); fast slot (gemma-4-26B-A4B) livecodebench 91.0, humaneval 95.7, mbpp 86.4 (§41). oMLX 0.7.1rc1 changed 216 livecodebench prompts, so compare livecodebench only on the current harness: oQ4e 81.4, gemma-31B 90.8 (§41)"
 measure = "paired livecodebench at n=500, detects ~4 points (§30); decode is ~16.7 t/s since §39"
-note = "gemma-4-31B QAT (on the Mac) measured livecodebench 73.4 (§30) and is not wired: that checkpoint is dependable only to 65k (§32-33). §30's decode objection compared it with the 8-bit on vlm_mtp, which §39 invalidated (backlog A10)"
+note = "gemma-4-31B QAT (on the Mac) ties the fast-slot MoE on code and decodes at parity with the 8-bit (§40-41); verified to 122,880 (§40); not wired yet (backlog A10 step 4). The fast-slot MoE is not `coder` because it loosens return-type contracts on taskbench (§41)"
 section = 8
 requires = { min_context = 131072 }
 
@@ -87,15 +87,15 @@ incumbent = "Qwen3.8-27B-8bit:qwen-reason"
 clients = "LiteLLM `reasoner` (Hermes); opencode `plan` and `speckit`"
 bar = "mmlu_pro 64.0, gsm8k 93.6 (§8, §29); no fast slot: oQ4e loses reasoning, p=0.0095 (§19)"
 measure = "paired mmlu_pro at n=500, detects ~2.9 points; leave mathqa out, its token cap zeroes reasoners (§29)"
-note = "gemma-4-31B QAT g4-reason measured mmlu_pro 73.0 (§29); A8 wired `plan` to it but the change was never committed and reverted (backlog A10)"
+note = "gemma-4-31B QAT g4-reason measured mmlu_pro 73.0 (§29), verified to 122,880 (§40); `plan` wiring is open (backlog A10 step 4)"
 section = 29
 requires = { min_context = 131072, thinking = true }
 
 [roles.agent]
 incumbent = "Qwen3.8-27B-8bit:qwen-agent"
-fast = "Qwen3.8-27B-oQ4e-mtp:oq-agent"
+fast = "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent"
 clients = "LiteLLM `fast` (Hermes); opencode `explore`, `general`, `title`, `summary`, `compaction`"
-bar = "taskbench 84/88 per attempt, 42/42 capability (§31); fast slot 91% per attempt against 98% (§21)"
+bar = "taskbench 84/88 per attempt, 42/42 capability (§31); fast slot (gemma-4-26B-A4B since 2026-10-20) 191/220 per attempt, 39/42 capability, tool calls 100%, ~4x oQ4e prefill, 98 t/s at 8 in flight (§41)"
 measure = "taskbench is saturated and only toolcall discriminates; never advance on toolcall alone (§31, §34)"
 section = 31
 requires = { min_context = 131072, tools = true }
@@ -106,7 +106,7 @@ fast = "Qwen3.8-27B-oQ4e-mtp:oq-long"
 clients = "LiteLLM `reasoner` above 131k (context_window_fallbacks); opencode `speckit-wide`"
 bar = "262,144 verified: 15/15 needles and 3/3 multi-hop at 261,826 tokens, cold prefill 18.7 min (§8)"
 measure = "bench/longctx_quality.py at 262k; a declared window is not a usable one (§32-33)"
-note = "the fast slot has never run longctx_quality; one 117,800-token request is its only evidence (§36)"
+note = "the long fast slot is still oQ4e (oq-long), never run through longctx_quality (§36). The fast-slot MoE has no long profile; its guard admits 258k and retrieval was 3/3 at 248,704 (§41)"
 section = 8
 requires = { min_context = 262144 }
 
