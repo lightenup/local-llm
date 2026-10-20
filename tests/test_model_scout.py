@@ -31,6 +31,7 @@ SETUP = {
     "models": [
         {"id": "Qwen3.8-27B-8bit", "gib": 28.8},
         {"id": "Qwen3.8-27B-oQ4e-mtp", "gib": 16.6},
+        {"id": "gemma-4-26B-A4B-it-oQ6e-mtp", "gib": 22.4},
         {"id": "gemma-4-31B-it-qat-OptiQ-4bit", "gib": 21.9},
         {"id": "Qwen3-Embedding-0.6B-8bit", "gib": 0.6},
         {"id": "Qwen3-Reranker-0.6B-mxfp8", "gib": 0.6},
@@ -57,13 +58,19 @@ def verdict(repo, size, **kw):
 class BudgetTests(unittest.TestCase):
     def test_headroom_is_ceiling_minus_core_minus_margin(self):
         free, tiers = ms.headroom(POLICY, SETUP)
-        # 91.29 - (28.8 + 16.6 + 0.6 + 0.6) - 20 ; gemma is not core
-        self.assertAlmostEqual(free, 24.7, places=1)
+        # 91.29 - (28.8 + 22.4 + 0.6 + 0.6) - 20 ; the fast tier is the
+        # gemma-4-26B-A4B MoE since §41, gemma-31B is not core
+        self.assertAlmostEqual(free, 18.9, places=1)
+        self.assertEqual(tiers["fast"], 22.4)
         self.assertEqual(tiers["additive"], 21.9)
 
-    def test_gemma_sized_model_fits_alongside(self):
-        # candidate_gate_gemma.json: 21.88 GiB served beside the lineup.
-        self.assertEqual(ms.fit(21.9, POLICY, SETUP), "alongside")
+    def test_small_model_fits_alongside(self):
+        self.assertEqual(ms.fit(18.5, POLICY, SETUP), "alongside")
+
+    def test_gemma_sized_model_must_replace_a_tier(self):
+        # Beside the §41 lineup a 21.9 GiB build no longer clears the 20 GiB
+        # serve margin; fit() names the first core tier it would fit in place of.
+        self.assertEqual(ms.fit(21.9, POLICY, SETUP), "replaces quality")
 
     def test_larger_model_must_replace_a_tier(self):
         self.assertEqual(ms.fit(32.3, POLICY, SETUP), "replaces quality")
@@ -77,7 +84,7 @@ class VerdictTests(unittest.TestCase):
         r = verdict("Jundot/AREX-2-32B-oQ6e-fp16-mtp", 22.9, bits=6,
                     mtp_layers=1, mtp="in-checkpoint")
         self.assertEqual(r["verdict"], "promising")
-        self.assertEqual(r["fit"], "alongside")
+        self.assertEqual(r["fit"], "replaces quality")  # 22.9 > 18.9 free (§41)
         self.assertTrue(any("candidate_gate.py AREX-2-32B-oQ6e-fp16-mtp" in s
                             for s in r["next_steps"]))
 

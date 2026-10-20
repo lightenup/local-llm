@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-18T16:45:29+00:00",
+  "generated": "2026-10-20T04:30:19+00:00",
   "mlx_lm": "0.31.4.dev132+g94cdcae13",
   "mlx_vlm": "0.7.8",
   "architectures": [
@@ -357,6 +357,12 @@
       "model_type": "qwen4_exp",
       "engine": "vlm",
       "gib": 103.9
+    },
+    {
+      "id": "gemma-4-26B-A4B-it-oQ6e-mtp",
+      "model_type": "gemma4",
+      "engine": "vlm",
+      "gib": 22.4
     },
     {
       "id": "gemma-4-31B-it-qat-OptiQ-4bit",
