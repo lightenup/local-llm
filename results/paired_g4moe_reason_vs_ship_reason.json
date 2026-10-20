@@ -1,0 +1,77 @@
+{
+  "arm_a": "acc_ship_reason",
+  "arm_b": "acc_g4moe_reason",
+  "suites": {
+    "mmlu_pro": {
+      "n_shared": 500,
+      "both_correct": 277,
+      "neither_correct": 99,
+      "only_a_correct": 43,
+      "only_b_correct": 81,
+      "discordant": 124,
+      "net_to_b": 38,
+      "score_a": 64.0,
+      "score_b": 71.6,
+      "p_value": 0.00082,
+      "flips_to_a_sample": [
+        "10001",
+        "10266",
+        "10668",
+        "10692",
+        "10739",
+        "1076",
+        "10931",
+        "11019"
+      ],
+      "flips_to_b_sample": [
+        "10235",
+        "104",
+        "11143",
+        "11177",
+        "11228",
+        "11309",
+        "11582",
+        "11608"
+      ]
+    },
+    "gsm8k": {
+      "n_shared": 500,
+      "both_correct": 455,
+      "neither_correct": 13,
+      "only_a_correct": 13,
+      "only_b_correct": 19,
+      "discordant": 32,
+      "net_to_b": 6,
+      "score_a": 93.6,
+      "score_b": 94.8,
+      "p_value": 0.37709,
+      "flips_to_a_sample": [
+        "1039",
+        "1059",
+        "1190",
+        "234",
+        "306",
+        "466",
+        "552",
+        "590"
+      ],
+      "flips_to_b_sample": [
+        "1030",
+        "1086",
+        "181",
+        "182",
+        "218",
+        "334",
+        "39",
+        "394"
+      ]
+    }
+  },
+  "pooled": {
+    "questions": 1000,
+    "flips_to_a": 56,
+    "flips_to_b": 100,
+    "p_value": 0.00053
+  },
+  "verdict": "B is better (p=0.00053, pooled across suites)"
+}

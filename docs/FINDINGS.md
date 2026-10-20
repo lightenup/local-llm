@@ -3493,3 +3493,137 @@ global `chunked_prefill`, whose effect on the other models is unmeasured.
 Applied to `profiles/gemma4.py` (`VERIFIED_CONTEXT`), the LiteLLM
 `max_input_tokens` for the three gemma entries, `verify_wiring.py`, and
 opencode's `g4-reason` limit.
+
+---
+
+## 41. The gemma round, part 2: gemma-26B-A4B takes `fast`, not `coder`
+
+Backlog A10 steps 2–4, 2026-10-19 to 10-20, exclusive windows (Hermes
+`scout-assess` paused). Engine oMLX 0.7.1rc1, as in §40. Candidate:
+`gemma-4-26B-A4B-it-oQ6e-mtp`, a gemma-4 mixture-of-experts (~4B active),
+mixed 6-bit, MTP head in the checkpoint. Profiles in `profiles/gemma4moe.py`.
+
+### Step 2: gate, sampler, speed
+
+- **D3 gate PASS** (`results/a10_gate_g4moe.json`): 22.37 GiB resident, loads in
+  25 s and serves an 18k prompt with the 8-bit, oQ4e and gemma-31B resident.
+- **The sampler is honoured on its MTP path** (the §39 risk): the same prompt four
+  times gives 3/4 distinct on `g4m-agent` (temperature 0.3) and 4/4 on `g4m-code`.
+- **Speed against oQ4e**, both on MTP, `bench/throughput.py`, 128 generated
+  (`results/tp_a10_*_mtp.json`):
+
+| prompt | oQ4e decode | MoE decode | ratio | oQ4e prefill | MoE prefill | ratio |
+|---|---|---|---|---|---|---|
+| 1k | 61.5 | 207.8 | 3.38x | 859 | 3,347 | 3.90x |
+| 4k | 62.8 | 97.8 | 1.56x | 972 | 3,864 | 3.98x |
+| 16k | 77.8 | 92.0 | 1.18x | 812 | 3,556 | 4.38x |
+
+- **Concurrency**, `bench/concurrency.py` scaling, ~2k prompts, 200 tokens
+  (`results/a10d3_conc_*.json`). At 8 in flight the MoE delivers 98 t/s aggregate
+  with a 7.7 s median latency; oQ4e gives 27 t/s and 31.9 s. The MoE's
+  single-request row (37 s) was a cold load and is not a measurement.
+
+### oMLX 0.7.1rc1 changed livecodebench under the stored results
+
+The MoE scored 91.0 on livecodebench, out of line with every other model here.
+The installed harness (dated 2026-10-15) now prompts the 216 *functional*
+problems of the 500 differently: "Implement the function… do not read from
+stdin", plus the signature. It also grades them through a function harness. The
+284 stdin problems are prompted exactly as before. So the MoE had answered an
+easier form of 216 questions than every baseline.
+
+`bench/regrade.py` re-scores every stored answer with the installed graders, under
+oMLX's own interpreter. Questions whose stored prompt differs from today's are
+dropped instead of re-scored. Over about 6,000 stored answers the grader changes
+flipped **one** verdict (one 8-bit gsm8k answer). Everything else
+is a fair comparison as stored. Only the 216 functional livecodebench problems
+were not, and the step 3 pre-sort leaves them out.
+
+**Lesson:** an oMLX upgrade can change a benchmark's prompt, not only its
+grader. A result JSON keeps the prompt it was asked (`question`), so this is
+checkable. `regrade.py` checks it.
+
+### Step 3: accuracy, paired by question (deterministic, n=500 per suite)
+
+| MoE vs | code (948, livecodebench's 216 dropped) | reason (mmlu_pro + gsm8k, 1,000) |
+|---|---|---|
+| oQ4e (`fast`) | **88.2 vs 81.5**, flips 91/28, p < 0.00001 | **83.2 vs 76.9**, 111/48, p < 0.00001 |
+| 8-bit (`coder`) | **88.2 vs 83.0**, 76/27, p < 0.00001 | **83.2 vs 78.9**, 99/56, p = 0.0007 |
+| gemma-31B | 88.2 vs 87.6, 37/31, p = 0.54 | 83.2 vs 85.2, 48/68, p = 0.077 |
+
+Night 2 then put the incumbents on today's livecodebench, all 500 problems:
+
+| | livecodebench, current harness | vs MoE 91.0 |
+|---|---|---|
+| oQ4e | 81.4 | flips 13/61, p < 0.00001 |
+| gemma-31B | 90.8 | 17/18, p = 1.0 |
+
+mathqa was left out (§29). The D5 check found zero empty answers on any MoE suite
+(oQ4e had 8 on livecodebench and 3 on gsm8k), so nothing was scored down for
+truncation.
+
+### Context: retrieval to 131k, the guard admits 258k
+
+- `longctx_quality.py` on `g4m-agent` (`results/a10_g4moe_longctx.json`): retrieval
+  5/5 at 65,536 and at 131,072. Cold prefill 29 s and 79 s; gemma-31B takes about
+  7.5 minutes at 122k.
+- One miss: the **multi-hop** question at 131k (answered 103638, expected 103674).
+  oQ4e passes the same haystack, multi-hop included
+  (`results/a10d3_oq4e_longctx.json`). So this is the model, not the question.
+- `ctx_bisect.py` (`results/a10d3_g4moe_bisect.json`), chunked prefill off: the
+  guard admits up to 258,048 and refuses at 262,144. Retrieval is 3/3 at 248,704.
+- The cap is set at the `fast` slot's declared **131,072**, not at the admitted
+  ceiling. Nothing routes longer prompts to `fast`, and the multi-hop miss is
+  the first sign of degradation.
+
+### Agent tasks: tool use perfect, return-type contracts loose
+
+`bench/taskbench.py`, each profile's own sampling, 5 repeats, 42 judged tasks
+(two C4 tasks inconclusive because they need the network):
+
+| arm | attempts passed | tool calls and chains |
+|---|---|---|
+| `fast` (oQ4e `oq-agent`) | 219/220 (100%) | 100% |
+| MoE `g4m-agent` | 191/220 (87%) | 100% |
+| `coder` (8-bit `qwen-code`) | 210/220 (95%) | 4 wrong-argument failures |
+| gemma-31B `g4-code` | 209/220 (95%) | 100% |
+| MoE `g4m-code` | 194/220 (88%) | 100% |
+
+- Two repeats (night 2) gave 76/88 against 87/88 and could not separate a weaker
+  model from sampling noise. Five can.
+- Per attempt, the MoE trails `fast` at p = 0.00004 and gemma-31B at p = 0.0003.
+  Against `coder` it is p = 0.077.
+- Per task none of these is significant: 42 tasks need about 6 one-way flips,
+  and there are 2–3.
+
+The MoE's misses are four tasks, the same ones nearly every attempt:
+
+| task | MoE | what it did |
+|---|---|---|
+| `py-diff` | 0/5, both profiles | `chunk(xs, n)` "splitting a list into lists": returns a **generator** (`yield xs[i:i+n]`). Chunks right, contract wrong |
+| `hpy-intervals` | 0/5 agent, 1/5 code | merges correctly, returns **tuples** where lists were asked |
+| `cpuml-multi` | 0/5 | several diagrams in one answer: the renderer finds no diagram |
+| `cdio-grid` | 1/5 agent, 3/5 code | draw.io with duplicate XML attributes |
+
+oQ4e, the 8-bit and gemma-31B pass `py-diff` 5/5. It is a habit of loosening
+the requested return type, not a failure of logic. Because it repeats on both
+profiles, more sampling will not remove it.
+
+### Decision (owner, 2026-10-20)
+
+- **`fast` → `gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent`.** The slot's work is
+  summary, compaction, titles and explore: tool calls and reading long context.
+  There the MoE is perfect on tool use, better on every public suite, about 4x on
+  prefill and 3.6x on throughput under load. Wired:
+  - the LiteLLM `fast` alias;
+  - opencode's `small_model` and the `explore`, `general`, `title`, `summary` and
+    `compaction` agents (they named the oQ4e id, not the alias);
+  - `verify_wiring.py` (`SERVABLE` 131,072).
+
+  Hermes' `hermes-fast` reaches the Mac through `fast`, so it moves too.
+- **`coder` stays on the 8-bit.** The MoE beats it on the public suites but
+  trails it, and gemma-31B, on the task-shaped contracts that `build` depends
+  on. The open `coder` question is gemma-31B against the 8-bit (A10 step 4).
+- **What would reverse `fast`:** the return-type habit showing up in `general`.
+  That is the one fast-slot agent that writes code. The cheap fallback is that
+  one agent back on `oq-agent`. oQ4e stays loaded and configured.

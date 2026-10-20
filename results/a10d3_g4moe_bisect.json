@@ -1,0 +1,49 @@
+{
+  "model": "gemma-4-26B-A4B-it-oQ6e-mtp",
+  "profile": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+  "low": 131072,
+  "high": 262144,
+  "probes": [
+    {
+      "target": 196608,
+      "admitted": true,
+      "prompt_tokens": 195291,
+      "error": ""
+    },
+    {
+      "target": 229376,
+      "admitted": true,
+      "prompt_tokens": 227940,
+      "error": ""
+    },
+    {
+      "target": 245760,
+      "admitted": true,
+      "prompt_tokens": 244499,
+      "error": ""
+    },
+    {
+      "target": 253952,
+      "admitted": true,
+      "prompt_tokens": 253067,
+      "error": ""
+    },
+    {
+      "target": 258048,
+      "admitted": true,
+      "prompt_tokens": 256896,
+      "error": ""
+    }
+  ],
+  "original_window": 65536,
+  "max_admitted": 258048,
+  "min_refused": 262144,
+  "retrieval": {
+    "tokens": 248704,
+    "asked": 3,
+    "correct": 3,
+    "errors": 0
+  },
+  "recommended_cap": 248704,
+  "recommendation": "raise the cap to 248704 (verified by retrieval)"
+}

@@ -163,6 +163,30 @@ model_list:
       max_input_tokens: 122880
       notes: "candidate; the +11 mmlu_pro claim lives here, measure this first"
 
+  # ---- gemma-4-26B-A4B-oQ6e-mtp, the speed tier since 2026-10-20 ----------
+  # Took `fast` from oQ4e (backlog A10, FINDINGS §41). Retrieval 5/5 at 131k;
+  # the guard admits 258k. Capped at the slot's declared 131,072.
+
+  - model_name: gemma-4-26B-A4B-it-oQ6e-mtp:g4m-code
+    litellm_params:
+      model: openai/gemma-4-26B-A4B-it-oQ6e-mtp:g4m-code
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "code profile of the fast-slot model; not wired (coder stays 8-bit)"
+
+  - model_name: gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent
+    litellm_params:
+      model: openai/gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "behind the fast alias"
+
 
   # ---- C3: role aliases -------------------------------------------------
   # One alias per ROLE, not per model, so swapping the model behind a role is
@@ -210,14 +234,19 @@ model_list:
 
   - model_name: fast
     litellm_params:
-      model: openai/Qwen3.8-27B-oQ4e-mtp:oq-agent
+      model: openai/gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent
       api_base: os.environ/OMLX_BASE_URL
       api_key: os.environ/OMLX_API_KEY
     model_info:
       access_groups: ["local"]
       max_input_tokens: 131072
       notes: >-
-        1.73x the 8-bit's decode, and resident alongside it with no eviction.
+        gemma-4-26B-A4B-oQ6e-mtp since 2026-10-20 (FINDINGS §41): livecodebench
+        91.0 vs 81.4 and mmlu_pro+gsm8k 83.2 vs 76.9 against oQ4e (p<0.00001),
+        ~4x prefill, 98 vs 27 t/s aggregate at 8 in flight, tool calls 100% on
+        taskbench. It loosens return-type contracts on small code tasks (87% vs
+        100% of attempts), which is why it is not `coder`.
+        Was oQ4e until then: 1.73x the 8-bit's decode, and resident alongside it with no eviction.
         Was Coder-Next until 2026-09-12; that had 3.1x prefill but lost the role
         on quality (-10.8 livecodebench) and on its 64.7 GB residency cost,
         which charged ~20 s per alternation against a 13.9 s prefill saving.
