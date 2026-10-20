@@ -1,0 +1,45 @@
+{
+  "arm_a": "acc_oq4e_lcb_rc1",
+  "arm_b": "acc_g4moe_code",
+  "suites": {
+    "livecodebench": {
+      "n_shared": 500,
+      "both_correct": 394,
+      "neither_correct": 32,
+      "only_a_correct": 13,
+      "only_b_correct": 61,
+      "discordant": 74,
+      "net_to_b": 48,
+      "score_a": 81.4,
+      "score_b": 91.0,
+      "p_value": 0.0,
+      "flips_to_a_sample": [
+        "2785",
+        "2872",
+        "3575",
+        "3659",
+        "3805",
+        "abc301_a",
+        "abc305_c",
+        "abc366_e"
+      ],
+      "flips_to_b_sample": [
+        "1899_C",
+        "2808",
+        "2879",
+        "3026",
+        "3031",
+        "3045",
+        "3046",
+        "3114"
+      ]
+    }
+  },
+  "pooled": {
+    "questions": 500,
+    "flips_to_a": 13,
+    "flips_to_b": 61,
+    "p_value": 0.0
+  },
+  "verdict": "B is better (p=0.00000, pooled across suites)"
+}

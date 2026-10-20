@@ -1,0 +1,238 @@
+{
+  "label": "a10_g4moe_mtp",
+  "model_id": "gemma-4-26B-A4B-it-oQ6e-mtp",
+  "request": {
+    "prompt_lengths": [
+      1024,
+      4096,
+      16384
+    ],
+    "generation_length": 128,
+    "batch_sizes": [],
+    "context_profile": "code_python",
+    "warmup_mode": "quick",
+    "align_prompt_to_ane": false
+  },
+  "variant": {
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_fraction": null,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_bits": 4.0,
+    "mtp_enabled": true,
+    "vlm_mtp_enabled": false,
+    "vlm_mtp_draft_model": null,
+    "vlm_mtp_draft_block_size": null,
+    "dflash_enabled": false,
+    "dflash_draft_model": null,
+    "specprefill_enabled": false,
+    "qwen4_ple_ssd_offload": false
+  },
+  "summary": [
+    {
+      "test": "single",
+      "pp": 1024,
+      "tg": 128,
+      "batch_size": null,
+      "ttft_ms": 306.0,
+      "tpot_ms": 4.85,
+      "prefill_tps": 3346.6,
+      "decode_tps": 207.8,
+      "decode_tps_per_stream": 207.8,
+      "total_tps": 1244.8,
+      "e2e_s": 0.925,
+      "gen_tokens": 128,
+      "gen_short": false,
+      "peak_gb": 22.12,
+      "mlx_active_peak_gb": 21.74,
+      "gpu_util_avg": 72.7
+    },
+    {
+      "test": "single",
+      "pp": 4096,
+      "tg": 128,
+      "batch_size": null,
+      "ttft_ms": 1060.1,
+      "tpot_ms": 10.3,
+      "prefill_tps": 3863.7,
+      "decode_tps": 97.8,
+      "decode_tps_per_stream": 97.8,
+      "total_tps": 1778.9,
+      "e2e_s": 2.374,
+      "gen_tokens": 128,
+      "gen_short": false,
+      "peak_gb": 22.45,
+      "mlx_active_peak_gb": 22.34,
+      "gpu_util_avg": 74.2
+    },
+    {
+      "test": "single",
+      "pp": 16384,
+      "tg": 128,
+      "batch_size": null,
+      "ttft_ms": 4607.5,
+      "tpot_ms": 10.96,
+      "prefill_tps": 3556.0,
+      "decode_tps": 92.0,
+      "decode_tps_per_stream": 92.0,
+      "total_tps": 2740.2,
+      "e2e_s": 6.026,
+      "gen_tokens": 128,
+      "gen_short": false,
+      "peak_gb": 23.05,
+      "mlx_active_peak_gb": 22.88,
+      "gpu_util_avg": 87.0
+    }
+  ],
+  "raw": {
+    "bench_id": "bench-6e11f85a81bd",
+    "status": "completed",
+    "context_profile": "code_python",
+    "results": [
+      {
+        "test_type": "single",
+        "pp": 1024,
+        "tg": 128,
+        "ttft_ms": 306.0,
+        "tpot_ms": 4.85,
+        "gen_tps": 207.8,
+        "processing_tps": 3346.6,
+        "e2e_latency_s": 0.925,
+        "total_throughput": 1244.8,
+        "peak_memory_bytes": 23747909974,
+        "prompt_tokens": 1024,
+        "completion_tokens": 128,
+        "cached_tokens": 0,
+        "system_metrics": {
+          "sample_count": 3,
+          "interval_s": 0.25,
+          "cpu": {
+            "total_avg": 14.9,
+            "total_max": 28.5,
+            "p_avg": 27.3,
+            "e_avg": 8.7
+          },
+          "memory": {
+            "phys_footprint_peak": 22.92,
+            "mlx_active_peak": 21.74,
+            "mlx_cache_peak": 0.18,
+            "system_used_peak": 47.86,
+            "system_wired_peak": 26.78,
+            "total_ram": 128
+          },
+          "gpu": {
+            "util_avg": 72.7,
+            "util_max": 93.0
+          },
+          "thermal": {
+            "start": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "test_type": "single",
+        "pp": 4096,
+        "tg": 128,
+        "ttft_ms": 1060.1,
+        "tpot_ms": 10.3,
+        "gen_tps": 97.8,
+        "processing_tps": 3863.7,
+        "e2e_latency_s": 2.374,
+        "total_throughput": 1778.9,
+        "peak_memory_bytes": 24110532212,
+        "prompt_tokens": 4096,
+        "completion_tokens": 128,
+        "cached_tokens": 0,
+        "system_metrics": {
+          "sample_count": 9,
+          "interval_s": 0.25,
+          "cpu": {
+            "total_avg": 10.6,
+            "total_max": 31.5,
+            "p_avg": 21.3,
+            "e_avg": 5.3
+          },
+          "memory": {
+            "phys_footprint_peak": 23.67,
+            "mlx_active_peak": 22.34,
+            "mlx_cache_peak": 0.73,
+            "system_used_peak": 48.56,
+            "system_wired_peak": 27.53,
+            "total_ram": 128
+          },
+          "gpu": {
+            "util_avg": 74.2,
+            "util_max": 97.0
+          },
+          "thermal": {
+            "start": 0,
+            "max": 0
+          }
+        }
+      },
+      {
+        "test_type": "single",
+        "pp": 16384,
+        "tg": 128,
+        "ttft_ms": 4607.5,
+        "tpot_ms": 10.96,
+        "gen_tps": 92.0,
+        "processing_tps": 3556.0,
+        "e2e_latency_s": 6.026,
+        "total_throughput": 2740.2,
+        "peak_memory_bytes": 24754865256,
+        "prompt_tokens": 16384,
+        "completion_tokens": 128,
+        "cached_tokens": 0,
+        "system_metrics": {
+          "sample_count": 24,
+          "interval_s": 0.25,
+          "cpu": {
+            "total_avg": 12.4,
+            "total_max": 27.9,
+            "p_avg": 27.2,
+            "e_avg": 5.0
+          },
+          "memory": {
+            "phys_footprint_peak": 24.3,
+            "mlx_active_peak": 22.88,
+            "mlx_cache_peak": 0.85,
+            "system_used_peak": 49.4,
+            "system_wired_peak": 28.46,
+            "total_ram": 128
+          },
+          "gpu": {
+            "util_avg": 87.0,
+            "util_max": 100.0
+          },
+          "thermal": {
+            "start": 0,
+            "max": 0
+          }
+        }
+      }
+    ],
+    "error": null,
+    "upload_state": {
+      "phase": "uploading",
+      "results": [],
+      "total": 0,
+      "success_count": 0,
+      "failed_count": 0,
+      "owner_hash": null,
+      "skipped_reason": null,
+      "skipped_features": [],
+      "feature_flags": [
+        {
+          "key": "lightning_mtp",
+          "label": "Lightning MTP"
+        }
+      ]
+    }
+  }
+}

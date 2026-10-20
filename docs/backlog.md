@@ -1466,7 +1466,10 @@ question is workload, not measurement.
 ### A10. The gemma round: is the speed objection dead, and can gemma serve 131k?
 
 Raised 2026-10-19 from the first Hermes role assessments (backlog D7, homelab 088).
-**Status: steps 0–1 done 2026-10-19 (§40); gemma's cap raised to 122,880. Step 2 under way.**
+**Status: steps 0–3 done 2026-10-20 (§40, §41).** gemma-31B's cap raised to
+122,880. `fast` moved to gemma-26B-A4B (`g4m-agent`). `coder` stays on the 8-bit.
+Left: step 4 for `plan` (`g4-reason`) and `coder` (gemma-31B against the 8-bit;
+the 8-bit has not yet run livecodebench on oMLX 0.7.1rc1's harness, §41).
 - Step 0: the speed objection is dead. Gemma decodes at 1.15x / 1.12x / 0.94x the
   8-bit `plain` at 1k/4k/16k.
 - Step 1: retrieval 5/5 at 98k, 122k and 131k. The guard admits up to 126,976 with

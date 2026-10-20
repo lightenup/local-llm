@@ -1,0 +1,422 @@
+{
+  "timestamp": "2026-10-20T03:12:44+00:00",
+  "model_id": "gemma-4-26B-A4B-it-oQ6e-mtp",
+  "request": {
+    "experiment": "scaling",
+    "levels": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "profile": "g4magent",
+    "max_tokens": 200,
+    "prompt_tokens_target": 2000,
+    "request_timeout_s": 1800.0
+  },
+  "profiles": {
+    "g4mcode": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-code",
+    "g4magent": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent"
+  },
+  "variant": {
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_bits": 4.0,
+    "turboquant_skip_last": true,
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_tail_padding_min_tokens": 0,
+    "qwen35_ane_prefill_fraction": null,
+    "qwen35_ane_prefill_shared_fraction": 1.0,
+    "qwen35_ane_prefill_fused_down": false,
+    "qwen35_ane_prefill_max_layers": 64,
+    "qwen35_ane_prefill_dual_ane": true,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_gdn_max_layers": 48,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "qwen35_ane_prefill_cpu_down_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_gdn_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_threads": 8,
+    "qwen35_ane_prefill_cpu_shared_resource": true,
+    "specprefill_enabled": false,
+    "specprefill_draft_model": null,
+    "specprefill_keep_pct": null,
+    "specprefill_threshold": null,
+    "dflash_enabled": false,
+    "dflash_draft_model": null,
+    "dflash_draft_quant_enabled": null,
+    "dflash_draft_quant_weight_bits": null,
+    "dflash_draft_quant_group_size": null,
+    "dflash_draft_window_size": null,
+    "dflash_block_size": null,
+    "dflash_verify_mode": null,
+    "mtp_enabled": true,
+    "mtp_adaptive_max_depth": null,
+    "mtp_fixed_depth": null,
+    "vlm_mtp_enabled": false,
+    "vlm_mtp_draft_model": null,
+    "vlm_mtp_draft_block_size": null
+  },
+  "scheduler": {
+    "max_concurrent_requests": 8,
+    "embedding_batch_size": 32,
+    "chunked_prefill": false,
+    "prefill_priority": "context",
+    "decode_fairness": true
+  },
+  "scaling": {
+    "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+    "levels": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "baseline_concurrency": 1,
+    "summary": [
+      {
+        "requested": 1,
+        "ok": 1,
+        "failed": 0,
+        "wall_s": 37.09,
+        "median_latency_s": 37.089,
+        "p95_latency_s": 37.089,
+        "min_latency_s": 37.089,
+        "max_latency_s": 37.089,
+        "completion_tokens": 85,
+        "prompt_tokens": 1039,
+        "cached_tokens": 0,
+        "aggregate_tok_per_s": 2.29,
+        "concurrency": 1,
+        "throughput_ratio_vs_base": 1.0,
+        "scaling_efficiency": 1.0,
+        "latency_ratio_vs_base": 1.0
+      },
+      {
+        "requested": 2,
+        "ok": 2,
+        "failed": 0,
+        "wall_s": 3.138,
+        "median_latency_s": 2.836,
+        "p95_latency_s": 3.137,
+        "min_latency_s": 2.535,
+        "max_latency_s": 3.137,
+        "completion_tokens": 207,
+        "prompt_tokens": 2071,
+        "cached_tokens": 0,
+        "aggregate_tok_per_s": 65.97,
+        "concurrency": 2,
+        "throughput_ratio_vs_base": 28.81,
+        "scaling_efficiency": 14.404,
+        "latency_ratio_vs_base": 0.08
+      },
+      {
+        "requested": 4,
+        "ok": 4,
+        "failed": 0,
+        "wall_s": 5.239,
+        "median_latency_s": 4.273,
+        "p95_latency_s": 5.238,
+        "min_latency_s": 3.931,
+        "max_latency_s": 5.238,
+        "completion_tokens": 445,
+        "prompt_tokens": 4146,
+        "cached_tokens": 0,
+        "aggregate_tok_per_s": 84.93,
+        "concurrency": 4,
+        "throughput_ratio_vs_base": 37.09,
+        "scaling_efficiency": 9.272,
+        "latency_ratio_vs_base": 0.12
+      },
+      {
+        "requested": 8,
+        "ok": 8,
+        "failed": 0,
+        "wall_s": 8.692,
+        "median_latency_s": 7.696,
+        "p95_latency_s": 8.69,
+        "min_latency_s": 6.391,
+        "max_latency_s": 8.69,
+        "completion_tokens": 854,
+        "prompt_tokens": 8294,
+        "cached_tokens": 0,
+        "aggregate_tok_per_s": 98.25,
+        "concurrency": 8,
+        "throughput_ratio_vs_base": 42.9,
+        "scaling_efficiency": 5.363,
+        "latency_ratio_vs_base": 0.21
+      }
+    ],
+    "runs": {
+      "1": {
+        "stats": {
+          "requested": 1,
+          "ok": 1,
+          "failed": 0,
+          "wall_s": 37.09,
+          "median_latency_s": 37.089,
+          "p95_latency_s": 37.089,
+          "min_latency_s": 37.089,
+          "max_latency_s": 37.089,
+          "completion_tokens": 85,
+          "prompt_tokens": 1039,
+          "cached_tokens": 0,
+          "aggregate_tok_per_s": 2.29,
+          "concurrency": 1,
+          "throughput_ratio_vs_base": 1.0,
+          "scaling_efficiency": 1.0,
+          "latency_ratio_vs_base": 1.0
+        },
+        "rows": [
+          {
+            "client": 0,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 37.089,
+            "prompt_tokens": 1039,
+            "completion_tokens": 85,
+            "cached_tokens": 0,
+            "tok_per_s": 2.29,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 37.089
+          }
+        ]
+      },
+      "2": {
+        "stats": {
+          "requested": 2,
+          "ok": 2,
+          "failed": 0,
+          "wall_s": 3.138,
+          "median_latency_s": 2.836,
+          "p95_latency_s": 3.137,
+          "min_latency_s": 2.535,
+          "max_latency_s": 3.137,
+          "completion_tokens": 207,
+          "prompt_tokens": 2071,
+          "cached_tokens": 0,
+          "aggregate_tok_per_s": 65.97,
+          "concurrency": 2,
+          "throughput_ratio_vs_base": 28.81,
+          "scaling_efficiency": 14.404,
+          "latency_ratio_vs_base": 0.08
+        },
+        "rows": [
+          {
+            "client": 1,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 3.137,
+            "prompt_tokens": 1036,
+            "completion_tokens": 122,
+            "cached_tokens": 0,
+            "tok_per_s": 38.89,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 3.137
+          },
+          {
+            "client": 2,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 2.535,
+            "prompt_tokens": 1035,
+            "completion_tokens": 85,
+            "cached_tokens": 0,
+            "tok_per_s": 33.53,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 2.535
+          }
+        ]
+      },
+      "4": {
+        "stats": {
+          "requested": 4,
+          "ok": 4,
+          "failed": 0,
+          "wall_s": 5.239,
+          "median_latency_s": 4.273,
+          "p95_latency_s": 5.238,
+          "min_latency_s": 3.931,
+          "max_latency_s": 5.238,
+          "completion_tokens": 445,
+          "prompt_tokens": 4146,
+          "cached_tokens": 0,
+          "aggregate_tok_per_s": 84.93,
+          "concurrency": 4,
+          "throughput_ratio_vs_base": 37.09,
+          "scaling_efficiency": 9.272,
+          "latency_ratio_vs_base": 0.12
+        },
+        "rows": [
+          {
+            "client": 3,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 3.931,
+            "prompt_tokens": 1038,
+            "completion_tokens": 96,
+            "cached_tokens": 0,
+            "tok_per_s": 24.42,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 3.931
+          },
+          {
+            "client": 4,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 4.368,
+            "prompt_tokens": 1036,
+            "completion_tokens": 115,
+            "cached_tokens": 0,
+            "tok_per_s": 26.33,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 4.368
+          },
+          {
+            "client": 5,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 4.178,
+            "prompt_tokens": 1036,
+            "completion_tokens": 96,
+            "cached_tokens": 0,
+            "tok_per_s": 22.98,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 4.178
+          },
+          {
+            "client": 6,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 5.238,
+            "prompt_tokens": 1036,
+            "completion_tokens": 138,
+            "cached_tokens": 0,
+            "tok_per_s": 26.34,
+            "finish_reason": "stop",
+            "start_offset_s": 0.001,
+            "end_offset_s": 5.239
+          }
+        ]
+      },
+      "8": {
+        "stats": {
+          "requested": 8,
+          "ok": 8,
+          "failed": 0,
+          "wall_s": 8.692,
+          "median_latency_s": 7.696,
+          "p95_latency_s": 8.69,
+          "min_latency_s": 6.391,
+          "max_latency_s": 8.69,
+          "completion_tokens": 854,
+          "prompt_tokens": 8294,
+          "cached_tokens": 0,
+          "aggregate_tok_per_s": 98.25,
+          "concurrency": 8,
+          "throughput_ratio_vs_base": 42.9,
+          "scaling_efficiency": 5.363,
+          "latency_ratio_vs_base": 0.21
+        },
+        "rows": [
+          {
+            "client": 7,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 6.701,
+            "prompt_tokens": 1038,
+            "completion_tokens": 100,
+            "cached_tokens": 0,
+            "tok_per_s": 14.92,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 6.701
+          },
+          {
+            "client": 8,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 6.391,
+            "prompt_tokens": 1039,
+            "completion_tokens": 92,
+            "cached_tokens": 0,
+            "tok_per_s": 14.4,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 6.391
+          },
+          {
+            "client": 9,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 7.774,
+            "prompt_tokens": 1036,
+            "completion_tokens": 120,
+            "cached_tokens": 0,
+            "tok_per_s": 15.44,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 7.775
+          },
+          {
+            "client": 10,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 7.222,
+            "prompt_tokens": 1035,
+            "completion_tokens": 98,
+            "cached_tokens": 0,
+            "tok_per_s": 13.57,
+            "finish_reason": "stop",
+            "start_offset_s": 0.001,
+            "end_offset_s": 7.222
+          },
+          {
+            "client": 11,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 7.825,
+            "prompt_tokens": 1038,
+            "completion_tokens": 96,
+            "cached_tokens": 0,
+            "tok_per_s": 12.27,
+            "finish_reason": "stop",
+            "start_offset_s": 0.001,
+            "end_offset_s": 7.826
+          },
+          {
+            "client": 12,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 7.618,
+            "prompt_tokens": 1036,
+            "completion_tokens": 103,
+            "cached_tokens": 0,
+            "tok_per_s": 13.52,
+            "finish_reason": "stop",
+            "start_offset_s": 0.001,
+            "end_offset_s": 7.619
+          },
+          {
+            "client": 13,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 8.196,
+            "prompt_tokens": 1036,
+            "completion_tokens": 106,
+            "cached_tokens": 0,
+            "tok_per_s": 12.93,
+            "finish_reason": "stop",
+            "start_offset_s": 0.001,
+            "end_offset_s": 8.198
+          },
+          {
+            "client": 14,
+            "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+            "latency_s": 8.69,
+            "prompt_tokens": 1036,
+            "completion_tokens": 139,
+            "cached_tokens": 0,
+            "tok_per_s": 16.0,
+            "finish_reason": "stop",
+            "start_offset_s": 0.001,
+            "end_offset_s": 8.692
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,237 @@
+{
+  "timestamp": "2026-10-20T03:38:54.471261+00:00",
+  "model_id": "Qwen3.8-27B-oQ4e-mtp:oq-long",
+  "variant": {
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_bits": 4.0,
+    "turboquant_skip_last": true,
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_tail_padding_min_tokens": 0,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_shared_fraction": 1.0,
+    "qwen35_ane_prefill_fused_down": false,
+    "qwen35_ane_prefill_max_layers": 64,
+    "qwen35_ane_prefill_dual_ane": true,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_gdn_max_layers": 48,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "qwen35_ane_prefill_cpu_down_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_gdn_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_threads": 8,
+    "qwen35_ane_prefill_cpu_shared_resource": true,
+    "specprefill_enabled": false,
+    "specprefill_draft_model": null,
+    "specprefill_keep_pct": null,
+    "specprefill_threshold": null,
+    "dflash_enabled": false,
+    "dflash_draft_model": null,
+    "dflash_draft_quant_enabled": null,
+    "dflash_draft_quant_weight_bits": null,
+    "dflash_draft_quant_group_size": null,
+    "dflash_draft_window_size": null,
+    "dflash_block_size": null,
+    "dflash_verify_mode": null,
+    "mtp_enabled": true,
+    "mtp_adaptive_max_depth": null,
+    "mtp_fixed_depth": null,
+    "vlm_mtp_enabled": false,
+    "vlm_mtp_draft_model": null,
+    "vlm_mtp_draft_block_size": null
+  },
+  "request": {
+    "lengths": [
+      131072
+    ],
+    "depths": [
+      0.05,
+      0.25,
+      0.5,
+      0.75,
+      0.95
+    ],
+    "max_tokens": 64,
+    "max_length_seconds": 5400.0,
+    "sections": 240,
+    "seed": 20260906,
+    "safety_tokens": 256
+  },
+  "calibration": {
+    "slope": 0.168275,
+    "intercept": 1285.5,
+    "fitted": true,
+    "probes": [
+      {
+        "chars": 60000,
+        "prompt_tokens": 11382,
+        "ok": true,
+        "error": null
+      },
+      {
+        "chars": 180000,
+        "prompt_tokens": 31575,
+        "ok": true,
+        "error": null
+      }
+    ]
+  },
+  "records": [
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.05,
+      "expected": "12548",
+      "got": "12548",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 130750,
+      "cached_tokens": 0,
+      "wall_s": 261.539,
+      "error": null
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.25,
+      "expected": "42445",
+      "got": "42445",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 130750,
+      "cached_tokens": 129024,
+      "wall_s": 8.284,
+      "error": null
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.5,
+      "expected": "99961",
+      "got": "99961",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 130750,
+      "cached_tokens": 129024,
+      "wall_s": 6.156,
+      "error": null
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.75,
+      "expected": "10506",
+      "got": "10506",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 130750,
+      "cached_tokens": 129024,
+      "wall_s": 6.105,
+      "error": null
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "retrieval",
+      "depth": 0.95,
+      "expected": "91126",
+      "got": "91126",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 130750,
+      "cached_tokens": 129024,
+      "wall_s": 6.106,
+      "error": null
+    },
+    {
+      "target_tokens": 131072,
+      "kind": "multihop",
+      "depth": null,
+      "expected": "103674",
+      "got": "103674",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 130760,
+      "cached_tokens": 129024,
+      "wall_s": 6.315,
+      "error": null
+    }
+  ],
+  "summary": {
+    "lengths": [
+      131072
+    ],
+    "depths": [
+      0.05,
+      0.25,
+      0.5,
+      0.75,
+      0.95
+    ],
+    "by_length": {
+      "131072": {
+        "asked": 5,
+        "scored": 5,
+        "correct": 5,
+        "skipped": 0,
+        "accuracy": 1.0,
+        "verified_prompt_tokens": 130760,
+        "repeat_requests": 5,
+        "mean_cached_fraction": 0.987
+      }
+    },
+    "by_depth": {
+      "0.05": {
+        "asked": 1,
+        "scored": 1,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.25": {
+        "asked": 1,
+        "scored": 1,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.5": {
+        "asked": 1,
+        "scored": 1,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.75": {
+        "asked": 1,
+        "scored": 1,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.95": {
+        "asked": 1,
+        "scored": 1,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 1.0
+      }
+    },
+    "multihop": {
+      "131072": {
+        "correct": true,
+        "skipped": false,
+        "expected": "103674",
+        "got": "103674",
+        "error": null
+      }
+    },
+    "overall_retrieval": {
+      "asked": 5,
+      "scored": 5,
+      "correct": 5,
+      "skipped": 0,
+      "accuracy": 1.0
+    }
+  }
+}

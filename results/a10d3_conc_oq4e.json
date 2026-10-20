@@ -1,0 +1,423 @@
+{
+  "timestamp": "2026-10-20T03:13:39+00:00",
+  "model_id": "Qwen3.8-27B-oQ4e-mtp",
+  "request": {
+    "experiment": "scaling",
+    "levels": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "profile": "oqagent",
+    "max_tokens": 200,
+    "prompt_tokens_target": 2000,
+    "request_timeout_s": 1800.0
+  },
+  "profiles": {
+    "oqcode": "Qwen3.8-27B-oQ4e-mtp:oq-code",
+    "oqagent": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+    "oqlong": "Qwen3.8-27B-oQ4e-mtp:oq-long"
+  },
+  "variant": {
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_bits": 4.0,
+    "turboquant_skip_last": true,
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_tail_padding_min_tokens": 0,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_shared_fraction": 1.0,
+    "qwen35_ane_prefill_fused_down": false,
+    "qwen35_ane_prefill_max_layers": 64,
+    "qwen35_ane_prefill_dual_ane": true,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_gdn_max_layers": 48,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "qwen35_ane_prefill_cpu_down_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_gdn_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_threads": 8,
+    "qwen35_ane_prefill_cpu_shared_resource": true,
+    "specprefill_enabled": false,
+    "specprefill_draft_model": null,
+    "specprefill_keep_pct": null,
+    "specprefill_threshold": null,
+    "dflash_enabled": false,
+    "dflash_draft_model": null,
+    "dflash_draft_quant_enabled": null,
+    "dflash_draft_quant_weight_bits": null,
+    "dflash_draft_quant_group_size": null,
+    "dflash_draft_window_size": null,
+    "dflash_block_size": null,
+    "dflash_verify_mode": null,
+    "mtp_enabled": true,
+    "mtp_adaptive_max_depth": null,
+    "mtp_fixed_depth": null,
+    "vlm_mtp_enabled": false,
+    "vlm_mtp_draft_model": null,
+    "vlm_mtp_draft_block_size": null
+  },
+  "scheduler": {
+    "max_concurrent_requests": 8,
+    "embedding_batch_size": 32,
+    "chunked_prefill": false,
+    "prefill_priority": "context",
+    "decode_fairness": true
+  },
+  "scaling": {
+    "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+    "levels": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "baseline_concurrency": 1,
+    "summary": [
+      {
+        "requested": 1,
+        "ok": 1,
+        "failed": 0,
+        "wall_s": 9.036,
+        "median_latency_s": 9.036,
+        "p95_latency_s": 9.036,
+        "min_latency_s": 9.036,
+        "max_latency_s": 9.036,
+        "completion_tokens": 128,
+        "prompt_tokens": 1038,
+        "cached_tokens": 0,
+        "aggregate_tok_per_s": 14.16,
+        "concurrency": 1,
+        "throughput_ratio_vs_base": 1.0,
+        "scaling_efficiency": 1.0,
+        "latency_ratio_vs_base": 1.0
+      },
+      {
+        "requested": 2,
+        "ok": 2,
+        "failed": 0,
+        "wall_s": 6.658,
+        "median_latency_s": 6.334,
+        "p95_latency_s": 6.658,
+        "min_latency_s": 6.01,
+        "max_latency_s": 6.658,
+        "completion_tokens": 148,
+        "prompt_tokens": 2067,
+        "cached_tokens": 0,
+        "aggregate_tok_per_s": 22.23,
+        "concurrency": 2,
+        "throughput_ratio_vs_base": 1.57,
+        "scaling_efficiency": 0.785,
+        "latency_ratio_vs_base": 0.7
+      },
+      {
+        "requested": 4,
+        "ok": 4,
+        "failed": 0,
+        "wall_s": 16.122,
+        "median_latency_s": 14.457,
+        "p95_latency_s": 16.121,
+        "min_latency_s": 9.915,
+        "max_latency_s": 16.121,
+        "completion_tokens": 376,
+        "prompt_tokens": 4137,
+        "cached_tokens": 0,
+        "aggregate_tok_per_s": 23.32,
+        "concurrency": 4,
+        "throughput_ratio_vs_base": 1.65,
+        "scaling_efficiency": 0.412,
+        "latency_ratio_vs_base": 1.6
+      },
+      {
+        "requested": 8,
+        "ok": 8,
+        "failed": 0,
+        "wall_s": 34.993,
+        "median_latency_s": 31.904,
+        "p95_latency_s": 34.991,
+        "min_latency_s": 19.822,
+        "max_latency_s": 34.991,
+        "completion_tokens": 957,
+        "prompt_tokens": 8276,
+        "cached_tokens": 0,
+        "aggregate_tok_per_s": 27.35,
+        "concurrency": 8,
+        "throughput_ratio_vs_base": 1.93,
+        "scaling_efficiency": 0.241,
+        "latency_ratio_vs_base": 3.53
+      }
+    ],
+    "runs": {
+      "1": {
+        "stats": {
+          "requested": 1,
+          "ok": 1,
+          "failed": 0,
+          "wall_s": 9.036,
+          "median_latency_s": 9.036,
+          "p95_latency_s": 9.036,
+          "min_latency_s": 9.036,
+          "max_latency_s": 9.036,
+          "completion_tokens": 128,
+          "prompt_tokens": 1038,
+          "cached_tokens": 0,
+          "aggregate_tok_per_s": 14.16,
+          "concurrency": 1,
+          "throughput_ratio_vs_base": 1.0,
+          "scaling_efficiency": 1.0,
+          "latency_ratio_vs_base": 1.0
+        },
+        "rows": [
+          {
+            "client": 0,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 9.036,
+            "prompt_tokens": 1038,
+            "completion_tokens": 128,
+            "cached_tokens": 0,
+            "tok_per_s": 14.17,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 9.036
+          }
+        ]
+      },
+      "2": {
+        "stats": {
+          "requested": 2,
+          "ok": 2,
+          "failed": 0,
+          "wall_s": 6.658,
+          "median_latency_s": 6.334,
+          "p95_latency_s": 6.658,
+          "min_latency_s": 6.01,
+          "max_latency_s": 6.658,
+          "completion_tokens": 148,
+          "prompt_tokens": 2067,
+          "cached_tokens": 0,
+          "aggregate_tok_per_s": 22.23,
+          "concurrency": 2,
+          "throughput_ratio_vs_base": 1.57,
+          "scaling_efficiency": 0.785,
+          "latency_ratio_vs_base": 0.7
+        },
+        "rows": [
+          {
+            "client": 1,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 6.658,
+            "prompt_tokens": 1034,
+            "completion_tokens": 69,
+            "cached_tokens": 0,
+            "tok_per_s": 10.36,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 6.658
+          },
+          {
+            "client": 2,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 6.01,
+            "prompt_tokens": 1033,
+            "completion_tokens": 79,
+            "cached_tokens": 0,
+            "tok_per_s": 13.14,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 6.01
+          }
+        ]
+      },
+      "4": {
+        "stats": {
+          "requested": 4,
+          "ok": 4,
+          "failed": 0,
+          "wall_s": 16.122,
+          "median_latency_s": 14.457,
+          "p95_latency_s": 16.121,
+          "min_latency_s": 9.915,
+          "max_latency_s": 16.121,
+          "completion_tokens": 376,
+          "prompt_tokens": 4137,
+          "cached_tokens": 0,
+          "aggregate_tok_per_s": 23.32,
+          "concurrency": 4,
+          "throughput_ratio_vs_base": 1.65,
+          "scaling_efficiency": 0.412,
+          "latency_ratio_vs_base": 1.6
+        },
+        "rows": [
+          {
+            "client": 3,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 15.127,
+            "prompt_tokens": 1035,
+            "completion_tokens": 95,
+            "cached_tokens": 0,
+            "tok_per_s": 6.28,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 15.127
+          },
+          {
+            "client": 4,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 9.915,
+            "prompt_tokens": 1034,
+            "completion_tokens": 77,
+            "cached_tokens": 0,
+            "tok_per_s": 7.77,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 9.915
+          },
+          {
+            "client": 5,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 13.787,
+            "prompt_tokens": 1034,
+            "completion_tokens": 90,
+            "cached_tokens": 0,
+            "tok_per_s": 6.53,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 13.787
+          },
+          {
+            "client": 6,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 16.121,
+            "prompt_tokens": 1034,
+            "completion_tokens": 114,
+            "cached_tokens": 0,
+            "tok_per_s": 7.07,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 16.122
+          }
+        ]
+      },
+      "8": {
+        "stats": {
+          "requested": 8,
+          "ok": 8,
+          "failed": 0,
+          "wall_s": 34.993,
+          "median_latency_s": 31.904,
+          "p95_latency_s": 34.991,
+          "min_latency_s": 19.822,
+          "max_latency_s": 34.991,
+          "completion_tokens": 957,
+          "prompt_tokens": 8276,
+          "cached_tokens": 0,
+          "aggregate_tok_per_s": 27.35,
+          "concurrency": 8,
+          "throughput_ratio_vs_base": 1.93,
+          "scaling_efficiency": 0.241,
+          "latency_ratio_vs_base": 3.53
+        },
+        "rows": [
+          {
+            "client": 7,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 31.111,
+            "prompt_tokens": 1034,
+            "completion_tokens": 120,
+            "cached_tokens": 0,
+            "tok_per_s": 3.86,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 31.111
+          },
+          {
+            "client": 8,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 30.392,
+            "prompt_tokens": 1038,
+            "completion_tokens": 200,
+            "cached_tokens": 0,
+            "tok_per_s": 6.58,
+            "finish_reason": "length",
+            "start_offset_s": 0.0,
+            "end_offset_s": 30.392
+          },
+          {
+            "client": 9,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 19.822,
+            "prompt_tokens": 1034,
+            "completion_tokens": 88,
+            "cached_tokens": 0,
+            "tok_per_s": 4.44,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 19.823
+          },
+          {
+            "client": 10,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 24.249,
+            "prompt_tokens": 1033,
+            "completion_tokens": 88,
+            "cached_tokens": 0,
+            "tok_per_s": 3.63,
+            "finish_reason": "stop",
+            "start_offset_s": 0.001,
+            "end_offset_s": 24.25
+          },
+          {
+            "client": 11,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 32.697,
+            "prompt_tokens": 1035,
+            "completion_tokens": 103,
+            "cached_tokens": 0,
+            "tok_per_s": 3.15,
+            "finish_reason": "stop",
+            "start_offset_s": 0.001,
+            "end_offset_s": 32.698
+          },
+          {
+            "client": 12,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 34.569,
+            "prompt_tokens": 1034,
+            "completion_tokens": 124,
+            "cached_tokens": 0,
+            "tok_per_s": 3.59,
+            "finish_reason": "stop",
+            "start_offset_s": 0.001,
+            "end_offset_s": 34.57
+          },
+          {
+            "client": 13,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 33.187,
+            "prompt_tokens": 1034,
+            "completion_tokens": 120,
+            "cached_tokens": 0,
+            "tok_per_s": 3.62,
+            "finish_reason": "stop",
+            "start_offset_s": 0.001,
+            "end_offset_s": 33.188
+          },
+          {
+            "client": 14,
+            "model": "Qwen3.8-27B-oQ4e-mtp:oq-agent",
+            "latency_s": 34.991,
+            "prompt_tokens": 1034,
+            "completion_tokens": 114,
+            "cached_tokens": 0,
+            "tok_per_s": 3.26,
+            "finish_reason": "stop",
+            "start_offset_s": 0.002,
+            "end_offset_s": 34.993
+          }
+        ]
+      }
+    }
+  }
+}

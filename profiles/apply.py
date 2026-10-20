@@ -44,6 +44,8 @@ PROFILE_SETS = {
     # top_k 64 rather than 20, and a template that defaults thinking OFF.
     "optiq": ("optiq", "Qwen3.8-27B-OptiQ-4bit"),
     "gemma4": ("gemma4", "gemma-4-31B-it-qat-OptiQ-4bit"),
+    # Fast-slot challenger to oq4e, 2026-10-19 (backlog A10 step 2). Trial only.
+    "gemma4moe": ("gemma4moe", "gemma-4-26B-A4B-it-oQ6e-mtp"),
 }
 
 

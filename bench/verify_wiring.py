@@ -37,7 +37,8 @@ CFG = Path(os.environ.get("OPENCODE_CONFIG",
 LEAK = re.compile(r"^\s*(we need|we must|the user wants|okay,? the user|"
                   r"let me (analyz|think)|first,? (i|we) (need|should))", re.I)
 # Verified ceilings. Anything not listed is not checked; anything listed is.
-SERVABLE = {"gemma-4-31B-it-qat-OptiQ-4bit": 122880}  # §40
+SERVABLE = {"gemma-4-31B-it-qat-OptiQ-4bit": 122880,  # §40
+            "gemma-4-26B-A4B-it-oQ6e-mtp": 131072}  # §41
 
 
 def main() -> int:

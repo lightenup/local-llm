@@ -1,0 +1,72 @@
+{
+  "arm_a": "acc_gemma4_reason",
+  "arm_b": "acc_g4moe_reason",
+  "suites": {
+    "mmlu_pro": {
+      "n_shared": 500,
+      "both_correct": 313,
+      "neither_correct": 90,
+      "only_a_correct": 52,
+      "only_b_correct": 45,
+      "discordant": 97,
+      "net_to_b": -7,
+      "score_a": 73.0,
+      "score_b": 71.6,
+      "p_value": 0.54261,
+      "flips_to_a_sample": [
+        "10126",
+        "10232",
+        "10668",
+        "10692",
+        "10708",
+        "1076",
+        "10931",
+        "11019"
+      ],
+      "flips_to_b_sample": [
+        "10003",
+        "10235",
+        "10406",
+        "10822",
+        "11000",
+        "11122",
+        "11143",
+        "11177"
+      ]
+    },
+    "gsm8k": {
+      "n_shared": 500,
+      "both_correct": 471,
+      "neither_correct": 10,
+      "only_a_correct": 16,
+      "only_b_correct": 3,
+      "discordant": 19,
+      "net_to_b": -13,
+      "score_a": 97.4,
+      "score_b": 94.8,
+      "p_value": 0.00443,
+      "flips_to_a_sample": [
+        "1039",
+        "1067",
+        "1190",
+        "255",
+        "306",
+        "380",
+        "466",
+        "505"
+      ],
+      "flips_to_b_sample": [
+        "267",
+        "610",
+        "675"
+      ]
+    }
+  },
+  "pooled": {
+    "questions": 1000,
+    "flips_to_a": 68,
+    "flips_to_b": 48,
+    "p_value": 0.07726
+  },
+  "verdict": "no significant difference (p=0.07726); A leads but within chance"
+}

@@ -1,0 +1,100 @@
+{
+  "arm_a": "acc_gemma4_code",
+  "arm_b": "acc_g4moe_code",
+  "suites": {
+    "humaneval": {
+      "n_shared": 164,
+      "both_correct": 153,
+      "neither_correct": 4,
+      "only_a_correct": 3,
+      "only_b_correct": 4,
+      "discordant": 7,
+      "net_to_b": 1,
+      "score_a": 95.12,
+      "score_b": 95.73,
+      "p_value": 1.0,
+      "flips_to_a_sample": [
+        "HumanEval/115",
+        "HumanEval/130",
+        "HumanEval/84"
+      ],
+      "flips_to_b_sample": [
+        "HumanEval/10",
+        "HumanEval/103",
+        "HumanEval/38",
+        "HumanEval/50"
+      ]
+    },
+    "mbpp": {
+      "n_shared": 500,
+      "both_correct": 409,
+      "neither_correct": 51,
+      "only_a_correct": 17,
+      "only_b_correct": 23,
+      "discordant": 40,
+      "net_to_b": 6,
+      "score_a": 85.2,
+      "score_b": 86.4,
+      "p_value": 0.42959,
+      "flips_to_a_sample": [
+        "109",
+        "15",
+        "158",
+        "159",
+        "214",
+        "216",
+        "241",
+        "254"
+      ],
+      "flips_to_b_sample": [
+        "111",
+        "125",
+        "126",
+        "137",
+        "142",
+        "150",
+        "155",
+        "182"
+      ]
+    },
+    "livecodebench": {
+      "n_shared": 500,
+      "both_correct": 352,
+      "neither_correct": 30,
+      "only_a_correct": 15,
+      "only_b_correct": 103,
+      "discordant": 118,
+      "net_to_b": 88,
+      "score_a": 73.4,
+      "score_b": 91.0,
+      "p_value": 0.0,
+      "flips_to_a_sample": [
+        "2785",
+        "2872",
+        "3298",
+        "3783",
+        "abc301_a",
+        "abc305_c",
+        "abc366_e",
+        "abc367_g"
+      ],
+      "flips_to_b_sample": [
+        "2755",
+        "2757",
+        "2847",
+        "2854",
+        "2866",
+        "2869",
+        "2877",
+        "2879"
+      ]
+    }
+  },
+  "pooled": {
+    "questions": 1164,
+    "flips_to_a": 35,
+    "flips_to_b": 130,
+    "p_value": 0.0
+  },
+  "verdict": "B is better (p=0.00000, pooled across suites)"
+}
