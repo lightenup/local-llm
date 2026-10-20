@@ -3372,3 +3372,124 @@ their deltas are relied on.
 §38 said the 8-bit "now decodes at 22-25 tok/s with MTP" and called that a
 speed change with no effect on output. That was wrong: those requests were
 greedy.
+
+## 40. The gemma round, part 1: gemma decodes as fast as the 8-bit, and retrieves at 131k
+
+Backlog A10 steps 0 and 1, 2026-10-19, in an exclusive window (Hermes
+`scout-assess` paused). Engine: **oMLX 0.7.1rc1**, mlx_vlm 0.7.8. Two of
+today's crashes may be specific to that release candidate (see below).
+
+### Step 0: §30's speed objection is dead
+
+`bench/throughput.py`, same harness, `gen_short` guard on, 128 tokens
+generated, neither model on an MTP path (`results/tp_a10_*.json`):
+
+| prompt | 8-bit `plain` decode | gemma-31B QAT decode | ratio | 8-bit prefill | gemma prefill |
+|---|---|---|---|---|---|
+| 1k | 17.9 | 20.6 | **1.15x** | 803 | 630 |
+| 4k | 17.8 | 19.9 | **1.12x** | 917 | 627 |
+| 16k | 17.2 | 16.2 | **0.94x** | 780 | 591 |
+
+§30's "0.54x the shipped 8-bit" compared against the 8-bit on `vlm_mtp`,
+which §39 showed was greedy. Against the 8-bit as it actually ships since
+2026-10-12, gemma decodes at about parity. It prefills at about 0.75x. The
+doctor's "profile samples" check gives 4/4 distinct on `g4-code`, `g4-agent`
+and `g4-reason`, so the gemma profiles sample (no §39 bug).
+
+### Step 1: what the prefill guard admits
+
+`bench/ctx_bisect.py`, `g4code`'s window raised to each probe length:
+
+| `scheduler.chunked_prefill` | admitted up to | refused at |
+|---|---|---|
+| off (shipped) | 126,976 | 131,072 |
+| on | 151,552 | 154,624 |
+
+The guard was deterministic both times, unlike §33's "116k admitted 1 time
+in 3" on 0.7.0. Backlog A10 named "a smaller prefill chunk" as the lever.
+oMLX exposes no separate chunk size; the lever is the **global**
+`chunked_prefill`, which changes every model's prefill. Its effect on the
+other models was not measured.
+
+Both bisect runs record "retrieval 0/3". That is wrong: all six requests
+errored because oMLX had crashed. `ctx_bisect.py` now reports errors as
+inconclusive, and the result JSONs carry a note.
+
+### Retrieval: admitting is attending, up to 131k
+
+`bench/longctx_quality.py`: one haystack per length, needles at five
+depths, plus one multi-hop question (find two numbers far apart and add
+them). It never unloads the model, which avoided the crash below.
+
+| length | chunked prefill | retrieval | multi-hop (expected → got) | per question |
+|---|---|---|---|---|
+| 98,304 | on | 5/5 | 128302 → 128202 | 5 s (prefix cache) |
+| 98,304 | off | 5/5 | 128302 → 128202 | 5 s (prefix cache) |
+| 122,880 | off | 5/5 | 87759 → 87309 | ~8 min |
+| 131,072 | on | 5/5 | 103674 → 103674 | ~8–10 min |
+| 147,456 | on | 1/5 | refused | ~11.5 min; 4 refused |
+
+- **Every needle the guard admitted was found, up to 147k.** §32's "65k
+  ceiling" was a guard limit, not an attention limit.
+- **Multi-hop misses look like arithmetic errors, not retrieval misses.**
+  Three of four answers were within 0.5% of the right sum. That is one
+  question per length, so it is a hint, not a measurement.
+- **Chunking does not change the answers below ~127k.** Both settings gave
+  byte-identical answers at 98k.
+- **147k is limited by memory that is not handed back.** After the one
+  admitted 147k prefill, the process footprint was 93.6 GB while MLX's
+  active memory was 21.9 GB (the model alone). The guard counts the footprint
+  as `current` (§35), so the next four requests were refused (needed 117.9 GB
+  against a 110.4 GB limit). In practice 147k works once after a fresh load.
+- **Past ~100k every question paid a full prefill.** The log says, for
+  example, the stored sequence "shares the first 130,730 of 130,742 comparable
+  tokens" and still "re-prefills 130749 of 130749". The SSD cache was at its
+  100 GB cap (`ssd_cache_max_size`), with 99.7 GB of it other models' blocks.
+  So the likely cause is that a 120k+ sequence cannot be kept. At 98k reuse
+  worked (97,280 cached). Confirmed by the test below.
+
+### oMLX 0.7.1rc1 crashes on teardown after a long request
+
+Twice, unloading gemma after a request of 118k–150k tokens took the whole
+server down:
+
+- 11:37 `teardown exceeded 120s; exiting process so the supervisor can restart`
+- 12:21 `SSD cache writer survived engine teardown; exiting process ...`
+
+The supervisor did not restart it; the owner restarted oMLX from the menu bar
+both times. The first crash also left `g4code`'s window raised, which
+`profiles/apply.py --set gemma4` repairs. Avoid model unloads after 100k+
+requests on this build; `longctx_quality.py` avoided them and did not crash.
+Not reproduced on 0.7.0, which was not available to compare.
+
+### The SSD cache cap was the cause: 300 GB makes 122k reusable
+
+Same 122,880-token run, chunked prefill off, after raising
+`ssd_cache_max_size` from 100 GB to 300 GB (1.1 TB free;
+`results/a10_g4_longctx_ssd300.json`):
+
+| question | 100 GB cap | 300 GB cap |
+|---|---|---|
+| first (cold prefill) | 490 s | 441 s |
+| repeats (4 retrieval + multi-hop) | 461–544 s each, 0 cached | **3–19 s each, 121,856+ cached** |
+| retrieval | 5/5 | 5/5, same answers |
+
+The cache manager logged `max_size=300.00 GB` on the next load, so the
+setting took effect without a restart. **The cap stays at 300 GB.**
+A 120k+ context now costs one ~7.5-minute prefill and then seconds per
+question, as long as the same prefix is resent.
+
+### Decision: record only, cap stays at 65,536
+
+Owner's decision, 2026-10-19. Retrieval supports 122,880 with today's
+settings and 131,072 with `chunked_prefill` on. At the time, every question
+cost 8–10 minutes, so a 120k+ context could only be used once.
+The cap was to be re-decided after the cache test.
+
+**Re-decided the same day: the cap is 122,880** (owner). It needs no other
+setting change, retrieval was verified there, and with the 300 GB SSD cache a
+repeat question costs seconds. 131,072 is not taken because it needs the
+global `chunked_prefill`, whose effect on the other models is unmeasured.
+Applied to `profiles/gemma4.py` (`VERIFIED_CONTEXT`), the LiteLLM
+`max_input_tokens` for the three gemma entries, `verify_wiring.py`, and
+opencode's `g4-reason` limit.

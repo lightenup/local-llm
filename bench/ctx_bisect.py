@@ -106,6 +106,9 @@ def main() -> int:
     ap.add_argument("--low", type=int, default=65536, help="known admitted")
     ap.add_argument("--high", type=int, default=131072, help="known refused")
     ap.add_argument("--tolerance", type=int, default=4096)
+    ap.add_argument("--retrieval-max", type=int, default=None,
+                    help="cap the retrieval probe's length. 2026-10-19: gemma at ~118k was "
+                         "admitted and then took oMLX down, so admitted is not safe")
     ap.add_argument("--label", default="ctx_bisect")
     args = ap.parse_args()
 
@@ -198,11 +201,13 @@ def main() -> int:
         import random
         rng = random.Random(20260917)
         target = max(best_tokens - 8192, args.low)
+        if args.retrieval_max:
+            target = min(target, args.retrieval_max)
         print(f"   probing at ~{target} tokens "
               f"(largest admitted was {best_tokens})")
         chars = max(int(slope * target + intercept), 1000)
         filler = corpus_chars(chars)
-        correct = asked = 0
+        correct = asked = errors = 0
         for depth in (0.05, 0.5, 0.95):
             secret = rng.randint(10_000, 99_999)
             at = int(len(filler) * depth)
@@ -211,19 +216,37 @@ def main() -> int:
                              "and nothing else.")
             asked += 1
             try:
-                r = o.chat([{"role": "user", "content": prompt}],
-                           model=served, max_tokens=16)
+                # The reload above returns before the model is ready, and oMLX
+                # answers 409 "busy" until it is (2026-10-19: 3/3 lost to it).
+                for wait in range(10):
+                    try:
+                        r = o.chat([{"role": "user", "content": prompt}],
+                                   model=served, max_tokens=16)
+                        break
+                    except Exception as e:  # noqa: BLE001
+                        if "409" not in str(e) or wait == 9:
+                            raise
+                        time.sleep(15)
                 got = (r["choices"][0]["message"].get("content") or "").strip()
                 hit = str(secret) in got
                 correct += hit
                 print(f"   depth {depth:<5} {'PASS' if hit else 'FAIL'} "
                       f"expected {secret} got {got[:30]!r}", flush=True)
             except Exception as e:  # noqa: BLE001
+                errors += 1
                 print(f"   depth {depth:<5} ERROR {str(e)[:110]}", flush=True)
-        out["retrieval"] = {"tokens": target, "asked": asked, "correct": correct}
+        out["retrieval"] = {"tokens": target, "asked": asked, "correct": correct,
+                            "errors": errors}
 
-        # Recommend only what was both admitted AND retrieved from.
-        if asked and correct == asked:
+        # Recommend only what was both admitted AND retrieved from. An error is
+        # not a wrong answer: 2026-10-19 both runs scored "0/3" because oMLX
+        # had crashed, and the recommendation read as a retrieval failure.
+        if errors:
+            out["recommended_cap"] = args.low
+            out["recommendation"] = (
+                f"inconclusive: {errors}/{asked} retrieval requests errored at ~{target}; "
+                f"keep {args.low} and measure retrieval with longctx_quality.py")
+        elif asked and correct == asked:
             out["recommended_cap"] = target
             out["recommendation"] = f"raise the cap to {target} (verified by retrieval)"
         else:

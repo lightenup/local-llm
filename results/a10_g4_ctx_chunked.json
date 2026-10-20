@@ -1,0 +1,50 @@
+{
+  "model": "gemma-4-31B-it-qat-OptiQ-4bit",
+  "profile": "gemma-4-31B-it-qat-OptiQ-4bit:g4-code",
+  "low": 65536,
+  "high": 163840,
+  "probes": [
+    {
+      "target": 114688,
+      "admitted": true,
+      "prompt_tokens": 115048,
+      "error": ""
+    },
+    {
+      "target": 139264,
+      "admitted": true,
+      "prompt_tokens": 137913,
+      "error": ""
+    },
+    {
+      "target": 151552,
+      "admitted": true,
+      "prompt_tokens": 149726,
+      "error": ""
+    },
+    {
+      "target": 157696,
+      "admitted": false,
+      "prompt_tokens": 0,
+      "error": "POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill would require ~118.81 GB peak (current 93.59 GB + KV+SDPA 25.23 GB) but the prefill limit is 110.40 GB (static ceiling 120.00 GB "
+    },
+    {
+      "target": 154624,
+      "admitted": false,
+      "prompt_tokens": 0,
+      "error": "POST /v1/chat/completions -> 400: {\"error\":{\"message\":\"oMLX prefill memory guard rejected this prompt: Prefill would require ~117.50 GB peak (current 92.74 GB + KV+SDPA 24.76 GB) but the prefill limit is 110.40 GB (static ceiling 120.00 GB "
+    }
+  ],
+  "original_window": 65536,
+  "max_admitted": 151552,
+  "min_refused": 154624,
+  "retrieval": {
+    "tokens": 98304,
+    "asked": 3,
+    "correct": 0,
+    "errors": 3
+  },
+  "recommended_cap": 65536,
+  "recommendation": "keep 65536: ~98304 is admitted but retrieval was 0/3, and admitting is not attending",
+  "note": "2026-10-19: the retrieval check did not run. All three requests errored because oMLX had crashed (teardown after a long request, FINDINGS \u00a740), so 'correct: 0' is not a retrieval result. Retrieval was measured with longctx_quality.py instead (a10_g4_longctx_*.json)."
+}
