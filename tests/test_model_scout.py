@@ -334,6 +334,28 @@ class ScanTests(unittest.TestCase):
                  "setup_generated": "2026-09-01T00:00:00+00:00"}
         self.assertEqual(len(self.run_scan(state)["results"]), 1)
 
+    def test_blocked_older_than_since_is_rechecked_after_a_new_export(self):
+        self.hub.routes["https://huggingface.co/api/models?author=Jundot&"][0][
+            "createdAt"] = "2026-09-01T00:00:00Z"
+        state = {"last_scan": None, "seen": {self.repo: "blocked"},
+                 "setup_generated": "2026-09-01T00:00:00+00:00"}
+        report = self.run_scan(state)
+        self.assertEqual(report["counts"]["promising"], 1)
+        self.assertEqual(state["seen"][self.repo], "promising")
+        self.assertEqual(state["setup_generated"], SETUP["generated"])
+        self.assertEqual(self.run_scan(state)["results"], [])
+
+    def test_failed_recheck_keeps_the_old_export_stamp(self):
+        def hub(url):
+            if "Jundot/down" in url:
+                raise urllib.error.URLError("timed out")
+            return self.hub(url)
+        state = {"last_scan": None, "seen": {"Jundot/down": "blocked"},
+                 "setup_generated": "2026-09-01T00:00:00+00:00"}
+        report = ms.scan(self.policy, SETUP, state, self.since, NOW, hub)
+        self.assertEqual(state["setup_generated"], "2026-09-01T00:00:00+00:00")
+        self.assertEqual(len(report["errors"]), 1)
+
     def test_older_than_since_is_ignored(self):
         self.hub.routes["https://huggingface.co/api/models?author=Jundot&"][0][
             "createdAt"] = "2026-09-01T00:00:00Z"

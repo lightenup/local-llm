@@ -470,10 +470,28 @@ def scan(policy: dict, setup: dict, state: dict, since: datetime,
             r["created"] = entry.get("createdAt")
             state["seen"][repo] = r["verdict"]
             results.append(r)
+    if recheck:
+        # A blocked repo is usually older than this run's listing (one day under
+        # Hermes), so re-read it by name or the new export never reaches it.
+        listed = {r["repo"] for r in results}
+        for repo, prior in list(state["seen"].items()):
+            if prior != "blocked" or repo in listed:
+                continue
+            try:
+                r = evaluate(repo, inspect(repo, fetch), policy, setup)
+            except LookupError as exc:
+                r = {"repo": repo, "verdict": "skip", "why": str(exc)}
+            except urllib.error.URLError as exc:
+                errors.append(f"{repo}: {exc}")
+                recheck = False  # keep the old stamp so the next run retries
+                continue
+            state["seen"][repo] = r["verdict"]
+            results.append(r)
     results.sort(key=lambda r: r.get("created") or "", reverse=True)
     results.sort(key=lambda r: ORDER[r["verdict"]])  # stable: newest first within
     state["last_scan"] = now.isoformat(timespec="seconds")
-    state["setup_generated"] = setup.get("generated")
+    if recheck or state.get("setup_generated") is None:
+        state["setup_generated"] = setup.get("generated")
 
     warnings = []
     age = (now - _when(setup["generated"])).days
