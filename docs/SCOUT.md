@@ -39,6 +39,16 @@ apart from a scout that did not run:
       --deliver ntfy --name model-scout
     hermes cron run <job_id>
 
+**Private repo.** The wrappers read `GITHUB_PAT_HERMES`, a fine-grained token with
+read-only Contents on this repo alone, from the agent's env_passthrough (homelab-proxmox
+backlog 099). `scout/git-auth.sh` hands it to git through a credential helper, so it never
+lands in the clone URL or `.git/config`. Unset, git runs as before, which is enough while
+the repo is public. If the pull fails (a revoked or expired token, say), the scan still
+runs on the old clone and the delivered message ends with
+`warning: git pull failed, scanned with the clone of <date>: …`, so a broken token cannot
+pass for a quiet week. The assessment job only logs a failed pull: any stdout there starts
+a model call.
+
 Set `NTFY_MARKDOWN=true` in the agent's `.env` so the report renders. The `--notify` sinks
 below are the alternative for running without Hermes Agent.
 

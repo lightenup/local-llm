@@ -26,7 +26,8 @@ never download or gate on your own.
 
 ## Rules
 
-- This repository is public. Never commit a LAN address, a home-directory
+- Keep this repository publishable, whether it is public or private at the
+  moment. Never commit a LAN address, a home-directory
   path, a hostname or label prefix from `LOCAL.md`, or a key. Write the
   placeholder and, if it is new, add it to `LOCAL.md`. Shell scripts find the
   repo with `cd "$(dirname "$0")/.."`; Python with `Path(__file__)`.

@@ -23,13 +23,24 @@ home="${HERMES_HOME:-$HOME/.hermes}"
 repo="${SCOUT_REPO:-$home/workspace/local-llm}"
 export SCOUT_STATE="${SCOUT_STATE:-$home/state/model_scout.json}"
 report="${SCOUT_REPORT:-$home/state/model_scout_report.json}"
+. "$(dirname "${BASH_SOURCE[0]}")/git-auth.sh" 2>/dev/null \
+  || . "$repo/scout/git-auth.sh" 2>/dev/null \
+  || scout_git() { git "$@"; }
 
+stale=""
 if [ -d "$repo/.git" ]; then
-  # A stale clone still scans correctly; say so rather than fail the run.
-  git -C "$repo" pull -q --ff-only || echo "warning: git pull failed, using the existing clone" >&2
+  # A stale clone still scans correctly, but on an old policy and setup.json.
+  # Say so in the delivered message: on stderr nobody sees it, and a revoked or
+  # expired token would look like a quiet week.
+  if ! err=$(scout_git -C "$repo" pull -q --ff-only 2>&1); then
+    stale="warning: git pull failed, scanned with the clone of $(git -C "$repo" log -1 --format=%cs): ${err%%$'\n'*}"
+  fi
 else
   mkdir -p "$(dirname "$repo")"
-  git clone -q --depth 1 https://github.com/lightenup/local-llm.git "$repo"
+  scout_git clone -q --depth 1 https://github.com/lightenup/local-llm.git "$repo"
 fi
 
-exec python3 "$repo/bench/model_scout.py" scan --quiet --report-out "$report"
+status=0
+python3 "$repo/bench/model_scout.py" scan --quiet --report-out "$report" || status=$?
+[ -z "$stale" ] || printf '\n%s\n' "$stale"
+exit "$status"
