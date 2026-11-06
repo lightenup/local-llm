@@ -378,7 +378,7 @@ class JSDisabledCompletenessTests(FixturesMixin, unittest.TestCase):
         self.assertIn("bench/throughput.py, code_python context.", stripped)
         self.assertIn("Deterministic sampling.", stripped)
         # links
-        self.assertIn("docs/FINDINGS.md#", stripped)
+        self.assertIn("findings.html#", stripped)
         self.assertIn("../results/tp_mtp.json", stripped)
         # rationale (none in this fixture, but the structure is there)
         self.assertIn("Live lineup", stripped)

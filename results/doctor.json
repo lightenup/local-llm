@@ -1,6 +1,41 @@
 {
-  "at": "2026-10-12T07:11:41",
+  "at": "2026-10-20T06:07:14",
   "results": [
+    {
+      "name": "sleep prevented during inference",
+      "ok": true,
+      "kind": "config",
+      "detail": "inference_awake running, AC sleep=15",
+      "layer": "host"
+    },
+    {
+      "name": "AC wake-on-network disabled",
+      "ok": true,
+      "kind": "config",
+      "detail": "AC womp=0",
+      "layer": "host"
+    },
+    {
+      "name": "on AC power",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "on AC",
+      "layer": "host"
+    },
+    {
+      "name": "lid open",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "lid open",
+      "layer": "host"
+    },
+    {
+      "name": "no thermal-emergency sleep in last 24h",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "none in 24h",
+      "layer": "host"
+    },
     {
       "name": "server responds",
       "ok": true,
@@ -26,7 +61,7 @@
       "name": "no retired profiles still served",
       "ok": true,
       "kind": "behaviour",
-      "detail": "16 served",
+      "detail": "18 served",
       "layer": "engine"
     },
     {
@@ -54,8 +89,99 @@
       "name": "speculative decode active: Qwen3.8-27B-oQ4e-mtp",
       "ok": true,
       "kind": "behaviour",
-      "detail": "82.2 tok/s (floor 44.0; below means speculative decoding is NOT engaging)",
+      "detail": "78.7 tok/s (floor 44.0; below means speculative decoding is NOT engaging)",
       "layer": "engine"
+    },
+    {
+      "name": "llm_queue reachable",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "depth=0 running=None granted=9344",
+      "layer": "queue"
+    },
+    {
+      "name": "LiteLLM upstream matches compose",
+      "ok": true,
+      "kind": "config",
+      "detail": "LIVE (queued): http://host.docker.internal:8001/v1",
+      "layer": "queue"
+    },
+    {
+      "name": "a LiteLLM request passes through the queue",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "fast: queue granted 9344 -> 9345",
+      "layer": "queue"
+    },
+    {
+      "name": "proxy reachable",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "HTTP 200",
+      "layer": "proxy"
+    },
+    {
+      "name": "role alias answers: coder",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "answers; served as 'coder'",
+      "layer": "proxy"
+    },
+    {
+      "name": "role alias answers: reasoner",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "answers; served as 'reasoner'",
+      "layer": "proxy"
+    },
+    {
+      "name": "role alias answers: fast",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "answers; served as 'fast'",
+      "layer": "proxy"
+    },
+    {
+      "name": "access group refuses out-of-group models",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "refused with HTTP 403",
+      "layer": "proxy"
+    },
+    {
+      "name": "enable_pre_call_checks is on",
+      "ok": true,
+      "kind": "config",
+      "detail": "without it max_input_tokens is inert metadata (\u00a716)",
+      "layer": "proxy"
+    },
+    {
+      "name": "router fallbacks are empty",
+      "ok": true,
+      "kind": "config",
+      "detail": "a fallback fires even for keys barred from the target (\u00a7C2)",
+      "layer": "proxy"
+    },
+    {
+      "name": "provider env vars visible non-interactively",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "all set in a non-interactive shell",
+      "layer": "harness"
+    },
+    {
+      "name": "every agent's model is declared",
+      "ok": true,
+      "kind": "config",
+      "detail": "2 providers, 9 agents all resolve",
+      "layer": "harness"
+    },
+    {
+      "name": "Spec Kit commands are unmodified",
+      "ok": true,
+      "kind": "config",
+      "detail": "stock",
+      "layer": "harness"
     }
   ]
 }

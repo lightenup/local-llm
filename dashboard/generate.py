@@ -9,13 +9,17 @@ Exit codes:
      stale markers on exactly the affected findings
 
 Strictly read-only w.r.t. results/, profiles/, and the oMLX configuration
-(FR-010): the only file written is site/index.html. Benchmark suite cards
-come from findings/suites/*.toml (dashboard/suites.py).
+(FR-010): the only files written are site/index.html and site/findings.html
+(docs/FINDINGS.md rendered, so every FINDINGS link has a real target).
+Benchmark suite cards come from findings/suites/*.toml, the glossary from
+findings/glossary/glossary.toml, the roles strip from proxy/litellm-config.yaml and the
+candidates view from results/ (gate, acc and task files).
 """
 
 from __future__ import annotations
 
 import sys
+import tomllib
 from datetime import datetime
 from pathlib import Path
 
@@ -26,6 +30,27 @@ from findings import (Problem, load_findings, load_sections,  # noqa: E402
 from render import ResolvedMetric, render_page  # noqa: E402
 from sources import resolve  # noqa: E402
 from suites import load_suites, run_summaries  # noqa: E402
+from candidates import build as build_candidates  # noqa: E402
+from markdown import render_markdown  # noqa: E402
+from render import render_findings_page, section_ids  # noqa: E402
+from roles import load_roles  # noqa: E402
+
+
+def load_glossary(path: Path) -> tuple[list[dict], list[Problem]]:
+    if not path.is_file():
+        return [], []
+    try:
+        with open(path, "rb") as fh:
+            data = tomllib.load(fh)
+    except tomllib.TOMLDecodeError as e:
+        return [], [Problem(path.name, "", f"TOML parse error at line {e.lineno}: {e.msg}")]
+    terms, problems = [], []
+    for i, t in enumerate(data.get("term", [])):
+        if not t.get("term") or not t.get("definition"):
+            problems.append(Problem(path.name, f"term[{i}]", "needs term and definition"))
+            continue
+        terms.append(t)
+    return terms, problems
 
 
 def _repo_root() -> Path:
@@ -38,6 +63,13 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
+def _doc_link(url: str) -> str:
+    """Links inside FINDINGS.md are relative to docs/; the page is in site/."""
+    if url.startswith(("http://", "https://", "#", "mailto:")):
+        return url
+    return "../docs/" + url
+
+
 def main() -> int:
     root = _repo_root()
     findings_dir = root / "findings"
@@ -47,7 +79,8 @@ def main() -> int:
 
     findings, problems = load_findings(findings_dir)
     suites, suite_problems = load_suites(findings_dir / "suites")
-    problems += suite_problems
+    glossary, glossary_problems = load_glossary(findings_dir / "glossary" / "glossary.toml")
+    problems += suite_problems + glossary_problems
     if problems:
         for p in problems:
             print(str(p), file=sys.stderr)
@@ -86,11 +119,19 @@ def main() -> int:
         resolved[f.id] = rm
 
     generated_at = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
+    roles = load_roles(root / "proxy" / "litellm-config.yaml")
+    if not roles and (root / "proxy" / "litellm-config.yaml").is_file():
+        print("warning: no role aliases found in proxy/litellm-config.yaml", file=sys.stderr)
     html = render_page(findings, sections, resolved, stale, generated_at,
-                       suites, run_summaries(results_dir))
+                       suites, run_summaries(results_dir), roles,
+                       build_candidates(results_dir, findings, roles), glossary)
 
     site_dir.mkdir(exist_ok=True)
     (site_dir / "index.html").write_text(html)
+    if findings_md.is_file():
+        md = render_markdown(findings_md.read_text(), section_ids(sections), "",
+                             _doc_link)
+        (site_dir / "findings.html").write_text(render_findings_page(md, generated_at))
 
     views = []
     if any(f.status == "shipped" for f in findings):

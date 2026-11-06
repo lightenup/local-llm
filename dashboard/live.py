@@ -15,6 +15,10 @@ saw this benchmark id. They are kept in site/.running_state.json.
 The page needs no JS: <meta refresh> reloads it and <progress> draws the bar.
 One small script only flags the snapshot as stale when launchd has stopped
 writing it.
+
+A chain that declared its steps with bench/run_plan.py also gets a lineup:
+each step done, running or pending, worked out from the result files that
+already exist, plus progress and an ETA over the whole chain.
 """
 
 from __future__ import annotations
@@ -33,6 +37,7 @@ sys.path.insert(0, str(ROOT / "dashboard"))
 
 from assets import STYLE  # noqa: E402
 
+PLAN = ROOT / "results" / ".run_plan.json"
 REFRESH_S = 60
 STALE_S = 180
 # Batches finish several questions at once, so a rate over one or two
@@ -66,6 +71,7 @@ def collect() -> dict:
             snap["errors"].append(f"accuracy queue: {type(e).__name__}")
     except Exception as e:  # noqa: BLE001
         snap["errors"].append(f"oMLX client: {type(e).__name__}")
+    snap["plan"] = read_plan(PLAN, ROOT / "results")
     base = os.environ.get("LLM_QUEUE_BASE", "http://127.0.0.1:8001")
     try:
         with urllib.request.urlopen(f"{base}/queue/status", timeout=5) as r:
@@ -73,6 +79,83 @@ def collect() -> dict:
     except Exception as e:  # noqa: BLE001
         snap["errors"].append(f"llm_queue: {type(e).__name__}")
     return snap
+
+
+def _valid_step(step) -> bool:
+    return (isinstance(step, dict) and isinstance(step.get("label"), str)
+            and isinstance(step.get("model"), str)
+            and isinstance(step.get("suites"), list) and step["suites"]
+            and isinstance(step.get("samples"), int) and step["samples"] >= 0)
+
+
+def read_plan(path: Path, results: Path) -> dict | None:
+    """The declared plan, each step annotated with its result file if one was
+    written after the plan started. Local files only. A malformed plan or
+    step is dropped, never raised: the rest of the page must still render."""
+    try:
+        plan = json.loads(path.read_text())
+    except (OSError, ValueError):
+        return None
+    if not isinstance(plan, dict) or not isinstance(plan.get("steps"), list):
+        return None
+    if not isinstance(plan.get("started"), (int, float)):
+        plan["started"] = 0
+    plan["steps"] = [st for st in plan["steps"] if _valid_step(st)]
+    for step in plan["steps"]:
+        f = results / f"acc_{step['label']}.json"
+        step["result"] = None
+        try:
+            if f.stat().st_mtime >= plan["started"] - 60:
+                rs = json.loads(f.read_text()).get("results") or []
+                step["result"] = {
+                    "scores": {r["benchmark"]: r.get("accuracy") for r in rs},
+                    "total": sum(int(r.get("total") or 0) for r in rs),
+                    "file": f.name}
+        except (OSError, ValueError, KeyError, AttributeError, TypeError):
+            pass
+    return plan
+
+
+def plan_status(plan: dict, acc: dict | None, cur: dict | None) -> list[dict]:
+    """Per step: state done / running / pending / missed, and questions done.
+
+    Totals come from what oMLX reports where it can: `samples` 0 means the
+    whole suite, and a suite smaller than `samples` (HumanEval has 164) runs
+    fewer. Only the first unfinished step that matches the running model and
+    suite is running; an identical later step stays pending. A step is missed
+    when it has no result but a later one has started."""
+    acc = acc or {}
+    prog = acc.get("last_progress") or {}
+    run_model = prog.get("model_id") or acc.get("current_model")
+    run_suite = prog.get("benchmark")
+    bench_total = int(prog.get("bench_total") or 0)
+    claimed = False
+    rows = []
+    for step in plan.get("steps") or []:
+        planned = step["samples"] * len(step["suites"])
+        if step.get("result"):
+            total = step["result"].get("total") or planned
+            rows.append({**step, "state": "done", "done_q": total, "total_q": total})
+            continue
+        if (not claimed and acc.get("running") and run_model == step["model"]
+                and run_suite in step["suites"]):
+            claimed = True
+            idx = step["suites"].index(run_suite)
+            per = step["samples"] or bench_total
+            n = cur["last_n"] if cur else int(prog.get("bench_current") or 0)
+            total = sum((bench_total if i == idx else per) or 0
+                        for i in range(len(step["suites"])))
+            done = idx * per + n
+            rows.append({**step, "state": "running", "done_q": min(done, total or done),
+                         "total_q": max(total, done), "suite": run_suite})
+        else:
+            rows.append({**step, "state": "pending", "done_q": 0, "total_q": planned})
+    started = [i for i, r in enumerate(rows) if r["state"] in ("done", "running")]
+    last = max(started) if started else -1
+    for i, r in enumerate(rows):
+        if r["state"] == "pending" and i < last:
+            r["state"] = "missed"
+    return rows
 
 
 # ---------------- rate and ETA ----------------
@@ -137,6 +220,11 @@ def render(snap: dict, state: dict) -> str:
            "</div>", "</header>", '<main id="main">',
            f'<p class="banner" id="stale" data-at="{int(at)}" hidden>This snapshot is '
            "more than 3 minutes old; the job that writes it may have stopped.</p>"]
+
+    acc0 = snap.get("accuracy")
+    plan = snap.get("plan")
+    if plan and plan.get("steps"):
+        out.append(_plan_html(plan, acc0, state.get("current"), at))
 
     out.append('<section id="benchmarks-running" aria-labelledby="run-h">')
     out.append('<h2 id="run-h" tabindex="-1">Benchmarks</h2>')
@@ -236,6 +324,52 @@ def render(snap: dict, state: dict) -> str:
                "b.hidden=false;})();</script>")
     out.append("</body></html>")
     return "\n".join(out) + "\n"
+
+
+GLYPH = {"done": "✓", "running": "▶", "pending": "–", "missed": "✗"}
+WORD = {"done": "done", "running": "running", "pending": "pending",
+        "missed": "no result; a later step has started"}
+
+
+def _plan_html(plan: dict, acc: dict | None, cur: dict | None, at: float) -> str:
+    rows = plan_status(plan, acc, cur)
+    done_q = sum(r["done_q"] for r in rows)
+    total_q = sum(r["total_q"] for r in rows) or 1
+    pos = next((i for i, r in enumerate(rows) if r["state"] == "running"), None)
+    finished = sum(r["state"] == "done" for r in rows)
+    out = ['<section id="plan" aria-labelledby="plan-h">',
+           f'<h2 id="plan-h" tabindex="-1">Lineup: {esc(plan.get("name") or "plan")}</h2>',
+           '<div class="cards"><article class="suite run">',
+           f'<p class="meta">{"step " + str(pos + 1) + " of " + str(len(rows)) if pos is not None else str(finished) + " of " + str(len(rows)) + " steps done"}'
+           f' · started {_hm(plan.get("started", at))}</p>',
+           f'<label for="plan-p" class="meta">{done_q} of {total_q} questions across the lineup</label>',
+           f'<progress id="plan-p" max="{total_q}" value="{done_q}">'
+           f'{100 * done_q / total_q:.0f}%</progress>']
+    spq = rate_eta(cur)[0] if cur else None
+    unknown = any(r["state"] == "pending" and r["samples"] == 0 for r in rows)
+    if spq is not None and pos is not None and not unknown:
+        eta = at + spq * (total_q - done_q)
+        out.append(f'<div class="nums"><span><b>{100 * done_q / total_q:.1f}%</b> of the '
+                   f'lineup</span><span>lineup ETA <b>{_hm(eta)}</b> (in {_dur(eta - at)}), '
+                   "if later steps run at this step's rate</span></div>")
+    out.append('<ol class="plan-steps">')
+    for r in rows:
+        scores = ""
+        if r["state"] == "done" and r["result"]:
+            sc = [f"{b} <b>{v * 100:.1f}</b>" for b, v in r["result"]["scores"].items()
+                  if isinstance(v, (int, float))]
+            scores = (f' <span class="meta">{", ".join(sc)} · '
+                      f'<a href="../results/{esc(r["result"]["file"])}">raw</a></span>')
+        elif r["state"] == "running":
+            scores = (f' <span class="meta">{r["done_q"]} of {r["total_q"]} questions'
+                      f' · now {esc(r["suite"])}</span>')
+        suites = ", ".join(f'<a href="index.html#suite-{esc(x)}">{esc(x)}</a>' for x in r["suites"])
+        out.append(f'<li class="plan-step plan-{r["state"]}"><span class="plan-glyph" '
+                   f'aria-hidden="true">{GLYPH[r["state"]]}</span><span>'
+                   f'<b>{esc(r["model"])}</b> · {suites} × {r["samples"]}'
+                   f'<span class="sr"> ({WORD[r["state"]]})</span>{scores}</span></li>')
+    out.append("</ol></article></div></section>")
+    return "\n".join(out)
 
 
 def _write(path: Path, text: str) -> None:

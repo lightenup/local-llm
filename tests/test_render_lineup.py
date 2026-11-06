@@ -132,7 +132,7 @@ class LineupViewTests(FixturesMixin, unittest.TestCase):
             self.assertIn("how", tip)
             self.assertIn("evidence", tip)
             self.assertIn("FINDINGS", tip)
-            self.assertIn("docs/FINDINGS.md#", tip)
+            self.assertIn("findings.html#", tip)
 
     def test_value_equals_source_resolution(self):
         # prove nothing is hardcoded: point the finding at a temp results file

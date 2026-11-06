@@ -48,10 +48,9 @@ text
 def slug(title: str) -> str:
     """GitHub anchor slug (same rules as dashboard/findings.py)."""
     import re as _re
-    s = title.lower()
+    s = title.strip().lower()
     s = _re.sub(r"[^\w\s-]", "", s, flags=_re.UNICODE)
-    s = _re.sub(r"[\s]+", "-", s.strip())
-    return s
+    return s.replace(" ", "-")
 
 
 ANCHOR_4 = slug(f"4. {REAL_HEADING_4}")
@@ -154,6 +153,8 @@ class AnchorTests(FixturesMixin, unittest.TestCase):
         # real headings, so a heading rename in FINDINGS.md breaks the tests
         self.assertEqual(ANCHOR_4, slug(f"4. {REAL_HEADING_4}"))
         self.assertIn("mtp-speculative-decode", ANCHOR_4)
+        # GitHub does not collapse the two dashes a removed "—" leaves behind
+        self.assertIn("decode--the-big-win", ANCHOR_4)
         self.assertEqual(ANCHOR_19, slug(f"19. {REAL_HEADING_19}"))
         self.assertIn("the-lineup-8-bit-for-quality-oq4e-for-speed", ANCHOR_19)
         self.assertEqual(ANCHOR_30, slug(f"30. {REAL_HEADING_30}"))
@@ -166,9 +167,9 @@ class AnchorTests(FixturesMixin, unittest.TestCase):
         r = self.run_cli()
         self.assertEqual(r.returncode, 0, msg=r.stderr)
         html = self.html()
-        self.assertIn(f'docs/FINDINGS.md#{ANCHOR_19}', html)
-        self.assertIn(f'docs/FINDINGS.md#{ANCHOR_30}', html)
-        self.assertIn(f'docs/FINDINGS.md#{ANCHOR_4}', html)
+        self.assertIn(f'findings.html#{ANCHOR_19}', html)
+        self.assertIn(f'findings.html#{ANCHOR_30}', html)
+        self.assertIn(f'findings.html#{ANCHOR_4}', html)
 
 
 class RawFileLinkTests(FixturesMixin, unittest.TestCase):
@@ -203,7 +204,7 @@ class NoMeasurementTests(FixturesMixin, unittest.TestCase):
         self.assertEqual(r.returncode, 0, msg=r.stderr)
         html = self.html()
         self.assertIn("no measurement", html)
-        self.assertIn(f'docs/FINDINGS.md#{ANCHOR_4}', html)
+        self.assertIn(f'findings.html#{ANCHOR_4}', html)
         # no raw-results link for this finding (it has no metrics)
         self.assertNotIn("../results/", html)
 

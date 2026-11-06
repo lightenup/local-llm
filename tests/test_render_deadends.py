@@ -70,18 +70,18 @@ class DeadEndsTests(FixturesMixin, unittest.TestCase):
         self.write_finding("deadend_with_metric.toml", DEAD_END_WITH_METRIC)
         html = self._generate()
         dead = _dead_ends(html)
-        entry = re.search(r'<p[^>]*><b>a lever closed by measurement</b>.*?</p>', dead, re.S)
+        entry = re.search(r'<article class="finding dead"[^>]*>(?:(?!</article>).)*?a lever closed by measurement.*?</article>', dead, re.S)
         self.assertIsNotNone(entry)
         text = entry.group(0)
         self.assertIn("34.0", text)  # the resolved value
         self.assertIn("../results/tp_mtp.json", text)  # raw source link
-        self.assertIn("docs/FINDINGS.md#", text)
+        self.assertIn("findings.html#", text)
 
     def test_entry_closed_by_argument_marked_no_measurement(self):
         self.write_finding("deadend_some_lever.toml", DEAD_END_FINDING)
         html = self._generate()
         dead = _dead_ends(html)
-        entry = re.search(r'<p[^>]*><b>some lever is a dead end</b>.*?</p>', dead, re.S)
+        entry = re.search(r'<article class="finding dead"[^>]*>(?:(?!</article>).)*?some lever is a dead end.*?</article>', dead, re.S)
         self.assertIsNotNone(entry)
         text = entry.group(0)
         self.assertIn("no measurement", text)

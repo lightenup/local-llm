@@ -216,15 +216,27 @@ scout/                   scout policy (scout.toml) and the Mac's exported setup.
     python3 dashboard/generate.py              # site/index.html, commit it with any findings/ change
     proxy/launchd/install.sh dashboard-live    # site/running.html every 60 s, local only
 
-`site/index.html` is one self-contained page: the lineup, the candidate board,
-the settled dead ends, and a card per benchmark suite saying what it measures,
-how this stack runs it, and where to read more (`findings/suites/*.toml`). It
-follows the system light or dark theme and works without JavaScript.
+`site/index.html` is one self-contained page:
+- the roles strip, from `proxy/litellm-config.yaml`;
+- the lineup;
+- **Candidates**: the evaluation pipeline (scout, gate, accuracy, task fit, decision), and how far each model has got, built from `results/gate_*`, `acc_*` and `task_*`;
+- the status board and the settled dead ends;
+- a card per benchmark suite (`findings/suites/*.toml`);
+- a glossary (`findings/glossary/glossary.toml`).
+
+`site/findings.html` is `docs/FINDINGS.md` rendered, so every "FINDINGS §N" link and every §N mention lands on its section offline. Both pages follow the system light or dark theme and work without JavaScript. `tests/test_site_links.py` fails on any dead link or anchor.
 
 `site/running.html` shows what oMLX is running now: a progress bar per accuracy
 suite with the rate and ETA measured since the page first saw it, the loaded
 models, and the queue. `dashboard/live.py` only reads (three GETs per minute,
 each with a timeout), so it is safe beside a benchmark. The page is untracked.
+
+A chain that declares its steps shows them as a lineup with overall progress:
+
+    python3 bench/run_plan.py start NAME --step "label|model|suite[,suite]|samples" ...
+
+`label` is the `--label` given to `bench/accuracy.py`. A step is done once its
+`results/acc_<label>.json` is written.
 
 ## The one design rule
 

@@ -24,3 +24,6 @@ results/*.out
 site/running.html
 site/.running_state.json
 site/*.tmp
+
+# A chain's declared steps (bench/run_plan.py), read by dashboard/live.py.
+results/.run_plan.json

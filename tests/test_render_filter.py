@@ -100,7 +100,7 @@ class FilterDomContractTests(FixturesMixin, unittest.TestCase):
     def test_deadend_entries_carry_data_attrs(self):
         html = self._generate()
         dead = re.search(r'<section id="dead-ends"[^>]*>.*?</section>', html, re.S).group(0)
-        ps = re.findall(r'<p class="finding"[^>]*>', dead)
+        ps = re.findall(r'<article class="finding dead"[^>]*>', dead)
         self.assertGreaterEqual(len(ps), 1, "expected at least 1 dead-end finding entry")
         for p in ps:
             self.assertIn('data-model="', p)

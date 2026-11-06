@@ -281,12 +281,19 @@ def load_findings(findings_dir: Path) -> tuple[list[Finding], list[Problem]]:
     return findings, problems
 
 
-def _slug(title: str) -> str:
-    """GitHub anchor slug: lowercase, punctuation stripped, spaces -> dashes."""
-    s = title.lower()
+def slug(title: str) -> str:
+    """GitHub anchor slug: lowercase, punctuation stripped, and each space
+    becomes a dash. Runs are not collapsed: "offload — rejected" is
+    "offload--rejected" on GitHub, and site/findings.html uses the same ids."""
+    s = title.strip().lower()
     s = re.sub(r"[^\w\s-]", "", s, flags=re.UNICODE)
-    s = re.sub(r"[\s]+", "-", s.strip())
-    return s
+    return s.replace(" ", "-")
+
+
+def models_match(full_id: str, short_id: str) -> bool:
+    """A finding names a model by a short id ("Qwen3.8-27B-oQ4e") where results
+    and the LiteLLM config use the full one ("Qwen3.8-27B-oQ4e-mtp")."""
+    return full_id == short_id or full_id.startswith(short_id + "-")
 
 
 _HEADING_RE = re.compile(r"^## (\d+)\. (.+)$")
@@ -302,7 +309,7 @@ def load_sections(findings_md_path: Path) -> dict[int, tuple[str, str]]:
         if m:
             num = int(m.group(1))
             title = m.group(2).strip()
-            sections[num] = (title, _slug(f"{num}. {title}"))
+            sections[num] = (title, slug(f"{num}. {title}"))
     return sections
 
 
