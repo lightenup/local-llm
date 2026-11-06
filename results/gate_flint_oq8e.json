@@ -1,0 +1,43 @@
+[
+  {
+    "model_id": "flint-oQ8e",
+    "at": "2026-11-06T09:44:39",
+    "disk_gib": 41.34,
+    "config_model_type": "flint",
+    "context": 262144,
+    "mtp_compatible": false,
+    "mtp_reason": "model has no MTP heads in config",
+    "arch_supported": true,
+    "lineup": [
+      "Qwen3-Embedding-0.6B-8bit",
+      "Qwen3-Reranker-0.6B-mxfp8",
+      "Qwen3.8-27B-8bit",
+      "gemma-4-26B-A4B-it-oQ6e-mtp"
+    ],
+    "load_s": 52.4,
+    "resident_gib": 41.34,
+    "pool_gib": 93.78,
+    "lineup_survived_load": true,
+    "calls": [
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 15309,
+        "wall_s": 10.8,
+        "finish": "length",
+        "head": ""
+      },
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 15309,
+        "wall_s": 5.2,
+        "finish": "length",
+        "head": ""
+      }
+    ],
+    "lineup_survived_serving": false,
+    "coexists": false,
+    "verdict": "reject: cannot serve while the lineup is resident"
+  }
+]
