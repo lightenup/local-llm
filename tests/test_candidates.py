@@ -105,3 +105,16 @@ class RolesTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReviewRegressionTests(unittest.TestCase):
+    def test_most_specific_finding_wins_regardless_of_order(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            (d / "acc_x.json").write_text(json.dumps(lcb("Qwen3.8-27B-oQ4e-mtp", 500, 400)))
+            shipped = SimpleNamespace(models=["Qwen3.8-27B-oQ4e"], status="shipped",
+                                      section=19, title="ships")
+            broad = SimpleNamespace(models=["Qwen3.8-27B"], status="retired",
+                                    section=13, title="broad")
+            for order in ([shipped, broad], [broad, shipped]):
+                self.assertIs(build(d, order)[0].finding, shipped)

@@ -269,7 +269,7 @@ main.doc { max-width: none; padding: 0; margin: 0; }
 <a class="skip" href="#main">Skip to content</a>
 <header>
 <div class="head-row">
-<h1>Qwen3.8-27B-8bit on oMLX — measured findings <span class="stamp">[generated at: 2026-11-06 18:46:52 CET]</span></h1>
+<h1>Qwen3.8-27B-8bit on oMLX — measured findings <span class="stamp">[generated at: 2026-11-06 18:53:43 CET]</span></h1>
 <a class="running-link" href="index.html">Dashboard</a>
 </div>
 </header>
@@ -307,15 +307,15 @@ main.doc { max-width: none; padding: 0; margin: 0; }
 <li><a href="#30-gemma-4-31b-wins-both-measured-axes-and-costs-18x-the-decode-to-do-it">30. gemma-4-31B wins both measured axes, and costs 1.8x the decode to do it</a></li>
 <li><a href="#31-the-agentic-axis-gemma-4-31b-is-not-worse-and-taskbench-has-hit-a-structural-limit">31. The agentic axis: gemma-4-31B is not worse, and taskbench has hit a structural limit</a></li>
 <li><a href="#32-gemma-4-31bs-context-ceiling-is-65k-so-it-is-an-addition-and-not-a-replacement">32. gemma-4-31B&#x27;s context ceiling is 65k, so it is an addition and not a replacement</a></li>
-<li><a href="#33-wiring-plan-and-why-gemmas-context-ceiling-is-probabilistic-rather-than-a-number">33. Wiring `plan`, and why gemma&#x27;s context ceiling is probabilistic rather than a number</a></li>
+<li><a href="#33-wiring-plan-and-why-gemmas-context-ceiling-is-probabilistic-rather-than-a-number">33. Wiring plan, and why gemma&#x27;s context ceiling is probabilistic rather than a number</a></li>
 <li><a href="#34-the-qwen3_5_moe-35b-a3b-class-fast-it-coexists-and-it-cannot-code">34. The qwen3_5_moe 35B-A3B class: fast, it coexists, and it cannot code</a></li>
-<li><a href="#35-the-prefill-guard-refused-an-18-token-prompt-current-and-the-transient-are-stale-not-large">35. The prefill guard refused an 18-token prompt: `current` and the transient are stale, not large</a></li>
+<li><a href="#35-the-prefill-guard-refused-an-18-token-prompt-current-and-the-transient-are-stale-not-large">35. The prefill guard refused an 18-token prompt: current and the transient are stale, not large</a></li>
 <li><a href="#36-the-2026-09-30-refusal-was-pinning-not-memory-models-unpinned-replayed-guard-shim-withdrawn">36. The 2026-09-30 refusal was pinning, not memory: models unpinned, replayed, guard shim withdrawn</a></li>
 <li><a href="#37-thermal-emergencies-the-mac-went-to-sleep-mid-inference-eight-times">37. Thermal emergencies: the Mac went to sleep mid-inference, eight times</a></li>
 <li><a href="#38-ordered-llm-work-neither-gateway-queues-across-models-so-a-150-line-proxy-does">38. Ordered LLM work: neither gateway queues across models, so a 150-line proxy does</a></li>
 <li><a href="#39-the-agent-loops-were-greedy-decoding-omlxs-vlm_mtp-path-ignores-the-sampler">39. The agent loops were greedy decoding: oMLX&#x27;s vlm_mtp path ignores the sampler</a></li>
 <li><a href="#40-the-gemma-round-part-1-gemma-decodes-as-fast-as-the-8-bit-and-retrieves-at-131k">40. The gemma round, part 1: gemma decodes as fast as the 8-bit, and retrieves at 131k</a></li>
-<li><a href="#41-the-gemma-round-part-2-gemma-26b-a4b-takes-fast-not-coder">41. The gemma round, part 2: gemma-26B-A4B takes `fast`, not `coder`</a></li>
+<li><a href="#41-the-gemma-round-part-2-gemma-26b-a4b-takes-fast-not-coder">41. The gemma round, part 2: gemma-26B-A4B takes fast, not coder</a></li>
 <li><a href="#42-flint-preliminary-both-builds-pass-the-gate-thinking-cannot-be-switched-off">42. Flint, preliminary: both builds pass the gate; thinking cannot be switched off</a></li>
 </ol></nav>
 <main id="main" class="doc"><p>Host: MacBook Pro, <strong>M5 Max</strong>, 40 GPU cores, 128 GB, macOS 26.6.2 Model: <code>mlx-community/Qwen3.8-27B-8bit</code> — arch <code>qwen3_5</code>, 64 layers, hybrid attention (3× <code>linear_attention</code> + 1× <code>full_attention</code>, <code>full_attention_interval: 4</code>), head_dim 256, native context <strong>262,144</strong>, VLM engine, tool parser <code>qwen3_coder</code> Resident: 27.74 GB. Memory-guard ceiling: 115.4 GB. Date: 2026-09-05, with sections 4 and 8 to 10 revised 2026-09-10 after the overnight and unattended validation runs. All numbers produced by the scripts in <code>bench/</code>.</p>

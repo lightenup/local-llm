@@ -20,6 +20,8 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from findings import models_match
+
 # Below this a suite run is a sample (a timing check), not a measurement.
 FULL_RUN = 250
 STAGES = ("gate", "accuracy", "task", "decision")
@@ -134,12 +136,18 @@ def build(results_dir: Path, findings: list, roles: list | None = None) -> list[
         if model and "-" in model:  # model-named, not a role
             get(model.split(":", 1)[0]).tasks.append(p.name)
 
+    # The finding naming the model most specifically wins; among equals, a
+    # decision (shipped, retired, on-trial) beats a dead-end note about a lever.
+    weight = {"shipped": 3, "retired": 3, "on-trial": 3, "open": 2, "dead-end": 1}
     for c in by_model.values():
+        best = None
         for f in findings:
-            if any(c.model == m or c.model.startswith(m + "-") for m in f.models):
-                # the most specific finding wins: shipped/retired over dead-end notes
-                if c.finding is None or f.status in ("shipped", "retired", "on-trial"):
-                    c.finding = f
+            matched = [m for m in f.models if models_match(c.model, m)]
+            if matched:
+                key = (max(map(len, matched)), weight.get(f.status, 0))
+                if best is None or key > best[0]:
+                    best = (key, f)
+        c.finding = best[1] if best else None
 
     for role in roles or []:
         for c in by_model.values():

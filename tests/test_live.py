@@ -156,3 +156,38 @@ class PlanTests(unittest.TestCase):
             self.assertIsNone(live.read_plan(d / "plan.json", d)["steps"][0]["result"])
             os.utime(d / "acc_a.json", (6000, 6000))
             self.assertIsNotNone(live.read_plan(d / "plan.json", d)["steps"][0]["result"])
+
+
+class PlanReviewRegressionTests(unittest.TestCase):
+    def step(self, label, model="m", suites=("livecodebench",), samples=500):
+        return {"label": label, "model": model, "suites": list(suites),
+                "samples": samples, "result": None}
+
+    def test_samples_zero_uses_the_reported_suite_size(self):
+        plan = {"steps": [self.step("a", samples=0)]}
+        r = live.plan_status(plan, snap(1000, 120, total=1054)["accuracy"], None)[0]
+        self.assertEqual((r["done_q"], r["total_q"]), (120, 1054))
+
+    def test_small_suite_reaches_its_own_total(self):
+        plan = {"steps": [self.step("a", suites=("humaneval",), samples=500)]}
+        s = snap(1000, 164, total=164)
+        s["accuracy"]["last_progress"]["benchmark"] = "humaneval"
+        r = live.plan_status(plan, s["accuracy"], None)[0]
+        self.assertEqual((r["done_q"], r["total_q"]), (164, 164))
+
+    def test_only_the_first_identical_step_is_running(self):
+        plan = {"steps": [self.step("a"), self.step("b")]}
+        rows = live.plan_status(plan, snap(1000, 50)["accuracy"], None)
+        self.assertEqual([r["state"] for r in rows], ["running", "pending"])
+
+    def test_malformed_plans_do_not_raise(self):
+        import json, tempfile
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            for body in ("[1, 2]", '{"steps": "x"}',
+                         '{"started": 1, "steps": [{"label": "a"}, 7]}', "{not json"):
+                (d / "p.json").write_text(body)
+                plan = live.read_plan(d / "p.json", d)
+                self.assertTrue(plan is None or plan["steps"] == [])
+                if plan:
+                    live.render({**snap(1000, 1), "plan": plan}, {})

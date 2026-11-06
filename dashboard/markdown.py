@@ -27,6 +27,12 @@ _SECTION_REF = re.compile(r"§(\d+)")
 _INDENTED = re.compile(r"^(    |\t)")
 
 
+def _starts_block(line: str) -> bool:
+    """A line that begins a new block rather than continuing a list item."""
+    return bool(_HEADING.match(line) or _FENCE.match(line.strip()) or _HR.match(line)
+                or line.lstrip().startswith((">", "|")))
+
+
 def _interrupts(line: str) -> bool:
     """CommonMark: only a bullet, or an ordered item numbered 1, may start a
     list in the middle of a paragraph ("200) while ..." is text)."""
@@ -47,12 +53,18 @@ class Rendered:
     headings: list[Heading] = field(default_factory=list)
 
 
+_TAG_OR_LINK = re.compile(r"(<a\b[^>]*>.*?</a>|<[^>]+>)", re.S)
+
+
 def link_sections(escaped: str, section_ids: dict[int, str], href: str = "") -> str:
-    """Turn §N in already-escaped text into links. Unknown N stays text."""
+    """Turn §N in already-escaped text into links. Unknown N stays text.
+    Existing links and tag attributes are left alone, so a §N inside link
+    text or a title="" never becomes a nested or broken <a>."""
     def sub(m: re.Match) -> str:
         sid = section_ids.get(int(m.group(1)))
         return f'<a href="{href}#{sid}">§{m.group(1)}</a>' if sid else m.group(0)
-    return _SECTION_REF.sub(sub, escaped)
+    parts = _TAG_OR_LINK.split(escaped)
+    return "".join(p if i % 2 else _SECTION_REF.sub(sub, p) for i, p in enumerate(parts))
 
 
 def inline(text: str, section_ids: dict[int, str] | None = None,
@@ -73,7 +85,7 @@ def _inline_text(t: str, section_ids, section_href, link_map) -> str:
     t = html.escape(t, quote=False)
 
     def link(m: re.Match) -> str:
-        url = m.group(2)
+        url = html.unescape(m.group(2))  # the whole text was escaped above
         if link_map:
             url = link_map(url)
         return f'<a href="{html.escape(url, quote=True)}">{m.group(1)}</a>'
@@ -233,6 +245,8 @@ class _Renderer:
                     items[-1].append("")
                     j += 1
                     continue
+                break
+            if not line.startswith(" ") and _starts_block(line):
                 break
             if line.startswith(" " * (indent + 1)) or (not _ITEM.match(line) and items):
                 if _ITEM.match(line) or line.startswith(" " * (indent + 1)):

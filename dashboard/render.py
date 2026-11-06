@@ -16,8 +16,8 @@ from dataclasses import dataclass
 
 from assets import SCRIPTS, STYLE
 from charts import bar_chart_svg
-from findings import Finding, section_anchor
-from markdown import Rendered, link_sections
+from findings import Finding, models_match, section_anchor
+from markdown import Rendered, inline, link_sections
 from suites import GROUP_TITLES, GROUPS, RunSummary, Suite
 
 FINDINGS_PAGE = "findings.html"
@@ -52,7 +52,7 @@ def _findings_link(sections, num) -> str:
     return f"{FINDINGS_PAGE}#{esc(section_anchor(sections, num) or '')}"
 
 
-def _section_ids(sections) -> dict[int, str]:
+def section_ids(sections) -> dict[int, str]:
     return {n: v[1] for n, v in sections.items()}
 
 
@@ -64,15 +64,19 @@ class _Gloss:
                       for t in terms or []]
 
     def __call__(self, escaped: str, used: set) -> str:
+        # Find every first use in the original text, then splice once, so a
+        # term inside an earlier term's inserted title="" is never matched.
+        spans = []
         for t, rx in self.terms:
             if t["term"] in used:
                 continue
             m = rx.search(escaped)
-            if m:
+            if m and not any(m.start() < e and s < m.end() for s, e, _ in spans):
                 used.add(t["term"])
-                escaped = (escaped[:m.start()]
-                           + f'<abbr title="{esc(t["definition"])}">{m.group(0)}</abbr>'
-                           + escaped[m.end():])
+                spans.append((m.start(), m.end(), t))
+        for s, e, t in sorted(spans, key=lambda x: x[0], reverse=True):
+            escaped = (escaped[:s] + f'<abbr title="{esc(t["definition"])}">{escaped[s:e]}</abbr>'
+                       + escaped[e:])
         return escaped
 
 
@@ -81,7 +85,7 @@ def _prose(text: str, sections, gloss: _Gloss | None = None, used: set | None = 
     out = esc(text)
     if gloss is not None:
         out = gloss(out, used if used is not None else set())
-    return link_sections(out, _section_ids(sections), FINDINGS_PAGE)
+    return link_sections(out, section_ids(sections), FINDINGS_PAGE)
 
 
 def tooltip_html(metric, findings_link: str, raw_link: str | None,
@@ -189,8 +193,7 @@ def _board_header(sortable: bool) -> str:
 
 
 def _roles_for(f: Finding, roles) -> list[str]:
-    return [r.role for r in roles or []
-            if any(r.model == m or r.model.startswith(m + "-") for m in f.models)]
+    return [r.role for r in roles or [] if any(models_match(r.model, m) for m in f.models)]
 
 
 # ---------------------------------------------------------------- views
@@ -611,6 +614,7 @@ def render_page(findings: list[Finding],
             link = _findings_link(sections, f.section)
             fm = resolved.get(f.id, [])
             chips, how, raws = [], [], []
+            stale_here = any(r.outcome == "stale" for r in fm)
             for r in fm:
                 m = r.metric
                 if r.outcome != "value":
@@ -624,11 +628,15 @@ def render_page(findings: list[Finding],
                 how.append(_details_html(m, link, raw, f.section, sections))
             out.append(f'<article class="finding dead"{_data_attrs(f)}>')
             out.append(f'<h3><a class="title-link" href="{link}">{esc(f.title)}</a></h3>')
+            if stale_here:
+                out.append('<p class="chips"><span class="marker-stale">stale source</span></p>')
             if chips:
                 out.append('<p class="chips">closed by measurement: ' + " ".join(chips) + "</p>")
-            else:
+            elif not fm:
                 out.append('<p class="chips"><span class="marker-none">no measurement</span> '
                            'closed by argument</p>')
+            elif not stale_here:
+                out.append('<p class="chips"><span class="marker-none">no measurement</span></p>')
             out.append(f'<p class="rationale">{_prose(f.rationale or "", sections, gloss, set())}</p>')
             out.append(f'<p class="links"><a href="{link}">FINDINGS §{f.section}</a>'
                        + "".join(f" · {r}" for r in raws) + "</p>")
@@ -667,20 +675,20 @@ def render_findings_page(md: Rendered, generated_at: str) -> str:
     title = "Findings"
     m = re.match(r'<h1 id="[^"]*">(.*?)</h1>\n?', body)
     if m:
-        title = re.sub(r"<[^>]+>", "", m.group(1))
+        title = html.unescape(re.sub(r"<[^>]+>", "", m.group(1)))
         body = body[m.end():]
     toc = [h for h in md.headings if h.level == 2]
     out = ["<!DOCTYPE html>", '<html lang="en">', "<head>", '<meta charset="utf-8">',
            '<meta name="viewport" content="width=device-width, initial-scale=1">',
            f"<title>{esc(title)}</title>", STYLE, "</head>", '<body class="docpage">',
            '<a class="skip" href="#main">Skip to content</a>']
-    _header(out, generated_at, html.unescape(title), ("index.html", "Dashboard"))
+    _header(out, generated_at, title, ("index.html", "Dashboard"))
     out.append("</header>")
     out.append('<div class="doc-layout">')
     out.append('<nav class="toc" aria-label="Sections"><p class="toc-h">Sections</p><ol>')
     for h in toc:
-        label = re.sub(r"<[^>]+>", "", h.text)
-        out.append(f'<li><a href="#{h.id}">{esc(html.unescape(label))}</a></li>')
+        label = html.unescape(re.sub(r"<[^>]+>", "", inline(h.text)))
+        out.append(f'<li><a href="#{h.id}">{esc(label)}</a></li>')
     out.append("</ol></nav>")
     out.append(f'<main id="main" class="doc">{body}</main>')
     out.append("</div>")

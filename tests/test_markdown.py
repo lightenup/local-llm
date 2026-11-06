@@ -75,3 +75,18 @@ class RealDocumentTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReviewRegressionTests(unittest.TestCase):
+    def test_link_url_is_escaped_once(self):
+        self.assertIn('href="http://a?b=1&amp;c=2"', inline("[x](http://a?b=1&c=2)"))
+
+    def test_section_ref_inside_link_text_is_not_nested(self):
+        out = inline("[see §3](#x) and §3", {3: "s3"})
+        self.assertEqual(out.count("<a "), 2)
+        self.assertNotIn("<a href=\"#x\"><a", out)
+
+    def test_heading_after_a_list_is_not_swallowed(self):
+        r = render_markdown("- a\n- b\n## 5. Heading\npara\n")
+        self.assertEqual([h.id for h in r.headings], ["5-heading"])
+        self.assertIn("<p>para</p>", r.html)

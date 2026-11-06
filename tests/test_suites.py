@@ -135,3 +135,12 @@ class RenderTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GlossaryRegressionTests(unittest.TestCase):
+    def test_terms_never_nest_inside_an_earlier_title(self):
+        terms = [{"term": "role", "definition": "maps to a profile"},
+                 {"term": "profile", "definition": "settings"}]
+        html = render._Gloss(terms)("a role and a profile", set())
+        self.assertNotRegex(html, r'title="[^"]*<abbr')
+        self.assertEqual(html.count("<abbr"), 2)

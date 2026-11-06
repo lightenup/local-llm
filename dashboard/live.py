@@ -81,48 +81,75 @@ def collect() -> dict:
     return snap
 
 
+def _valid_step(step) -> bool:
+    return (isinstance(step, dict) and isinstance(step.get("label"), str)
+            and isinstance(step.get("model"), str)
+            and isinstance(step.get("suites"), list) and step["suites"]
+            and isinstance(step.get("samples"), int) and step["samples"] >= 0)
+
+
 def read_plan(path: Path, results: Path) -> dict | None:
     """The declared plan, each step annotated with its result file if one was
-    written after the plan started. Local files only."""
+    written after the plan started. Local files only. A malformed plan or
+    step is dropped, never raised: the rest of the page must still render."""
     try:
         plan = json.loads(path.read_text())
     except (OSError, ValueError):
         return None
-    for step in plan.get("steps") or []:
+    if not isinstance(plan, dict) or not isinstance(plan.get("steps"), list):
+        return None
+    if not isinstance(plan.get("started"), (int, float)):
+        plan["started"] = 0
+    plan["steps"] = [st for st in plan["steps"] if _valid_step(st)]
+    for step in plan["steps"]:
         f = results / f"acc_{step['label']}.json"
         step["result"] = None
         try:
-            if f.stat().st_mtime >= plan.get("started", 0) - 60:
-                data = json.loads(f.read_text())
-                rs = data.get("results") or []
-                step["result"] = {"scores": {r["benchmark"]: r.get("accuracy") for r in rs},
-                                  "file": f.name}
-        except (OSError, ValueError, KeyError, AttributeError):
+            if f.stat().st_mtime >= plan["started"] - 60:
+                rs = json.loads(f.read_text()).get("results") or []
+                step["result"] = {
+                    "scores": {r["benchmark"]: r.get("accuracy") for r in rs},
+                    "total": sum(int(r.get("total") or 0) for r in rs),
+                    "file": f.name}
+        except (OSError, ValueError, KeyError, AttributeError, TypeError):
             pass
     return plan
 
 
 def plan_status(plan: dict, acc: dict | None, cur: dict | None) -> list[dict]:
     """Per step: state done / running / pending / missed, and questions done.
-    A step is missed when it has no result but a later one has started."""
+
+    Totals come from what oMLX reports where it can: `samples` 0 means the
+    whole suite, and a suite smaller than `samples` (HumanEval has 164) runs
+    fewer. Only the first unfinished step that matches the running model and
+    suite is running; an identical later step stays pending. A step is missed
+    when it has no result but a later one has started."""
     acc = acc or {}
     prog = acc.get("last_progress") or {}
+    run_model = prog.get("model_id") or acc.get("current_model")
+    run_suite = prog.get("benchmark")
+    bench_total = int(prog.get("bench_total") or 0)
+    claimed = False
     rows = []
     for step in plan.get("steps") or []:
-        total = step["samples"] * len(step["suites"])
+        planned = step["samples"] * len(step["suites"])
         if step.get("result"):
+            total = step["result"].get("total") or planned
             rows.append({**step, "state": "done", "done_q": total, "total_q": total})
             continue
-        running = (acc.get("running")
-                   and (prog.get("model_id") or acc.get("current_model")) == step["model"]
-                   and prog.get("benchmark") in step["suites"])
-        if running:
-            idx = step["suites"].index(prog["benchmark"])
+        if (not claimed and acc.get("running") and run_model == step["model"]
+                and run_suite in step["suites"]):
+            claimed = True
+            idx = step["suites"].index(run_suite)
+            per = step["samples"] or bench_total
             n = cur["last_n"] if cur else int(prog.get("bench_current") or 0)
-            rows.append({**step, "state": "running", "done_q": idx * step["samples"] + n,
-                         "total_q": total, "suite": prog["benchmark"]})
+            total = sum((bench_total if i == idx else per) or 0
+                        for i in range(len(step["suites"])))
+            done = idx * per + n
+            rows.append({**step, "state": "running", "done_q": min(done, total or done),
+                         "total_q": max(total, done), "suite": run_suite})
         else:
-            rows.append({**step, "state": "pending", "done_q": 0, "total_q": total})
+            rows.append({**step, "state": "pending", "done_q": 0, "total_q": planned})
     started = [i for i, r in enumerate(rows) if r["state"] in ("done", "running")]
     last = max(started) if started else -1
     for i, r in enumerate(rows):
@@ -319,7 +346,8 @@ def _plan_html(plan: dict, acc: dict | None, cur: dict | None, at: float) -> str
            f'<progress id="plan-p" max="{total_q}" value="{done_q}">'
            f'{100 * done_q / total_q:.0f}%</progress>']
     spq = rate_eta(cur)[0] if cur else None
-    if spq is not None and pos is not None:
+    unknown = any(r["state"] == "pending" and r["samples"] == 0 for r in rows)
+    if spq is not None and pos is not None and not unknown:
         eta = at + spq * (total_q - done_q)
         out.append(f'<div class="nums"><span><b>{100 * done_q / total_q:.1f}%</b> of the '
                    f'lineup</span><span>lineup ETA <b>{_hm(eta)}</b> (in {_dur(eta - at)}), '

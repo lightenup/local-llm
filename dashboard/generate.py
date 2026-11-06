@@ -32,7 +32,7 @@ from sources import resolve  # noqa: E402
 from suites import load_suites, run_summaries  # noqa: E402
 from candidates import build as build_candidates  # noqa: E402
 from markdown import render_markdown  # noqa: E402
-from render import render_findings_page  # noqa: E402
+from render import render_findings_page, section_ids  # noqa: E402
 from roles import load_roles  # noqa: E402
 
 
@@ -129,8 +129,7 @@ def main() -> int:
     site_dir.mkdir(exist_ok=True)
     (site_dir / "index.html").write_text(html)
     if findings_md.is_file():
-        md = render_markdown(findings_md.read_text(),
-                             {n: v[1] for n, v in sections.items()}, "",
+        md = render_markdown(findings_md.read_text(), section_ids(sections), "",
                              _doc_link)
         (site_dir / "findings.html").write_text(render_findings_page(md, generated_at))
 
