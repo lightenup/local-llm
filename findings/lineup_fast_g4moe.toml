@@ -1,0 +1,52 @@
+id      = "lineup_fast_g4moe"
+title   = "gemma-4-26B-A4B ships the fast tier"
+status  = "shipped"
+tier    = "fast"
+models  = ["gemma-4-26B-A4B-it-oQ6e-mtp"]
+section = 41
+section_title = "The gemma round, part 2: gemma-26B-A4B takes `fast`, not `coder`"
+updated = 2026-11-06
+
+[[metrics]]
+name      = "decode @ 16k prompt"
+unit      = "tok/s"
+direction = "higher"
+headline  = true
+tooltip_what     = "Sustained decode throughput at a 16,384-token prompt, single stream."
+tooltip_how      = "bench/throughput.py, code_python context, 128-token generations, MTP on."
+tooltip_evidence = "1.18x oQ4e at 16k and 3.38x at 1k; prefill about 4x; see §41."
+source_file = "tp_a10_g4moe_mtp.json"
+source_path  = "summary[?pp=16384].decode_tps"
+
+[[metrics]]
+name      = "prefill @ 16k prompt"
+unit      = "tok/s"
+direction = "higher"
+headline  = false
+tooltip_what     = "Prompt processing rate at a 16,384-token prompt, single stream."
+tooltip_how      = "bench/throughput.py, same run as the decode figure."
+tooltip_evidence = "4.38x oQ4e's 812; the slot's work is mostly reading long context; see §41."
+source_file = "tp_a10_g4moe_mtp.json"
+source_path  = "summary[?pp=16384].prefill_tps"
+
+[[metrics]]
+name      = "livecodebench accuracy"
+unit      = "score"
+direction = "higher"
+headline  = false
+tooltip_what     = "LiveCodeBench competitive-programming accuracy, 500 samples, current oMLX harness."
+tooltip_how      = "bench/accuracy.py code, batch 8, thinking off, deterministic sampling."
+tooltip_evidence = "91.0 against oQ4e's 81.4 on the same harness, flips 61/13, p < 0.00001; see §41."
+source_file = "acc_g4moe_code.json"
+source_path  = "results[?benchmark=livecodebench].accuracy"
+
+[[metrics]]
+name      = "context verified"
+unit      = "tokens"
+direction = "higher"
+headline  = false
+tooltip_what     = "Longest context with every needle retrieved."
+tooltip_how      = "bench/longctx_quality.py, five depths plus one multi-hop question, 65k and 131k."
+tooltip_evidence = "5/5 at 131k; the multi-hop question missed there; the slot is capped at 131,072; see §41."
+source_file = "a10_g4moe_longctx.json"
+source_path  = "summary.by_length.131072.verified_prompt_tokens"
