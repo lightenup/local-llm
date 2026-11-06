@@ -1568,6 +1568,31 @@ build with a *measured* code number at or above the 8-bit's, not another fast on
 
 ---
 
+### A11. General and safety suites never followed the lineup — PINNED 2026-11-06
+
+The overnight validation (§8) ran all 13 suites the stack uses, on the 8-bit
+and Coder-Next only. Every candidate since got the code and reason groups.
+No decision dropped the rest; it happened by default. So 7 suites have two
+models' worth of results:
+
+| suites | models with a full run |
+|---|---|
+| mmlu, arc_challenge, hellaswag, winogrande, truthfulqa, safetybench, bbq | 8-bit, Coder-Next |
+| cmmlu, jmmlu, kmmlu | none (not relevant to this workload) |
+
+The gap that matters: `fast` (gemma-4-26B-A4B) serves the general-purpose
+traffic and has no general-knowledge, TruthfulQA or safety numbers. gemma-4-31B
+(the additive tier) and the flint builds have the same gap.
+
+When picked up:
+1. Run `bench/accuracy.py general` and `safety` on gemma-4-26B-A4B at 500,
+   deterministic. Measure time per question on a short sample first.
+2. Pair against the stored 8-bit answers (`bench/paired_compare.py`).
+3. Only if `fast` shows a real gap, repeat for gemma-4-31B.
+
+The dashboard's Candidates view shows the gap: no MMLU, HellaSwag or safety
+chips on those rows.
+
 ## D. Evaluation
 
 ### D3. A candidate-evaluation gate, derived from three retirements
