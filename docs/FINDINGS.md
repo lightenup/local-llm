@@ -3788,8 +3788,13 @@ Run notes:
   not depend on residency, so the score is assumed unaffected. The gateway was
   stopped for the rest of the run.
 - After phase B the script's restore step could not reload the 8-bit: at
-  21:33 the machine's managed patch tool began installing an oMLX update and
-  stopped the server. The run's results were already written.
+  21:33:03 the machine's managed patch tool began installing oMLX 0.7.4.dev1
+  and stopped the server; the install finished at 21:38:03. The update came
+  after the run, not during it: flint-oQ8e's last answer and unload were at
+  21:32:12, and the server log shows one server process from 2026-11-05 08:28
+  until 21:32, so both builds ran on 0.7.3rc1. The tool had deferred the
+  update three times since 2026-11-05, the deferral limit; its record marks
+  the 21:33 install user-initiated.
 
 Decision: neither flint build goes into a role on this evidence. Status stays
 open until someone decides whether a 32K run is worth its cost.

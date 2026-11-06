@@ -275,7 +275,7 @@ main.doc { max-width: none; padding: 0; margin: 0; }
 <a class="skip" href="#main">Skip to content</a>
 <header>
 <div class="head-row">
-<h1>Qwen3.8-27B-8bit on oMLX — measured findings <span class="stamp">[generated at: 2026-11-06 21:34:30 CET]</span></h1>
+<h1>Qwen3.8-27B-8bit on oMLX — measured findings <span class="stamp">[generated at: 2026-11-06 21:50:07 CET]</span></h1>
 <a class="running-link" href="index.html">Dashboard</a>
 </div>
 </header>
@@ -1216,7 +1216,7 @@ Chat completion: model=Qwen3.8-27B-oQ4e-mtp ... prompt: 117801, finish_reason=st
 <p>What this says:</p>
 <ul><li>The two builds do not differ (p 0.78). The 8-bit weights buy nothing measurable here and cost 24 GiB more resident (gate table above).</li><li>Both lose to every lineup model by 8–19 points, all at p below 1e-4.</li><li>The 16K cap explains most of the gap, so it is a fact about flint under this harness, and it holds for real clients too: 109 problems hit the cap on both builds, and 91% of the wrong answers are truncations. A client with <code>max_tokens</code> below 32K meets the same limit (vendor recommendation above). Whether flint at 32K would close the gap is open; at a median of 8–9K completion tokens and p90 at the cap, a 32K run would take an estimated 6 h or more per build.</li><li>Not measured: general, reasoning and safety suites, taskbench, and the <code>reasoning_content</code> round trip through LiteLLM.</li></ul>
 <p>Run notes:</p>
-<ul><li>During flint-oQ8e's first 167 questions the homelab gateway's health probes (<code>max_tokens=1</code> every 5 min on <code>coder</code> and <code>reasoner</code>) reloaded the 8-bit 21 times. Each reload evicted flint, so that stretch ran slower. The answers do not depend on residency, so the score is assumed unaffected. The gateway was stopped for the rest of the run.</li><li>After phase B the script's restore step could not reload the 8-bit: at 21:33 the machine's managed patch tool began installing an oMLX update and stopped the server. The run's results were already written.</li></ul>
+<ul><li>During flint-oQ8e's first 167 questions the homelab gateway's health probes (<code>max_tokens=1</code> every 5 min on <code>coder</code> and <code>reasoner</code>) reloaded the 8-bit 21 times. Each reload evicted flint, so that stretch ran slower. The answers do not depend on residency, so the score is assumed unaffected. The gateway was stopped for the rest of the run.</li><li>After phase B the script's restore step could not reload the 8-bit: at 21:33:03 the machine's managed patch tool began installing oMLX 0.7.4.dev1 and stopped the server; the install finished at 21:38:03. The update came after the run, not during it: flint-oQ8e's last answer and unload were at 21:32:12, and the server log shows one server process from 2026-11-05 08:28 until 21:32, so both builds ran on 0.7.3rc1. The tool had deferred the update three times since 2026-11-05, the deferral limit; its record marks the 21:33 install user-initiated.</li></ul>
 <p>Decision: neither flint build goes into a role on this evidence. Status stays open until someone decides whether a 32K run is worth its cost.</p></main>
 </div>
 </body></html>
