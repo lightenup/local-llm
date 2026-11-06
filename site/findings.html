@@ -10,7 +10,10 @@
   :root { --bg: #101318; --surface: #191d24; --text: #e6e8eb; --secondary: #a3a9b3; --link: #7ab7ff; --badge-shipped-text: #9be5b0; --badge-shipped-bg: #143322; --badge-on-trial-text: #ffd479; --badge-on-trial-bg: #3a2e0a; --badge-retired-text: #d0d3d8; --badge-retired-bg: #2c2f34; --badge-dead-end-text: #ffb3ba; --badge-dead-end-bg: #3d1418; --badge-open-text: #8fdcec; --badge-open-bg: #0c2f38; --border: #2c323c; --chart: #4d9cff; --grid: #2c323c; }
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+/* No CSS smooth scrolling: arriving from another page with a #fragment, a
+   smooth scroll starts before the long page has laid out and lands short or
+   past the target. The nav links scroll smoothly through scrollIntoView. */
+[id] { scroll-margin-top: 6.5rem; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
        margin: 0; padding: 0; color: var(--text); background: var(--bg);
        line-height: 1.5; }
@@ -63,6 +66,7 @@ div.finding table { margin-bottom: 0; }
 .suite .links { display: flex; flex-wrap: wrap; gap: .5rem; font-size: .85rem;
                 margin-top: auto; padding-top: .5rem; }
 .suite.not-run { opacity: .8; }
+.suite:target, .finding:target { outline: 3px solid var(--link); outline-offset: 2px; }
 table { border-collapse: collapse; margin: .5rem 0 1rem; width: 100%; }
 th, td { border: 1px solid var(--border); padding: .35rem .6rem; text-align: left;
          vertical-align: top; word-wrap: break-word; overflow-wrap: break-word; }
@@ -258,9 +262,11 @@ main.doc { max-width: none; padding: 0; margin: 0; }
 .plan-pending .plan-glyph { color: var(--secondary); border-style: dashed; }
 .plan-missed .plan-glyph { color: var(--badge-dead-end-text); background: var(--badge-dead-end-bg); }
 #plan .run, #benchmarks-running .run { max-width: 44rem; }
+.plan-steps.sub { margin: .35rem 0 .2rem; }
+.plan-steps.sub .plan-step { font-size: .8rem; grid-template-columns: 1.4rem 1fr; }
+.plan-steps.sub .plan-glyph { width: 1.2rem; height: 1.2rem; font-size: .65rem; }
 :focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
 </style>
@@ -269,7 +275,7 @@ main.doc { max-width: none; padding: 0; margin: 0; }
 <a class="skip" href="#main">Skip to content</a>
 <header>
 <div class="head-row">
-<h1>Qwen3.8-27B-8bit on oMLX — measured findings <span class="stamp">[generated at: 2026-11-06 18:53:43 CET]</span></h1>
+<h1>Qwen3.8-27B-8bit on oMLX — measured findings <span class="stamp">[generated at: 2026-11-06 19:06:26 CET]</span></h1>
 <a class="running-link" href="index.html">Dashboard</a>
 </div>
 </header>

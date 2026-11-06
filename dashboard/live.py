@@ -364,10 +364,28 @@ def _plan_html(plan: dict, acc: dict | None, cur: dict | None, at: float) -> str
             scores = (f' <span class="meta">{r["done_q"]} of {r["total_q"]} questions'
                       f' · now {esc(r["suite"])}</span>')
         suites = ", ".join(f'<a href="index.html#suite-{esc(x)}">{esc(x)}</a>' for x in r["suites"])
+        sub = ""
+        if len(r["suites"]) > 1:
+            # oMLX reports which suite of a multi-suite submission is running,
+            # so each one gets its own state
+            now = r["suites"].index(r["suite"]) if r["state"] == "running" else None
+            items = []
+            for i, x in enumerate(r["suites"]):
+                st = ("done" if r["state"] == "done" or (now is not None and i < now)
+                      else "running" if i == now else "pending")
+                score = ""
+                if r["state"] == "done" and r["result"]:
+                    v = r["result"]["scores"].get(x)
+                    score = f" <b>{v * 100:.1f}</b>" if isinstance(v, (int, float)) else ""
+                items.append(f'<li class="plan-step plan-{st}"><span class="plan-glyph" '
+                             f'aria-hidden="true">{GLYPH[st]}</span><span>'
+                             f'<a href="index.html#suite-{esc(x)}">{esc(x)}</a>{score}'
+                             f'<span class="sr"> ({WORD[st]})</span></span></li>')
+            sub = f'<ol class="plan-steps sub">{"".join(items)}</ol>'
         out.append(f'<li class="plan-step plan-{r["state"]}"><span class="plan-glyph" '
                    f'aria-hidden="true">{GLYPH[r["state"]]}</span><span>'
                    f'<b>{esc(r["model"])}</b> · {suites} × {r["samples"]}'
-                   f'<span class="sr"> ({WORD[r["state"]]})</span>{scores}</span></li>')
+                   f'<span class="sr"> ({WORD[r["state"]]})</span>{scores}{sub}</span></li>')
     out.append("</ol></article></div></section>")
     return "\n".join(out)
 
