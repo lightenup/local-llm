@@ -58,7 +58,10 @@ STYLE = """<style>
   :root {""" + _vars(COLORS_DARK, "#2c323c", "#4d9cff", "#2c323c") + """ }
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+/* No CSS smooth scrolling: arriving from another page with a #fragment, a
+   smooth scroll starts before the long page has laid out and lands short or
+   past the target. The nav links scroll smoothly through scrollIntoView. */
+[id] { scroll-margin-top: 6.5rem; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
        margin: 0; padding: 0; color: var(--text); background: var(--bg);
        line-height: 1.5; }
@@ -111,6 +114,7 @@ div.finding table { margin-bottom: 0; }
 .suite .links { display: flex; flex-wrap: wrap; gap: .5rem; font-size: .85rem;
                 margin-top: auto; padding-top: .5rem; }
 .suite.not-run { opacity: .8; }
+.suite:target, .finding:target { outline: 3px solid var(--link); outline-offset: 2px; }
 table { border-collapse: collapse; margin: .5rem 0 1rem; width: 100%; }
 th, td { border: 1px solid var(--border); padding: .35rem .6rem; text-align: left;
          vertical-align: top; word-wrap: break-word; overflow-wrap: break-word; }
@@ -306,9 +310,11 @@ main.doc { max-width: none; padding: 0; margin: 0; }
 .plan-pending .plan-glyph { color: var(--secondary); border-style: dashed; }
 .plan-missed .plan-glyph { color: var(--badge-dead-end-text); background: var(--badge-dead-end-bg); }
 #plan .run, #benchmarks-running .run { max-width: 44rem; }
+.plan-steps.sub { margin: .35rem 0 .2rem; }
+.plan-steps.sub .plan-step { font-size: .8rem; grid-template-columns: 1.4rem 1fr; }
+.plan-steps.sub .plan-glyph { width: 1.2rem; height: 1.2rem; font-size: .65rem; }
 :focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
 </style>"""

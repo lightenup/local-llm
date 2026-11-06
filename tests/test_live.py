@@ -191,3 +191,17 @@ class PlanReviewRegressionTests(unittest.TestCase):
                 self.assertTrue(plan is None or plan["steps"] == [])
                 if plan:
                     live.render({**snap(1000, 1), "plan": plan}, {})
+
+
+class MultiSuiteStepTests(unittest.TestCase):
+    def test_each_suite_of_a_running_group_gets_a_state(self):
+        steps = [{"label": "g", "model": "m", "samples": 500, "result": None,
+                  "suites": ["mmlu", "arc_challenge", "hellaswag"]}]
+        s = snap(1000, 40)
+        s["accuracy"]["last_progress"]["benchmark"] = "arc_challenge"
+        s["plan"] = {"name": "general", "started": 900, "steps": steps}
+        html = live.render(s, live.update_state({}, s))
+        sub = re.search(r'<ol class="plan-steps sub">.*?</ol>', html).group(0)
+        self.assertEqual(re.findall(r"plan-(done|running|pending)", sub),
+                         ["done", "running", "pending"])
+        self.assertIn("540 of 1500 questions", html)
