@@ -88,7 +88,7 @@ SAMPLING_PROFILES = ["Qwen3.8-27B-8bit:qwen-code", "Qwen3.8-27B-8bit:qwen-agent"
                      "Qwen3.8-27B-oQ4e-mtp:oq-agent"]
 
 ROLE_ALIASES = {"coder": "qwen-code", "reasoner": "qwen-reason",
-                "fast": "oq-agent"}
+                "fast": "g4m-agent", "long": "qwen-long"}
 
 
 @dataclass

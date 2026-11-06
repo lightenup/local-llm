@@ -5,7 +5,7 @@
 # overhead measurement an honest A/B (same name, direct vs through the hop) and
 # what lets the C4 slice isolate a proxy fault from a naming fault.
 #
-# Role aliases (coder / reasoner / fast) are C3 and are layered on
+# Role aliases (coder / reasoner / fast / long) are C3 and are layered on
 # top of these entries once the hop is proven. See docs/backlog.md step 11.
 
 model_list:
@@ -251,6 +251,23 @@ model_list:
         on quality (-10.8 livecodebench) and on its 64.7 GB residency cost,
         which charged ~20 s per alternation against a 13.9 s prefill saving.
 
+  # `long` added 2026-11-05: the fifth role the context_window_fallbacks caveat
+  # below asked for. Whole-repo reads (opencode's speckit-wide) named qwen-long
+  # directly, which put a model id back in the clients. Same base model as
+  # `coder` and `reasoner`, so it loads with no eviction.
+  - model_name: long
+    litellm_params:
+      model: openai/Qwen3.8-27B-8bit:qwen-long
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 262144
+      notes: >-
+        Thinking off, temp 0.3, 262k verified (cold prefill 18.7 min at 262k).
+        Pick it on purpose for wide context; `reasoner` still spills here above
+        131k as a safety net, losing thinking when it does.
+
   # ---- C3: retrieval roles ----------------------------------------------
   # Added 2026-09-21 for homelab spec 065 (Hermes). Two more roles, same rule as
   # above: one alias per role, so the model behind it is a one-line change here.
@@ -388,8 +405,9 @@ router_settings:
   # with an 8k budget, qwen-long runs thinking OFF at temp 0.3. So crossing
   # 131k silently trades reasoning depth for window. That is the right trade
   # for whole-repo analysis and the wrong one for a hard architecture question
-  # that happens to carry a large context. If that bites, the honest fix is a
-  # fifth `long` role, not a cleverer fallback.
+  # that happens to carry a large context. The `long` role (2026-11-05) is the
+  # honest fix for callers that know they need the window; this fallback stays
+  # for the ones that do not.
   context_window_fallbacks:
     - reasoner: ["Qwen3.8-27B-8bit:qwen-long"]
 
