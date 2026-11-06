@@ -198,11 +198,23 @@ def main() -> int:
     ap.add_argument("models", nargs="+")
     ap.add_argument("--prompt-tokens", type=int, default=16384)
     ap.add_argument("--label", default="candidate_gate")
+    # A candidate the scout classes "replaces quality" is meant for the
+    # incumbent's slot, not beside it, so gating it alongside asks the wrong
+    # question. Unload the incumbent first; the rest of the lineup must still
+    # survive. The finally block below reloads it either way.
+    ap.add_argument("--replaces", metavar="MODEL_ID",
+                    help="unload this lineup model before gating, restore it after")
     args = ap.parse_args()
 
     o = Omlx()
     baseline = [m["id"] for m in o.models() if m.get("loaded")]
     print(f"lineup: {baseline}")
+    if args.replaces:
+        if args.replaces not in baseline:
+            print(f"!! --replaces {args.replaces} is not loaded; nothing to replace")
+            return 2
+        drain(o, args.replaces)
+        print(f"replacing {args.replaces}: unloaded for the gate")
     print(f"pool:   {o.health()['engine_pool']['current_model_memory']/GIB:.2f} GiB")
     print(f"dynamic prefill ceiling ~{DYNAMIC_CEILING_GB} GB (FINDINGS §27)\n")
 
@@ -211,6 +223,8 @@ def main() -> int:
         for m in args.models:
             print(f"== {m}")
             r = probe(o, m, args.prompt_tokens, keep_lineup=True)
+            if args.replaces:
+                r["replaces"] = args.replaces
             print(f"  VERDICT        {r['verdict']}\n")
             out.append(r)
             drain(o, m)
