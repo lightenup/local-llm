@@ -5,14 +5,14 @@ tier    = "additive"
 models  = ["gemma-4-31B"]
 section = 30
 section_title = "gemma-4-31B wins both measured axes, and costs 1.8x the decode to do it"
-updated = 2026-09-22
+updated = 2026-11-06
 
 [[metrics]]
 name      = "livecodebench accuracy"
 unit      = "score"
 direction = "higher"
 headline  = true
-tooltip_what     = "LiveCodeBench competitive-programming accuracy, 500 samples."
+tooltip_what     = "LiveCodeBench competitive-programming accuracy, 500 samples, pre-0.7.1 harness (the one the 8-bit was scored on)."
 tooltip_how      = "bench/accuracy.py code, batch 8, thinking off, deterministic sampling."
 tooltip_evidence = "Paired McNemar against the shipped 8-bit; see §30."
 source_file = "acc_gemma4_code.json"
@@ -30,12 +30,12 @@ source_file = "acc_gemma4_reason.json"
 source_path  = "results[?benchmark=mmlu_pro].accuracy"
 
 [[metrics]]
-name      = "context ceiling"
+name      = "context verified"
 unit      = "tokens"
 direction = "higher"
 headline  = false
-tooltip_what     = "Verified context window; gemma fails above 65k on prefill transient memory."
-tooltip_how      = "bench/longctx_quality.py, five depths plus multi-hop, 65k/131k/262k."
-tooltip_evidence = "6/6 at 65,536; 131k refused at ~98.5 GB peak; see §32."
-source_file = "longctx_gemma4.json"
-source_path  = "summary.by_length.65536.verified_prompt_tokens"
+tooltip_what     = "Longest context with every needle retrieved, at today's settings; the profile cap is 122,880."
+tooltip_how      = "bench/longctx_quality.py, five depths plus one multi-hop question, chunked prefill off."
+tooltip_evidence = "5/5 at 122,880; §32's 65k ceiling was the memory guard, not attention; see §40."
+source_file = "a10_g4_longctx_nochunk.json"
+source_path  = "summary.by_length.122880.verified_prompt_tokens"
