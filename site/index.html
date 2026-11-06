@@ -4,75 +4,117 @@
 <meta charset="utf-8">
 <title>Findings — local-LLM stack</title>
 <style>
+:root { --bg: #ffffff; --surface: #f6f7f9; --text: #1a1a1a; --secondary: #595959; --link: #0b5ed7; --badge-shipped-text: #155724; --badge-shipped-bg: #d4edda; --badge-on-trial-text: #856404; --badge-on-trial-bg: #fff3cd; --badge-retired-text: #383d41; --badge-retired-bg: #e2e3e5; --badge-dead-end-text: #721c24; --badge-dead-end-bg: #f8d7da; --badge-open-text: #0c5460; --badge-open-bg: #d1ecf1; --border: #dde1e6; --chart: #0b5ed7; --grid: #e0e0e0; color-scheme: light dark; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #101318; --surface: #191d24; --text: #e6e8eb; --secondary: #a3a9b3; --link: #7ab7ff; --badge-shipped-text: #9be5b0; --badge-shipped-bg: #143322; --badge-on-trial-text: #ffd479; --badge-on-trial-bg: #3a2e0a; --badge-retired-text: #d0d3d8; --badge-retired-bg: #2c2f34; --badge-dead-end-text: #ffb3ba; --badge-dead-end-bg: #3d1418; --badge-open-text: #8fdcec; --badge-open-bg: #0c2f38; --border: #2c323c; --chart: #4d9cff; --grid: #2c323c; }
+}
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-       margin: 0; padding: 0; color: #1a1a1a; background: #ffffff;
+       margin: 0; padding: 0; color: var(--text); background: var(--bg);
        line-height: 1.5; }
 .skip { position: absolute; left: -9999px; top: 0; z-index: 100;
-        padding: .5rem 1rem; background: #0b5ed7; color: #fff; }
+        padding: .5rem 1rem; background: var(--link); color: var(--bg); }
 .skip:focus { left: 0; }
-header { max-width: 56rem; margin: 0 auto; padding: 1.5rem 1rem .5rem; }
-h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
-h2 { font-size: 1.2rem; border-bottom: 1px solid #ccc; padding-bottom: .3rem;
-     margin-top: 2rem; }
-h3 { font-size: 1rem; margin-top: 1.2rem; }
-h4 { font-size: .95rem; margin-top: 1rem; }
-.stamp { color: #595959; font-size: .85rem; font-weight: normal; }
-.bar { position: sticky; top: 0; background: #ffffff; border-bottom: 1px solid #ddd;
+header { max-width: 72rem; margin: 0 auto; padding: 1.5rem 1rem .5rem; }
+.head-row { display: flex; flex-wrap: wrap; align-items: baseline;
+            justify-content: space-between; gap: .5rem; }
+h1 { font-size: 1.5rem; margin: 0 0 .25rem; letter-spacing: -.01em; }
+h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border);
+     padding-bottom: .3rem; margin-top: 2.5rem; }
+h3 { font-size: 1rem; margin-top: 1.5rem; }
+h4 { font-size: .95rem; margin: 0 0 .4rem; }
+.stamp { color: var(--secondary); font-size: .85rem; font-weight: normal; }
+.running-link { font-size: .9rem; font-weight: 600; text-decoration: none;
+                border: 1px solid var(--border); border-radius: 999px;
+                padding: .15rem .7rem; background: var(--surface); }
+.bar { position: sticky; top: 0; background: var(--bg);
+       border-bottom: 1px solid var(--border);
        padding: .5rem 1rem; z-index: 10; display: flex; flex-wrap: wrap;
        gap: .5rem; align-items: center; }
-.bar nav { display: flex; gap: .75rem; }
-.bar nav a { color: #0b5ed7; text-decoration: none; font-weight: 500; }
-.bar nav a:hover { text-decoration: underline; }
+.bar nav { display: flex; flex-wrap: wrap; gap: .25rem; }
+.bar nav a { color: var(--link); text-decoration: none; font-weight: 500;
+             padding: .2rem .6rem; border-radius: .4rem; }
+.bar nav a:hover { background: var(--surface); }
 .controls { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center;
             margin-left: auto; }
-.controls label { font-size: .8rem; color: #595959; display: flex;
+.controls label { font-size: .8rem; color: var(--secondary); display: flex;
                   align-items: center; gap: .2rem; }
-.controls select, .controls input[type="search"] {
-    font-size: .8rem; padding: .2rem .3rem; border: 1px solid #ccc;
-    border-radius: .2rem; }
-.controls button { font-size: .8rem; padding: .2rem .5rem; border: 1px solid #ccc;
-                   border-radius: .2rem; background: #f5f5f5; cursor: pointer; }
-.controls button:hover { background: #e8e8e8; }
-#f-count { font-size: .8rem; color: #595959; margin: 0; }
-main { max-width: 56rem; margin: 0 auto; padding: 0 1rem 3rem; }
-section { margin-top: 1.5rem; }
+.controls select, .controls input[type="search"], .controls button {
+    font: inherit; font-size: .8rem; padding: .2rem .4rem; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: .3rem; }
+.controls button { cursor: pointer; }
+#f-count { font-size: .8rem; color: var(--secondary); margin: 0; }
+main { max-width: 72rem; margin: 0 auto; padding: 0 1rem 3rem; }
+section { margin-top: 1.5rem; scroll-margin-top: 4rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+         gap: 1rem; margin: .75rem 0 1rem; }
+div.finding, .suite { background: var(--surface); border: 1px solid var(--border);
+                      border-radius: .6rem; padding: .9rem 1rem; min-width: 0; }
+div.finding table { margin-bottom: 0; }
+.tiers { align-items: start; }
+.tier-col { display: grid; gap: 1rem; min-width: 0; }
+.tier-col h3 { margin: 0; }
+.suite { display: flex; flex-direction: column; }
+.suite p { margin: .35rem 0; font-size: .9rem; }
+.suite .meta { color: var(--secondary); font-size: .8rem; }
+.suite .links { display: flex; flex-wrap: wrap; gap: .5rem; font-size: .85rem;
+                margin-top: auto; padding-top: .5rem; }
+.suite.not-run { opacity: .8; }
 table { border-collapse: collapse; margin: .5rem 0 1rem; width: 100%; }
-th, td { border: 1px solid #ddd; padding: .35rem .6rem; text-align: left;
+th, td { border: 1px solid var(--border); padding: .35rem .6rem; text-align: left;
          vertical-align: top; word-wrap: break-word; overflow-wrap: break-word; }
-th { background: #f5f5f5; }
+th { background: var(--surface); }
 th button { font: inherit; font-weight: 600; background: none; border: none;
             cursor: pointer; padding: 0; color: inherit; }
 th button:hover { text-decoration: underline; }
 .badge { display: inline-block; padding: .1rem .5rem; border-radius: .3rem;
          font-size: .8rem; font-weight: 600; border: 1px solid; }
-.badge-shipped { background: #d4edda; color: #155724; border-color: #155724; }
-.badge-on-trial { background: #fff3cd; color: #856404; border-color: #856404; }
-.badge-retired { background: #e2e3e5; color: #383d41; border-color: #383d41; }
-.badge-dead-end { background: #f8d7da; color: #721c24; border-color: #721c24; }
-.badge-open { background: #d1ecf1; color: #0c5460; border-color: #0c5460; }
-.marker-stale { background: #f8d7da; color: #721c24; padding: .1rem .4rem;
-                border-radius: .3rem; font-size: .8rem; font-weight: 600;
-                border: 1px solid #721c24; }
-.marker-none { background: #e2e3e5; color: #383d41; padding: .1rem .4rem;
-               border-radius: .3rem; font-size: .8rem; border: 1px solid #383d41; }
-.empty-state { color: #595959; font-style: italic; }
-a { color: #0b5ed7; }
+.badge-shipped { background: var(--badge-shipped-bg); color: var(--badge-shipped-text);
+  border-color: var(--badge-shipped-text); }
+.badge-on-trial { background: var(--badge-on-trial-bg); color: var(--badge-on-trial-text);
+  border-color: var(--badge-on-trial-text); }
+.badge-retired { background: var(--badge-retired-bg); color: var(--badge-retired-text);
+  border-color: var(--badge-retired-text); }
+.badge-dead-end { background: var(--badge-dead-end-bg); color: var(--badge-dead-end-text);
+  border-color: var(--badge-dead-end-text); }
+.badge-open { background: var(--badge-open-bg); color: var(--badge-open-text);
+  border-color: var(--badge-open-text); }
+.marker-stale { background: var(--badge-dead-end-bg); color: var(--badge-dead-end-text);
+                padding: .1rem .4rem; border-radius: .3rem; font-size: .8rem;
+                font-weight: 600; border: 1px solid; }
+.marker-none { background: var(--badge-retired-bg); color: var(--badge-retired-text);
+               padding: .1rem .4rem; border-radius: .3rem; font-size: .8rem;
+               border: 1px solid; }
+.empty-state { color: var(--secondary); font-style: italic; }
+a { color: var(--link); }
+#board td a { color: var(--text); text-decoration-color: var(--border);
+              text-underline-offset: .2em; }
+#board td a:hover { text-decoration-color: var(--link); }
 .tier { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em;
-        color: #595959; font-weight: 700; }
-.details { font-size: .8rem; color: #595959; margin: .1rem 0 .4rem; }
-.details b { color: #1a1a1a; }
+        color: var(--secondary); font-weight: 700; }
+.details { font-size: .8rem; color: var(--secondary); margin: .1rem 0 .4rem; }
+.details b { color: var(--text); }
 #tooltip { display: none; position: fixed; z-index: 100; max-width: 28rem;
            background: #222; color: #fff; padding: .6rem .8rem;
            border-radius: .4rem; font-size: .85rem; line-height: 1.4;
            white-space: normal; word-wrap: break-word; }
 #tooltip .tt-title { font-weight: 600; margin-bottom: .2rem; }
 #tooltip a { color: #9ecbff; }
-svg text { font-size: 11px; fill: #1a1a1a; }
-.bar-rect { fill: #4dabf7; }
-.bar-rect:hover, .bar-rect:focus { fill: #1971c2; }
-:focus-visible { outline: 2px solid #0b5ed7; outline-offset: 2px; }
+.chart { overflow-x: auto; }
+svg text { font-size: 11px; fill: var(--text); }
+svg text[fill="#595959"] { fill: var(--secondary); }
+svg line[stroke="#e0e0e0"] { stroke: var(--grid); }
+svg rect.bar { fill: var(--chart); }
+svg rect.bar:hover, svg rect.bar:focus { opacity: .8; }
+progress { width: 100%; height: .9rem; accent-color: var(--chart); }
+.run { display: grid; gap: .3rem; }
+.run .nums { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; font-size: .9rem; }
+.run .nums b { font-variant-numeric: tabular-nums; }
+.banner { border: 1px solid; border-radius: .5rem; padding: .5rem .8rem;
+          background: var(--badge-on-trial-bg); color: var(--badge-on-trial-text); }
+:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
@@ -83,12 +125,16 @@ svg text { font-size: 11px; fill: #1a1a1a; }
 <a class="skip" href="#main">Skip to content</a>
 <div id="tooltip"></div>
 <header>
-<h1>Findings — local-LLM stack <span class="stamp">[generated at: 2026-10-11 07:31:43 CEST]</span></h1>
+<div class="head-row">
+<h1>Findings — local-LLM stack <span class="stamp">[generated at: 2026-11-06 18:13:34 CET]</span></h1>
+<a class="running-link" href="running.html">Running now</a>
+</div>
 <div class="bar">
 <nav aria-label="Views">
 <a href="#lineup">Live lineup</a>
 <a href="#board">Candidate status board</a>
 <a href="#dead-ends">Settled dead ends</a>
+<a href="#benchmarks">Benchmarks</a>
 </nav>
 <form class="controls" role="search">
 <label>Model <select id="f-model"><option value="all">all</option><option value="GLM-5.2">GLM-5.2</option><option value="Qwen3-Coder-Next-6bit">Qwen3-Coder-Next-6bit</option><option value="Qwen3.8-27B-8bit">Qwen3.8-27B-8bit</option><option value="Qwen3.8-27B-OptiQ-4bit">Qwen3.8-27B-OptiQ-4bit</option><option value="Qwen3.8-27B-oQ4e">Qwen3.8-27B-oQ4e</option><option value="Qwen3.8-35B-A3B-Distill-oQ8">Qwen3.8-35B-A3B-Distill-oQ8</option><option value="Qwen3.8-Flash-Next-oQ4e-mtp">Qwen3.8-Flash-Next-oQ4e-mtp</option><option value="Tiel-Coder-35B-A3B-MLX-oQ4e">Tiel-Coder-35B-A3B-MLX-oQ4e</option><option value="gemma-4-31B">gemma-4-31B</option></select></label>
@@ -103,6 +149,8 @@ svg text { font-size: 11px; fill: #1a1a1a; }
 <main id="main">
 <section id="lineup" aria-labelledby="lineup-h">
 <h2 id="lineup-h" tabindex="-1">Live lineup</h2>
+<div class="cards tiers">
+<div class="tier-col">
 <h3 class="tier">quality tier</h3>
 <div class="finding" data-model="Qwen3.8-27B-8bit" data-tier="quality" data-status="shipped" data-title="Qwen3.8-27B-8bit ships the quality tier" data-rationale="">
 <h4>Qwen3.8-27B-8bit ships the quality tier</h4>
@@ -114,6 +162,8 @@ svg text { font-size: 11px; fill: #1a1a1a; }
 <div class="details"><b>what</b> Verified context window served by the quality tier. <b>how</b> bench context-window verification, needle retrieval at depth. <b>evidence</b> Verified to the full 262,144-token window; see §8.  <b>links</b> <a href="docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed">FINDINGS §19</a> · <a href="../results/ctx_mtp.json">raw results</a></div>
 </table>
 </div>
+</div>
+<div class="tier-col">
 <h3 class="tier">fast tier</h3>
 <div class="finding" data-model="Qwen3.8-27B-oQ4e" data-tier="fast" data-status="shipped" data-title="Qwen3.8-27B-oQ4e ships the fast tier" data-rationale="">
 <h4>Qwen3.8-27B-oQ4e ships the fast tier</h4>
@@ -123,6 +173,8 @@ svg text { font-size: 11px; fill: #1a1a1a; }
 <div class="details"><b>what</b> Sustained decode throughput at a 16,384-token prompt, single stream. <b>how</b> bench/throughput.py, code_python context, 128-token generations. <b>evidence</b> Deterministic sampling; 1.73x the 8-bit at 16 GB; see §19.  <b>links</b> <a href="docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed">FINDINGS §19</a> · <a href="../results/tp_oq4e.json">raw results</a></div>
 </table>
 </div>
+</div>
+<div class="tier-col">
 <h3 class="tier">additive tier</h3>
 <div class="finding" data-model="gemma-4-31B" data-tier="additive" data-status="shipped" data-title="gemma-4-31B is the additive tier" data-rationale="">
 <h4>gemma-4-31B is the additive tier</h4>
@@ -136,8 +188,10 @@ svg text { font-size: 11px; fill: #1a1a1a; }
 <div class="details"><b>what</b> Verified context window; gemma fails above 65k on prefill transient memory. <b>how</b> bench/longctx_quality.py, five depths plus multi-hop, 65k/131k/262k. <b>evidence</b> 6/6 at 65,536; 131k refused at ~98.5 GB peak; see §32.  <b>links</b> <a href="docs/FINDINGS.md#30-gemma-4-31b-wins-both-measured-axes-and-costs-18x-the-decode-to-do-it">FINDINGS §30</a> · <a href="../results/longctx_gemma4.json">raw results</a></div>
 </table>
 </div>
+</div>
+</div>
 <h4>decode @ 16k prompt (tok/s)</h4>
-<svg width="541" height="110" role="img" aria-label="decode @ 16k prompt"><line x1="130.0" y1="12" x2="130.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="220.0" y1="12" x2="220.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="310.0" y1="12" x2="310.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="400.0" y1="12" x2="400.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="490.0" y1="12" x2="490.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="130" y1="72" x2="490" y2="72" stroke="#999" stroke-width="1"/><text x="130.0" y="88" text-anchor="middle" font-size="11" fill="#595959">0</text><text x="220.0" y="88" text-anchor="middle" font-size="11" fill="#595959">25.0</text><text x="310.0" y="88" text-anchor="middle" font-size="11" fill="#595959">50.0</text><text x="400.0" y="88" text-anchor="middle" font-size="11" fill="#595959">75.0</text><text x="490.0" y="88" text-anchor="middle" font-size="11" fill="#595959">100</text><text x="122" y="31.0" text-anchor="end" font-size="11" fill="#1a1a1a">Qwen3.8-27B-8bit</text><rect class="bar" x="130" y="17" width="122.4" height="20" tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;decode @ 16k prompt&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Sustained decode throughput at a 16,384-token prompt, single stream.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/throughput.py, code_python context, 128-token generations.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — Deterministic sampling; MTP on; see §4 for the A/B.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed&quot;&gt;FINDINGS §19&lt;/a&gt; · &lt;a href=&quot;../results/tp_mtp.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;" aria-label="Qwen3.8-27B-8bit: 34.0 tok/s" fill="#0b5ed7"/><text x="256.4" y="31.0" text-anchor="start" font-size="11" fill="#1a1a1a">34.0</text><text x="122" y="61.0" text-anchor="end" font-size="11" fill="#1a1a1a">Qwen3.8-27B-oQ4e</text><rect class="bar" x="130" y="47" width="211.7" height="20" tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;decode @ 16k prompt&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Sustained decode throughput at a 16,384-token prompt, single stream.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/throughput.py, code_python context, 128-token generations.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — Deterministic sampling; 1.73x the 8-bit at 16 GB; see §19.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed&quot;&gt;FINDINGS §19&lt;/a&gt; · &lt;a href=&quot;../results/tp_oq4e.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;" aria-label="Qwen3.8-27B-oQ4e: 58.8 tok/s" fill="#0b5ed7"/><text x="345.7" y="61.0" text-anchor="start" font-size="11" fill="#1a1a1a">58.8</text></svg>
+<div class="chart"><svg width="541" height="110" role="img" aria-label="decode @ 16k prompt"><line x1="130.0" y1="12" x2="130.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="220.0" y1="12" x2="220.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="310.0" y1="12" x2="310.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="400.0" y1="12" x2="400.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="490.0" y1="12" x2="490.0" y2="72" stroke="#e0e0e0" stroke-width="1"/><line x1="130" y1="72" x2="490" y2="72" stroke="#999" stroke-width="1"/><text x="130.0" y="88" text-anchor="middle" font-size="11" fill="#595959">0</text><text x="220.0" y="88" text-anchor="middle" font-size="11" fill="#595959">25.0</text><text x="310.0" y="88" text-anchor="middle" font-size="11" fill="#595959">50.0</text><text x="400.0" y="88" text-anchor="middle" font-size="11" fill="#595959">75.0</text><text x="490.0" y="88" text-anchor="middle" font-size="11" fill="#595959">100</text><text x="122" y="31.0" text-anchor="end" font-size="11" fill="#1a1a1a">Qwen3.8-27B-8bit</text><rect class="bar" x="130" y="17" width="122.4" height="20" tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;decode @ 16k prompt&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Sustained decode throughput at a 16,384-token prompt, single stream.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/throughput.py, code_python context, 128-token generations.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — Deterministic sampling; MTP on; see §4 for the A/B.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed&quot;&gt;FINDINGS §19&lt;/a&gt; · &lt;a href=&quot;../results/tp_mtp.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;" aria-label="Qwen3.8-27B-8bit: 34.0 tok/s" fill="#0b5ed7"/><text x="256.4" y="31.0" text-anchor="start" font-size="11" fill="#1a1a1a">34.0</text><text x="122" y="61.0" text-anchor="end" font-size="11" fill="#1a1a1a">Qwen3.8-27B-oQ4e</text><rect class="bar" x="130" y="47" width="211.7" height="20" tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;decode @ 16k prompt&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Sustained decode throughput at a 16,384-token prompt, single stream.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — bench/throughput.py, code_python context, 128-token generations.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — Deterministic sampling; 1.73x the 8-bit at 16 GB; see §19.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#19-the-lineup-8-bit-for-quality-oq4e-for-speed&quot;&gt;FINDINGS §19&lt;/a&gt; · &lt;a href=&quot;../results/tp_oq4e.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;" aria-label="Qwen3.8-27B-oQ4e: 58.8 tok/s" fill="#0b5ed7"/><text x="345.7" y="61.0" text-anchor="start" font-size="11" fill="#1a1a1a">58.8</text></svg></div>
 <p class="no-match" id="no-match-lineup" hidden>no findings match the current filters <button type="button" class="no-match-clear">Clear filters</button></p>
 </section>
 <section id="board" aria-labelledby="board-h">
@@ -184,6 +238,45 @@ svg text { font-size: 11px; fill: #1a1a1a; }
 <div class="details"><b>what</b> Context tokens verified by the ceiling probe. <b>how</b> Context-window verification probe at the 262,144 target. <b>evidence</b> capped_by=target (not a memory limit); see §5.  <b>links</b> <a href="docs/FINDINGS.md#5-context-ceiling-full-262144-confirmed-on-plain-kv">FINDINGS §5</a> · <a href="../results/ctx_mtp.json">raw results</a></div>
 <p class="finding" data-model="Qwen3.8-27B-8bit" data-tier="" data-status="dead-end" data-title="TurboQuant 4-bit KV" data-rationale="Not required for long context: the context probe hit the requested ceiling with capped_by=target, not a memory limit — the machine has headroom beyond the model&#x27;s native maximum. turboquant_kv_enabled is a load-time variant field, so enabling it only in the long-context profile would force a ~28 GB engine reload on every switch. It stays off; long context runs on lossless KV."><b>TurboQuant 4-bit KV</b> — closed by measurement: <span tabindex="0" data-tooltip="&lt;div class=&quot;tt-title&quot;&gt;verified context tokens&lt;/div&gt;&lt;div&gt;&lt;b&gt;what&lt;/b&gt; — Context tokens verified by the ceiling probe.&lt;/div&gt;&lt;div&gt;&lt;b&gt;how&lt;/b&gt; — Context-window verification probe at the 262,144 target.&lt;/div&gt;&lt;div&gt;&lt;b&gt;evidence&lt;/b&gt; — capped_by=target (not a memory limit); see §5.&lt;/div&gt;&lt;div&gt;&lt;b&gt;links&lt;/b&gt; — &lt;a href=&quot;docs/FINDINGS.md#5-context-ceiling-full-262144-confirmed-on-plain-kv&quot;&gt;FINDINGS §5&lt;/a&gt; · &lt;a href=&quot;../results/ctx_mtp.json&quot;&gt;raw results&lt;/a&gt;&lt;/div&gt;">verified context tokens: 262144 tokens</span> <a href="../results/ctx_mtp.json">raw</a> · <a href="docs/FINDINGS.md#5-context-ceiling-full-262144-confirmed-on-plain-kv">Not required for long context: the context probe hit the requested ceiling with capped_by=target, not a memory limit — the machine has headroom beyond the model&#x27;s native maximum. turboquant_kv_enabled is a load-time variant field, so enabling it only in the long-context profile would force a ~28 GB engine reload on every switch. It stays off; long context runs on lossless KV.</a></p>
 <p class="no-match" id="no-match-dead-ends" hidden>no findings match the current filters <button type="button" class="no-match-clear">Clear filters</button></p>
+</section>
+<section id="benchmarks" aria-labelledby="benchmarks-h">
+<h2 id="benchmarks-h" tabindex="-1">Benchmarks</h2>
+<p class="details">What each suite measures, how this stack runs it, and where to read more. Scores are not shown here: suites only compare paired, on the same harness version.</p>
+<h3 class="tier">Code</h3>
+<div class="cards">
+<article class="suite" id="suite-humaneval" aria-labelledby="suite-humaneval-h"><h4 id="suite-humaneval-h">HumanEval</h4><p>Writes a Python function from its signature and docstring; graded by running hidden unit tests. Short, well-known, largely saturated by current models.</p><p class="meta"><b>Size</b> 164 problems</p><p class="meta"><b>How we run it</b> All 164, deterministic sampling, thinking off unless a run says otherwise. Graded by oMLX&#x27;s bundled harness.</p><p class="meta"><b>Stored runs</b> 11, 8 models: Qwen3-Coder-Next-6bit, Qwen3.8-27B-4bit, Qwen3.8-27B-8bit, Qwen3.8-27B-oQ4e-mtp, Qwen3.8-35B-A3B-Distill-oQ8-fp16-mtp, Tiel-Coder-35B-A3B-MLX-oQ4e, gemma-4-26B-A4B-it-oQ6e-mtp, gemma-4-31B-it-qat-OptiQ-4bit</p><p class="links"><a href="https://arxiv.org/abs/2107.03374">paper</a><a href="https://github.com/openai/human-eval">code and data</a></p></article>
+<article class="suite" id="suite-mbpp" aria-labelledby="suite-mbpp-h"><h4 id="suite-mbpp-h">MBPP</h4><p>Mostly Basic Python Problems: short entry-level programming tasks described in one sentence, graded by the three asserts that ship with each.</p><p class="meta"><b>Size</b> 500 problems (test split)</p><p class="meta"><b>How we run it</b> 500 (early runs 250), deterministic sampling. Graded by oMLX&#x27;s bundled harness.</p><p class="meta"><b>Stored runs</b> 11, 8 models: Qwen3-Coder-Next-6bit, Qwen3.8-27B-4bit, Qwen3.8-27B-8bit, Qwen3.8-27B-oQ4e-mtp, Qwen3.8-35B-A3B-Distill-oQ8-fp16-mtp, Tiel-Coder-35B-A3B-MLX-oQ4e, gemma-4-26B-A4B-it-oQ6e-mtp, gemma-4-31B-it-qat-OptiQ-4bit</p><p class="links"><a href="https://arxiv.org/abs/2108.07732">paper</a><a href="https://huggingface.co/datasets/google-research-datasets/mbpp">dataset</a></p></article>
+<article class="suite" id="suite-livecodebench" aria-labelledby="suite-livecodebench-h"><h4 id="suite-livecodebench-h">LiveCodeBench</h4><p>Competitive-programming problems collected after model release dates (LeetCode, AtCoder, Codeforces), so they are less likely to be in training data. Graded by running test cases.</p><p class="meta"><b>Size</b> 1,054 problems bundled; we sample 500</p><p class="meta"><b>How we run it</b> 500, thinking per model, answers capped at 16,384 tokens by oMLX. Since oMLX 0.7.1rc1 the 216 functional problems are prompted as &#x27;implement the function&#x27;, so only the 284 stdin problems compare with older runs (§41). Answers that hit the cap are counted as wrong (§42).</p><p class="meta"><b>Stored runs</b> 16, 11 models: Qwen3-Coder-Next-6bit, Qwen3.5-122B-A10B-Q4_K_M, Qwen3.5-122B-A10B-Q5_K_S, Qwen3.8-27B-4bit, Qwen3.8-27B-8bit, Qwen3.8-27B-oQ4e-mtp, Qwen3.8-35B-A3B-Distill-oQ8-fp16-mtp, Tiel-Coder-35B-A3B-MLX-oQ4e, flint-mixed-3-4bit, gemma-4-26B-A4B-it-oQ6e-mtp, gemma-4-31B-it-qat-OptiQ-4bit</p><p class="links"><a href="https://arxiv.org/abs/2403.07974">paper</a><a href="https://livecodebench.github.io/">project</a><a href="docs/FINDINGS.md#41-the-gemma-round-part-2-gemma-26b-a4b-takes-fast-not-coder">FINDINGS §41</a><a href="docs/FINDINGS.md#42-flint-preliminary-both-builds-pass-the-gate-thinking-cannot-be-switched-off">FINDINGS §42</a></p></article>
+</div>
+<h3 class="tier">Reasoning and maths</h3>
+<div class="cards">
+<article class="suite" id="suite-mmlu_pro" aria-labelledby="suite-mmlu_pro-h"><h4 id="suite-mmlu_pro-h">MMLU-Pro</h4><p>Harder, reasoning-heavy successor to MMLU: 14 subjects, ten answer options instead of four, fewer trivia questions.</p><p class="meta"><b>Size</b> 12,032 questions; we sample 500</p><p class="meta"><b>How we run it</b> 500, deterministic sampling. Scored on the extracted option letter.</p><p class="meta"><b>Stored runs</b> 9, 8 models: Qwen3-Coder-Next-6bit, Qwen3.8-27B-4bit, Qwen3.8-27B-8bit, Qwen3.8-27B-OptiQ-4bit, Qwen3.8-27B-oQ4e-mtp, Qwen3.8-35B-A3B-Distill-oQ8-fp16-mtp, gemma-4-26B-A4B-it-oQ6e-mtp, gemma-4-31B-it-qat-OptiQ-4bit</p><p class="links"><a href="https://arxiv.org/abs/2406.01574">paper</a><a href="https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro">dataset</a></p></article>
+<article class="suite" id="suite-gsm8k" aria-labelledby="suite-gsm8k-h"><h4 id="suite-gsm8k-h">GSM8K</h4><p>Grade-school maths word problems that take two to eight steps; scored on the final number.</p><p class="meta"><b>Size</b> 1,319 problems (test split); we sample 500</p><p class="meta"><b>How we run it</b> 500, deterministic sampling.</p><p class="meta"><b>Stored runs</b> 8, 7 models: Qwen3-Coder-Next-6bit, Qwen3.8-27B-4bit, Qwen3.8-27B-8bit, Qwen3.8-27B-OptiQ-4bit, Qwen3.8-27B-oQ4e-mtp, gemma-4-26B-A4B-it-oQ6e-mtp, gemma-4-31B-it-qat-OptiQ-4bit</p><p class="links"><a href="https://arxiv.org/abs/2110.14168">paper</a><a href="https://github.com/openai/grade-school-math">code and data</a></p></article>
+<article class="suite" id="suite-mathqa" aria-labelledby="suite-mathqa-h"><h4 id="suite-mathqa-h">MathQA</h4><p>Multiple-choice maths word problems (GRE/GMAT level) with five options.</p><p class="meta"><b>Size</b> 2,985 problems (test split); we sample 500</p><p class="meta"><b>How we run it</b> 500, deterministic sampling. oMLX&#x27;s answer budget suits models that reply with one letter; a model that reasons first is cut off and scores near zero, so mathqa is left out of model comparisons (§29).</p><p class="meta"><b>Stored runs</b> 8, 6 models: Qwen3-Coder-Next-6bit, Qwen3.8-27B-4bit, Qwen3.8-27B-8bit, Qwen3.8-27B-OptiQ-4bit, Qwen3.8-27B-oQ4e-mtp, gemma-4-31B-it-qat-OptiQ-4bit</p><p class="links"><a href="https://arxiv.org/abs/1905.13319">paper</a><a href="https://math-qa.github.io/">project</a><a href="docs/FINDINGS.md#29-the-a7-reason-arms-optiq-is-dominated-gemma-4-wins-and-mathqa-lied">FINDINGS §29</a></p></article>
+</div>
+<h3 class="tier">General knowledge</h3>
+<div class="cards">
+<article class="suite" id="suite-mmlu" aria-labelledby="suite-mmlu-h"><h4 id="suite-mmlu-h">MMLU</h4><p>Four-option multiple-choice knowledge questions across 57 subjects, from elementary maths to law and medicine.</p><p class="meta"><b>Size</b> 14,042 questions; we sample 500</p><p class="meta"><b>How we run it</b> 500, deterministic sampling.</p><p class="meta"><b>Stored runs</b> 2, 2 models: Qwen3-Coder-Next-6bit, Qwen3.8-27B-8bit</p><p class="links"><a href="https://arxiv.org/abs/2009.03300">paper</a><a href="https://github.com/hendrycks/test">code</a></p></article>
+<article class="suite" id="suite-arc_challenge" aria-labelledby="suite-arc_challenge-h"><h4 id="suite-arc_challenge-h">ARC-Challenge</h4><p>Grade-school science questions that simple retrieval and word-matching baselines got wrong.</p><p class="meta"><b>Size</b> 1,172 questions; we sample 500</p><p class="meta"><b>How we run it</b> 500, deterministic sampling.</p><p class="meta"><b>Stored runs</b> 2, 2 models: Qwen3-Coder-Next-6bit, Qwen3.8-27B-8bit</p><p class="links"><a href="https://arxiv.org/abs/1803.05457">paper</a><a href="https://huggingface.co/datasets/allenai/ai2_arc">dataset</a></p></article>
+<article class="suite" id="suite-hellaswag" aria-labelledby="suite-hellaswag-h"><h4 id="suite-hellaswag-h">HellaSwag</h4><p>Commonsense sentence completion: pick the plausible continuation of an everyday scenario from four, the wrong ones generated adversarially.</p><p class="meta"><b>Size</b> 10,042 questions (validation split); we sample 500</p><p class="meta"><b>How we run it</b> 500, deterministic sampling.</p><p class="meta"><b>Stored runs</b> 2, 2 models: Qwen3-Coder-Next-6bit, Qwen3.8-27B-8bit</p><p class="links"><a href="https://arxiv.org/abs/1905.07830">paper</a><a href="https://rowanzellers.com/hellaswag/">project</a></p></article>
+<article class="suite" id="suite-winogrande" aria-labelledby="suite-winogrande-h"><h4 id="suite-winogrande-h">WinoGrande</h4><p>Pronoun-resolution style fill-in-the-blank with two options, built to defeat word-association shortcuts.</p><p class="meta"><b>Size</b> 1,267 questions (validation split); we sample 500</p><p class="meta"><b>How we run it</b> 500, deterministic sampling.</p><p class="meta"><b>Stored runs</b> 2, 2 models: Qwen3-Coder-Next-6bit, Qwen3.8-27B-8bit</p><p class="links"><a href="https://arxiv.org/abs/1907.10641">paper</a><a href="https://huggingface.co/datasets/allenai/winogrande">dataset</a></p></article>
+<article class="suite" id="suite-truthfulqa" aria-labelledby="suite-truthfulqa-h"><h4 id="suite-truthfulqa-h">TruthfulQA</h4><p>Questions where a common misconception is the tempting answer; the multiple-choice form checks whether the model picks the true one.</p><p class="meta"><b>Size</b> 817 questions</p><p class="meta"><b>How we run it</b> 500, deterministic sampling, multiple-choice form.</p><p class="meta"><b>Stored runs</b> 2, 2 models: Qwen3-Coder-Next-6bit, Qwen3.8-27B-8bit</p><p class="links"><a href="https://arxiv.org/abs/2109.07958">paper</a><a href="https://github.com/sylinrl/TruthfulQA">code and data</a></p></article>
+<article class="suite not-run" id="suite-cmmlu" aria-labelledby="suite-cmmlu-h"><h4 id="suite-cmmlu-h">CMMLU</h4><p>MMLU-style multiple-choice knowledge questions in Chinese.</p><p class="meta"><b>Size</b> 11,582 questions</p><p class="meta"><b>How we run it</b> Bundled with oMLX; not run here.</p><p class="links"><a href="https://arxiv.org/abs/2306.09212">paper</a></p></article>
+<article class="suite not-run" id="suite-jmmlu" aria-labelledby="suite-jmmlu-h"><h4 id="suite-jmmlu-h">JMMLU</h4><p>MMLU-style multiple-choice knowledge questions in Japanese.</p><p class="meta"><b>Size</b> 7,536 questions</p><p class="meta"><b>How we run it</b> Bundled with oMLX; not run here.</p><p class="links"><a href="https://github.com/nlp-waseda/JMMLU">dataset</a></p></article>
+<article class="suite not-run" id="suite-kmmlu" aria-labelledby="suite-kmmlu-h"><h4 id="suite-kmmlu-h">KMMLU</h4><p>MMLU-style multiple-choice knowledge questions in Korean, written natively rather than translated.</p><p class="meta"><b>Size</b> 35,030 questions</p><p class="meta"><b>How we run it</b> Bundled with oMLX; not run here.</p><p class="links"><a href="https://arxiv.org/abs/2402.11548">paper</a></p></article>
+</div>
+<h3 class="tier">Safety and bias</h3>
+<div class="cards">
+<article class="suite" id="suite-safetybench" aria-labelledby="suite-safetybench-h"><h4 id="suite-safetybench-h">SafetyBench</h4><p>Multiple-choice questions across seven safety categories, such as offensiveness, unfairness, physical and mental health, and privacy.</p><p class="meta"><b>Size</b> 11,435 questions (English); we sample 500</p><p class="meta"><b>How we run it</b> 500, deterministic sampling.</p><p class="meta"><b>Stored runs</b> 2, 2 models: Qwen3-Coder-Next-6bit, Qwen3.8-27B-8bit</p><p class="links"><a href="https://arxiv.org/abs/2309.07045">paper</a><a href="https://github.com/thu-coai/SafetyBench">code and data</a></p></article>
+<article class="suite" id="suite-bbq" aria-labelledby="suite-bbq-h"><h4 id="suite-bbq-h">BBQ</h4><p>Bias Benchmark for QA: questions about people from social groups, where the right answer is often &#x27;unknown&#x27; and a biased model guesses a stereotype.</p><p class="meta"><b>Size</b> 10,864 questions; we sample 500</p><p class="meta"><b>How we run it</b> 500, deterministic sampling.</p><p class="meta"><b>Stored runs</b> 2, 2 models: Qwen3-Coder-Next-6bit, Qwen3.8-27B-8bit</p><p class="links"><a href="https://arxiv.org/abs/2110.08193">paper</a><a href="https://github.com/nyu-mll/BBQ">code and data</a></p></article>
+</div>
+<h3 class="tier">Our own harnesses</h3>
+<div class="cards">
+<article class="suite" id="suite-taskbench" aria-labelledby="suite-taskbench-h"><h4 id="suite-taskbench-h">taskbench</h4><p>Jobs this stack is used for, each with a deterministic verifier: PlantUML and draw.io diagrams checked for the requested content, tool calls checked for name, argument types and enums, two-turn tool use, and Python checked by asserted behaviour.</p><p class="meta"><b>Size</b> five sub-suites: puml, drawio, toolcall, toolchain, pycode</p><p class="meta"><b>How we run it</b> Through LiteLLM roles, as clients call them. Results stay local; nothing is uploaded.</p><p class="links"><a href="../bench/taskbench.py">script</a></p></article>
+<article class="suite" id="suite-longctx" aria-labelledby="suite-longctx-h"><h4 id="suite-longctx-h">Long-context quality</h4><p>Whether a long context is usable, not just admitted: needle retrieval swept over length and depth, plus one multi-hop question per length that combines two distant facts.</p><p class="meta"><b>Size</b> lengths up to 262,144 tokens</p><p class="meta"><b>How we run it</b> Against a role&#x27;s profile, usually `long` or `fast`.</p><p class="links"><a href="../bench/longctx_quality.py">script</a></p></article>
+<article class="suite" id="suite-candidate_gate" aria-labelledby="suite-candidate_gate-h"><h4 id="suite-candidate_gate-h">Candidate gate</h4><p>The cheap checks before any accuracy run: architecture supported, loads, real resident memory, and serves a 16k prompt while the shipped lineup stays resident.</p><p class="meta"><b>Size</b> two 16k-token calls per model</p><p class="meta"><b>How we run it</b> Restores the lineup afterwards. --replaces drains a named model first.</p><p class="links"><a href="../bench/candidate_gate.py">script</a><a href="docs/FINDINGS.md#27-flash-next-closed-it-works-and-it-cannot-be-wired">FINDINGS §27</a><a href="docs/FINDINGS.md#42-flint-preliminary-both-builds-pass-the-gate-thinking-cannot-be-switched-off">FINDINGS §42</a></p></article>
+<article class="suite" id="suite-throughput" aria-labelledby="suite-throughput-h"><h4 id="suite-throughput-h">Throughput and context</h4><p>oMLX&#x27;s own speed benchmarks: prefill and decode tokens per second by prompt length and concurrency, and the largest context the memory guard admits.</p><p class="meta"><b>Size</b> per run; results in results/tp_*.json and ctx_*.json</p><p class="meta"><b>How we run it</b> Engine settings are recorded with every result, because a rate without its engine variant cannot be compared.</p><p class="links"><a href="../bench/throughput.py">script</a><a href="../bench/ctx_bisect.py">context bisect</a></p></article>
+</div>
 </section>
 </main>
 <script>

@@ -26,7 +26,7 @@ case "${1:-}" in
   --render) mode=render; shift ;;
   --remove) mode=remove; shift ;;
 esac
-name="${1:?usage: install.sh [--render|--remove] llm-queue|inference-awake}"
+name="${1:?usage: install.sh [--render|--remove] llm-queue|inference-awake|dashboard-live}"
 template="$here/$name.plist.template"
 [ -f "$template" ] || { echo "no template: $template" >&2; exit 1; }
 

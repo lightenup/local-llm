@@ -18,3 +18,9 @@ CLAUDE.local.md
 # tracebacks. The JSON in results/ is the record.
 results/*.log
 results/*.out
+
+# The "Running now" page and its rate state: a live snapshot written every
+# minute by dashboard/live.py, never published.
+site/running.html
+site/.running_state.json
+site/*.tmp

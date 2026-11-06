@@ -51,17 +51,18 @@ class NavTests(FixturesMixin, unittest.TestCase):
         self.assertIsNotNone(bar_match)
         self.assertIn('<nav aria-label="Views">', bar_match.group(0))
 
-    def test_exactly_three_links_with_correct_hrefs(self):
+    def test_exactly_four_links_with_correct_hrefs(self):
         self.write_finding("lineup_quality_8bit.toml", VALID_FINDING)
         html = _generate(self.findings, self.results, self.docs)
         nav = re.search(r'<nav aria-label="Views">(.*?)</nav>', html, re.S)
         self.assertIsNotNone(nav)
         links = re.findall(r'<a href="([^"]*)"[^>]*>([^<]*)</a>', nav.group(1))
-        self.assertEqual(len(links), 3, f"expected 3 links, got {len(links)}")
+        self.assertEqual(len(links), 4, f"expected 4 links, got {len(links)}")
         expected = [
             ("#lineup", "Live lineup"),
             ("#board", "Candidate status board"),
             ("#dead-ends", "Settled dead ends"),
+            ("#benchmarks", "Benchmarks"),
         ]
         for href, label in expected:
             self.assertIn((href, label), links,
