@@ -32,7 +32,9 @@ export SCOUT_ASSESS_STATE="${SCOUT_ASSESS_STATE:-$home/state/scout_assess.json}"
 # model-scout.sh keeps the clone current and reports a failed pull in its daily
 # message. Here any stdout starts a model call, so a failure only goes to stderr.
 . "$repo/scout/git-auth.sh" 2>/dev/null || scout_git() { git "$@"; }
-scout_git -C "$repo" pull -q --ff-only >&2 || true
+# Fetch and force onto main, not `pull`, for the reason in hermes-cron.sh.
+{ scout_git -C "$repo" fetch -q --depth 1 origin main \
+  && git -C "$repo" checkout -q -f -B main FETCH_HEAD; } >&2 || true
 
 exec python3 "$repo/bench/model_scout.py" assess-gate \
   --report "${SCOUT_REPORT:-$home/state/model_scout_report.json}" \

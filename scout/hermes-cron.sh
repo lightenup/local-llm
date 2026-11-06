@@ -32,7 +32,12 @@ if [ -d "$repo/.git" ]; then
   # A stale clone still scans correctly, but on an old policy and setup.json.
   # Say so in the delivered message: on stderr nobody sees it, and a revoked or
   # expired token would look like a quiet week.
-  if ! err=$(scout_git -C "$repo" pull -q --ff-only 2>&1); then
+  # Fetch main and force the clone onto it rather than `pull`: the clone is
+  # read-only, and pull obeys the clone's branch config, which on 2026-11-06
+  # named two merge heads and failed with "Cannot fast-forward to multiple
+  # branches". This repairs any such state on the next tick.
+  if ! err=$( { scout_git -C "$repo" fetch -q --depth 1 origin main \
+                && git -C "$repo" checkout -q -f -B main FETCH_HEAD; } 2>&1); then
     stale="warning: git pull failed, scanned with the clone of $(git -C "$repo" log -1 --format=%cs): ${err%%$'\n'*}"
   fi
 else
