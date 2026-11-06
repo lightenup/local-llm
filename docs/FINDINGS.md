@@ -3796,5 +3796,34 @@ Run notes:
   update three times since 2026-11-05, the deferral limit; its record marks
   the 21:33 install user-initiated.
 
+### Re-check on oMLX 0.7.4.dev1
+
+The managed update above replaced the engine after the run. On 2026-11-06,
+after the update, this checked whether the flint numbers still describe the
+new version:
+
+| check | 0.7.3rc1 | 0.7.4.dev1 | result |
+|---|---|---|---|
+| gate, flint-mixed beside the lineup | PASS, 17.44 GiB, pool 69.89 | PASS, 17.44 GiB, pool 69.89 | `results/gate_flint_mixed_3_4bit_074.json` |
+| gate, flint-oQ8e `--replaces` the 8-bit | PASS, 41.34 GiB, pool 64.93 | PASS, 41.34 GiB, pool 64.93 | `results/gate_flint_oq8e_replaces_074.json` |
+| livecodebench prompts, 500 problems | as run | 500 of 500 identical | rebuilt with the new `format_prompt` |
+| livecodebench grading of the stored answers | 362 and 365 | 362 and 365, 1,000 of 1,000 agree | re-graded with the new `extract_answer` and `check_answer` |
+| livecodebench answer cap | 16,384 | 16,384 | `get_max_tokens`; thinking clamp still [8,192, 32,768] |
+| thinking probe, 15 calls | all correct | all correct; budget 64 still not enforced (169 tokens) | `results/flint_thinking_probe_074.json` |
+
+- Gate call times match within noise. flint-oQ8e's first call took 9.7 s against
+  3.8 s in the morning's `--replaces` gate. The morning gate followed the
+  beside-the-lineup gate, whose cold first call took 10.8 s, so its prompt was
+  probably cached (assumed).
+- Thinking-token counts moved both ways, by up to 4x on these trivial prompts.
+  This is sampling at temperature 1.0 on 15 single calls, and says nothing
+  about livecodebench lengths.
+- Not checked: generation speed and answer lengths on real problems. Only
+  another accuracy run measures those.
+
+So the harness is unchanged and the results carry over: a new flint run on
+0.7.4.dev1 compares with the two above. The re-check found no evidence that
+the update changed what the model generates, but it did not test that.
+
 Decision: neither flint build goes into a role on this evidence. Status stays
 open until someone decides whether a 32K run is worth its cost.
