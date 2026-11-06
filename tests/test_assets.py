@@ -13,7 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dashboard"))
 
-from assets import COLORS, SCRIPTS, STYLE  # noqa: E402
+from assets import COLORS, COLORS_DARK, SCRIPTS, STYLE  # noqa: E402
 
 
 def _relative_luminance(hex_color: str) -> float:
@@ -76,6 +76,33 @@ class ColorsContrastTests(unittest.TestCase):
     def test_v1_secondary_gone(self):
         self.assertNotIn("#777", COLORS.values(),
                          "v1 #777 secondary must be replaced")
+
+
+class DarkPaletteTests(unittest.TestCase):
+    """The prefers-color-scheme: dark palette meets the same AA ratios."""
+
+    def test_same_keys_as_light(self):
+        self.assertEqual(set(COLORS_DARK), set(COLORS))
+
+    def test_text_secondary_link_on_bg_and_surface(self):
+        for bg in ("bg", "surface"):
+            for fg in ("text", "secondary", "link"):
+                ratio = _contrast_ratio(COLORS_DARK[fg], COLORS_DARK[bg])
+                self.assertGreaterEqual(ratio, 4.5, f"dark {fg}/{bg} {ratio:.2f} < 4.5")
+
+    def test_light_text_on_surface(self):
+        for fg in ("text", "secondary", "link"):
+            ratio = _contrast_ratio(COLORS[fg], COLORS["surface"])
+            self.assertGreaterEqual(ratio, 4.5, f"light {fg}/surface {ratio:.2f} < 4.5")
+
+    def test_badge_contrast(self):
+        for status in ("shipped", "on-trial", "retired", "dead-end", "open"):
+            ratio = _contrast_ratio(COLORS_DARK[f"badge-{status}-text"],
+                                    COLORS_DARK[f"badge-{status}-bg"])
+            self.assertGreaterEqual(ratio, 4.5, f"dark badge-{status} {ratio:.2f} < 4.5")
+
+    def test_style_has_dark_media_query(self):
+        self.assertIn("@media (prefers-color-scheme: dark)", STYLE)
 
 
 class StyleScriptPresenceTests(unittest.TestCase):

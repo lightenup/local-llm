@@ -9,7 +9,8 @@ Exit codes:
      stale markers on exactly the affected findings
 
 Strictly read-only w.r.t. results/, profiles/, and the oMLX configuration
-(FR-010): the only file written is site/index.html.
+(FR-010): the only file written is site/index.html. Benchmark suite cards
+come from findings/suites/*.toml (dashboard/suites.py).
 """
 
 from __future__ import annotations
@@ -24,6 +25,7 @@ from findings import (Problem, load_findings, load_sections,  # noqa: E402
                       section_title_mismatches)
 from render import ResolvedMetric, render_page  # noqa: E402
 from sources import resolve  # noqa: E402
+from suites import load_suites, run_summaries  # noqa: E402
 
 
 def _repo_root() -> Path:
@@ -44,6 +46,8 @@ def main() -> int:
     site_dir = root / "site"
 
     findings, problems = load_findings(findings_dir)
+    suites, suite_problems = load_suites(findings_dir / "suites")
+    problems += suite_problems
     if problems:
         for p in problems:
             print(str(p), file=sys.stderr)
@@ -82,7 +86,8 @@ def main() -> int:
         resolved[f.id] = rm
 
     generated_at = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
-    html = render_page(findings, sections, resolved, stale, generated_at)
+    html = render_page(findings, sections, resolved, stale, generated_at,
+                       suites, run_summaries(results_dir))
 
     site_dir.mkdir(exist_ok=True)
     (site_dir / "index.html").write_text(html)
@@ -94,6 +99,8 @@ def main() -> int:
         views.append("board")
     if any(f.status == "dead-end" for f in findings):
         views.append("dead-ends")
+    if suites:
+        views.append("benchmarks")
     print(f"{len(findings)} findings, views: {', '.join(views) or 'none'}, "
           f"stale: {stale}, output: site/index.html")
     return 2 if stale else 0

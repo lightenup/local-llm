@@ -3,7 +3,7 @@
 
 One HTML document: header with the "generated at" stamp (the only
 non-deterministic field, FR-012), and the three anchored views
-(#lineup, #board, #dead-ends). All CSS/JS is inline; no network.
+(#lineup, #board, #dead-ends, #benchmarks). All CSS/JS is inline; no network.
 """
 
 from __future__ import annotations
@@ -15,6 +15,7 @@ from pathlib import Path
 from assets import SCRIPTS, STYLE
 from charts import bar_chart_svg
 from findings import Finding, section_anchor
+from suites import GROUP_TITLES, GROUPS, RunSummary, Suite
 
 
 @dataclass(frozen=True)
@@ -130,11 +131,70 @@ def _board_header(sortable: bool) -> str:
             f"{_sortable_th('rationale')}</tr>")
 
 
+def _suite_card(s: Suite, summary: RunSummary | None,
+                sections: dict[int, tuple[str, str]]) -> str:
+    cls = "suite" if s.run else "suite not-run"
+    out = [f'<article class="{cls}" id="suite-{esc(s.id)}" aria-labelledby="suite-{esc(s.id)}-h">',
+           f'<h4 id="suite-{esc(s.id)}-h">{esc(s.name)}</h4>',
+           f'<p>{esc(s.measures)}</p>',
+           f'<p class="meta"><b>Size</b> {esc(s.size)}</p>',
+           f'<p class="meta"><b>How we run it</b> {esc(s.how_we_run)}</p>']
+    if not s.harness and s.run:
+        if summary and summary.runs:
+            models = ", ".join(esc(m) for m in sorted(summary.models))
+            out.append(f'<p class="meta"><b>Stored runs</b> {summary.runs}, '
+                       f'{len(summary.models)} models: {models}</p>')
+        else:
+            out.append('<p class="meta"><b>Stored runs</b> none yet</p>')
+    links = [f'<a href="{esc(ln.url)}">{esc(ln.label)}</a>' for ln in s.links]
+    for n in s.findings:
+        links.append(f'<a href="docs/FINDINGS.md#{esc(section_anchor(sections, n) or "")}">'
+                     f'FINDINGS §{n}</a>')
+    out.append(f'<p class="links">{"".join(links)}</p>')
+    out.append("</article>")
+    return "".join(out)
+
+
+def _benchmarks_section(suites: list[Suite] | None,
+                        summaries: dict[str, RunSummary] | None,
+                        sections: dict[int, tuple[str, str]]) -> str:
+    out = ['<section id="benchmarks" aria-labelledby="benchmarks-h">',
+           '<h2 id="benchmarks-h" tabindex="-1">Benchmarks</h2>']
+    if not suites:
+        out.append('<p class="empty-state">no benchmark suites described yet</p>')
+    else:
+        out.append('<p class="details">What each suite measures, how this stack runs it, '
+                   'and where to read more. Scores are not shown here: suites only '
+                   'compare paired, on the same harness version.</p>')
+        for g in GROUPS:
+            in_group = [s for s in suites if s.group == g]
+            if not in_group:
+                continue
+            out.append(f'<h3 class="tier">{esc(GROUP_TITLES[g])}</h3>')
+            out.append('<div class="cards">')
+            out.extend(_suite_card(s, (summaries or {}).get(s.id), sections)
+                       for s in in_group)
+            out.append("</div>")
+    out.append("</section>")
+    return "\n".join(out)
+
+
+def _header(out: list[str], generated_at: str) -> None:
+    out.append("<header>")
+    out.append('<div class="head-row">')
+    out.append(f"<h1>Findings — local-LLM stack "
+               f"<span class=\"stamp\">[generated at: {esc(generated_at)}]</span></h1>")
+    out.append('<a class="running-link" href="running.html">Running now</a>')
+    out.append("</div>")
+
+
 def render_page(findings: list[Finding],
                 sections: dict[int, tuple[str, str]],
                 resolved: dict[str, list[ResolvedMetric]],
                 stale_count: int,
-                generated_at: str) -> str:
+                generated_at: str,
+                suites: list[Suite] | None = None,
+                summaries: dict[str, RunSummary] | None = None) -> str:
     """Render the complete page. `findings` is the full layer; views are
     populated per the data-model.md status -> view mapping."""
     out = []
@@ -148,14 +208,13 @@ def render_page(findings: list[Finding],
     out.append("<body>")
     out.append('<a class="skip" href="#main">Skip to content</a>')
     out.append('<div id="tooltip"></div>')
-    out.append("<header>")
-    out.append(f"<h1>Findings — local-LLM stack "
-               f"<span class=\"stamp\">[generated at: {esc(generated_at)}]</span></h1>")
+    _header(out, generated_at)
     out.append('<div class="bar">')
     out.append('<nav aria-label="Views">')
     out.append('<a href="#lineup">Live lineup</a>')
     out.append('<a href="#board">Candidate status board</a>')
     out.append('<a href="#dead-ends">Settled dead ends</a>')
+    out.append('<a href="#benchmarks">Benchmarks</a>')
     out.append("</nav>")
     if findings:
         out.append(_control_bar(findings))
@@ -176,6 +235,7 @@ def render_page(findings: list[Finding],
                    '<h2 id="deadends-h" tabindex="-1">Settled dead ends</h2>'
                    '<p class="empty-state">no findings yet</p>'
                    + _no_match("dead-ends") + '</section>')
+        out.append(_benchmarks_section(suites, summaries, sections))
         out.append("</main>")
         out.append(SCRIPTS)
         out.append("</body></html>")
@@ -212,10 +272,12 @@ def render_page(findings: list[Finding],
                 for entry in chart_data:
                     if entry[0] == m.name:
                         entry[2].append((model, r.value, tip))
+    out.append('<div class="cards tiers">')
     for tier in ("quality", "fast", "additive"):
         tier_findings = [f for f in shipped if (f.tier or "quality") == tier]
         if not tier_findings:
             continue
+        out.append('<div class="tier-col">')
         out.append(f'<h3 class="tier">{esc(tier)} tier</h3>')
         for f in tier_findings:
             fm = resolved.get(f.id, [])
@@ -260,11 +322,13 @@ def render_page(findings: list[Finding],
                         f'<td>—</td><td>{esc(m.unit)}</td></tr>')
             out.append("</table>")
             out.append("</div>")
+        out.append("</div>")
+    out.append("</div>")
     for name, unit, entries in chart_data:
         if len(entries) < 2:
             continue
         out.append(f"<h4>{esc(name)} ({esc(unit)})</h4>")
-        out.append(bar_chart_svg(name, unit, "higher", entries))
+        out.append(f'<div class="chart">{bar_chart_svg(name, unit, "higher", entries)}</div>')
     out.append(_no_match("lineup"))
     out.append("</section>")
 
@@ -328,6 +392,8 @@ def render_page(findings: list[Finding],
                     f'<a href="{esc(link)}">{esc(f.rationale or "")}</a></p>')
     out.append(_no_match("dead-ends"))
     out.append("</section>")
+
+    out.append(_benchmarks_section(suites, summaries, sections))
 
     out.append("</main>")
     out.append(SCRIPTS)

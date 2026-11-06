@@ -188,7 +188,9 @@ bench/memory_probe.py    provoke the prefill guard and read its arithmetic
 bench/oq4e_overnight.sh  the oQ4e arm: residency, throughput, accuracy
 bench/codernext_*.sh     the retired Coder-Next runs, kept as the record
 proxy/                   LiteLLM + Postgres, role aliases, local-only key
-proxy/launchd/           LaunchAgent templates + install.sh (llm_queue, inference_awake)
+proxy/launchd/           LaunchAgent templates + install.sh (llm_queue, inference_awake, dashboard-live)
+dashboard/               findings dashboard: generate.py -> site/index.html, live.py -> site/running.html
+findings/               the findings layer the dashboard renders; findings/suites/ holds the benchmark cards
 scripts/check_public.sh  pre-push check: no secrets, no machine-specific values
 bench/lcb_audit.py       sort livecodebench failures into causes, no GPU
 bench/lcb_io_fix.py      retry I/O-shaped failures with the contract stated
@@ -208,6 +210,21 @@ docs/backlog.md          what is not done yet, across the whole local stack
 docs/SCOUT.md            model scout runbook, for the agent that schedules it
 scout/                   scout policy (scout.toml) and the Mac's exported setup.json
 ```
+
+## Dashboard
+
+    python3 dashboard/generate.py              # site/index.html, commit it with any findings/ change
+    proxy/launchd/install.sh dashboard-live    # site/running.html every 60 s, local only
+
+`site/index.html` is one self-contained page: the lineup, the candidate board,
+the settled dead ends, and a card per benchmark suite saying what it measures,
+how this stack runs it, and where to read more (`findings/suites/*.toml`). It
+follows the system light or dark theme and works without JavaScript.
+
+`site/running.html` shows what oMLX is running now: a progress bar per accuracy
+suite with the rate and ETA measured since the page first saw it, the loaded
+models, and the queue. `dashboard/live.py` only reads (three GETs per minute,
+each with a timeout), so it is safe beside a benchmark. The page is untracked.
 
 ## The one design rule
 

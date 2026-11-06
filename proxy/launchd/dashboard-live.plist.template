@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  dashboard/live.py: write site/running.html (untracked) every 60 s, the
+  "Running now" page of the findings dashboard. Read-only against oMLX and
+  llm_queue: three GETs per run, each with a timeout.
+
+  Install / reload:   proxy/launchd/install.sh dashboard-live
+  Remove:             proxy/launchd/install.sh --remove dashboard-live
+  The @...@ placeholders are filled from .env.local; see install.sh.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>@PREFIX@.dashboard-live</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>@REPO@/dashboard/live.py</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StartInterval</key>
+  <integer>60</integer>
+  <key>StandardOutPath</key>
+  <string>@LOG_DIR@/dashboard_live.log</string>
+  <key>StandardErrorPath</key>
+  <string>@LOG_DIR@/dashboard_live.log</string>
+</dict>
+</plist>

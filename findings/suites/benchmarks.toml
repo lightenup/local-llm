@@ -1,0 +1,263 @@
+# Benchmark suites shown as cards in the dashboard's "Benchmarks" view.
+#
+# One [[suite]] per benchmark. `id` matches the `benchmark` field in
+# results/acc_*.json (the oMLX suite name) or, for harness = true, the
+# repo's own script. Required: id, name, group, measures, size, how_we_run,
+# links. Optional: findings (FINDINGS § numbers), harness, run (false = bundled
+# with oMLX but never run here).
+#
+# Groups follow bench/accuracy.py GROUPS, plus "harness" for our own scripts.
+
+# ---- code ------------------------------------------------------------------
+
+[[suite]]
+id = "humaneval"
+name = "HumanEval"
+group = "code"
+measures = "Writes a Python function from its signature and docstring; graded by running hidden unit tests. Short, well-known, largely saturated by current models."
+size = "164 problems"
+how_we_run = "All 164, deterministic sampling, thinking off unless a run says otherwise. Graded by oMLX's bundled harness."
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/2107.03374" },
+  { label = "code and data", url = "https://github.com/openai/human-eval" },
+]
+
+[[suite]]
+id = "mbpp"
+name = "MBPP"
+group = "code"
+measures = "Mostly Basic Python Problems: short entry-level programming tasks described in one sentence, graded by the three asserts that ship with each."
+size = "500 problems (test split)"
+how_we_run = "500 (early runs 250), deterministic sampling. Graded by oMLX's bundled harness."
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/2108.07732" },
+  { label = "dataset", url = "https://huggingface.co/datasets/google-research-datasets/mbpp" },
+]
+
+[[suite]]
+id = "livecodebench"
+name = "LiveCodeBench"
+group = "code"
+measures = "Competitive-programming problems collected after model release dates (LeetCode, AtCoder, Codeforces), so they are less likely to be in training data. Graded by running test cases."
+size = "1,054 problems bundled; we sample 500"
+how_we_run = "500, thinking per model, answers capped at 16,384 tokens by oMLX. Since oMLX 0.7.1rc1 the 216 functional problems are prompted as 'implement the function', so only the 284 stdin problems compare with older runs (§41). Answers that hit the cap are counted as wrong (§42)."
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/2403.07974" },
+  { label = "project", url = "https://livecodebench.github.io/" },
+]
+findings = [41, 42]
+
+# ---- reason ----------------------------------------------------------------
+
+[[suite]]
+id = "mmlu_pro"
+name = "MMLU-Pro"
+group = "reason"
+measures = "Harder, reasoning-heavy successor to MMLU: 14 subjects, ten answer options instead of four, fewer trivia questions."
+size = "12,032 questions; we sample 500"
+how_we_run = "500, deterministic sampling. Scored on the extracted option letter."
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/2406.01574" },
+  { label = "dataset", url = "https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro" },
+]
+
+[[suite]]
+id = "gsm8k"
+name = "GSM8K"
+group = "reason"
+measures = "Grade-school maths word problems that take two to eight steps; scored on the final number."
+size = "1,319 problems (test split); we sample 500"
+how_we_run = "500, deterministic sampling."
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/2110.14168" },
+  { label = "code and data", url = "https://github.com/openai/grade-school-math" },
+]
+
+[[suite]]
+id = "mathqa"
+name = "MathQA"
+group = "reason"
+measures = "Multiple-choice maths word problems (GRE/GMAT level) with five options."
+size = "2,985 problems (test split); we sample 500"
+how_we_run = "500, deterministic sampling. oMLX's answer budget suits models that reply with one letter; a model that reasons first is cut off and scores near zero, so mathqa is left out of model comparisons (§29)."
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/1905.13319" },
+  { label = "project", url = "https://math-qa.github.io/" },
+]
+findings = [29]
+
+# ---- general ---------------------------------------------------------------
+
+[[suite]]
+id = "mmlu"
+name = "MMLU"
+group = "general"
+measures = "Four-option multiple-choice knowledge questions across 57 subjects, from elementary maths to law and medicine."
+size = "14,042 questions; we sample 500"
+how_we_run = "500, deterministic sampling."
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/2009.03300" },
+  { label = "code", url = "https://github.com/hendrycks/test" },
+]
+
+[[suite]]
+id = "arc_challenge"
+name = "ARC-Challenge"
+group = "general"
+measures = "Grade-school science questions that simple retrieval and word-matching baselines got wrong."
+size = "1,172 questions; we sample 500"
+how_we_run = "500, deterministic sampling."
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/1803.05457" },
+  { label = "dataset", url = "https://huggingface.co/datasets/allenai/ai2_arc" },
+]
+
+[[suite]]
+id = "hellaswag"
+name = "HellaSwag"
+group = "general"
+measures = "Commonsense sentence completion: pick the plausible continuation of an everyday scenario from four, the wrong ones generated adversarially."
+size = "10,042 questions (validation split); we sample 500"
+how_we_run = "500, deterministic sampling."
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/1905.07830" },
+  { label = "project", url = "https://rowanzellers.com/hellaswag/" },
+]
+
+[[suite]]
+id = "winogrande"
+name = "WinoGrande"
+group = "general"
+measures = "Pronoun-resolution style fill-in-the-blank with two options, built to defeat word-association shortcuts."
+size = "1,267 questions (validation split); we sample 500"
+how_we_run = "500, deterministic sampling."
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/1907.10641" },
+  { label = "dataset", url = "https://huggingface.co/datasets/allenai/winogrande" },
+]
+
+[[suite]]
+id = "truthfulqa"
+name = "TruthfulQA"
+group = "general"
+measures = "Questions where a common misconception is the tempting answer; the multiple-choice form checks whether the model picks the true one."
+size = "817 questions"
+how_we_run = "500, deterministic sampling, multiple-choice form."
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/2109.07958" },
+  { label = "code and data", url = "https://github.com/sylinrl/TruthfulQA" },
+]
+
+# ---- safety ----------------------------------------------------------------
+
+[[suite]]
+id = "safetybench"
+name = "SafetyBench"
+group = "safety"
+measures = "Multiple-choice questions across seven safety categories, such as offensiveness, unfairness, physical and mental health, and privacy."
+size = "11,435 questions (English); we sample 500"
+how_we_run = "500, deterministic sampling."
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/2309.07045" },
+  { label = "code and data", url = "https://github.com/thu-coai/SafetyBench" },
+]
+
+[[suite]]
+id = "bbq"
+name = "BBQ"
+group = "safety"
+measures = "Bias Benchmark for QA: questions about people from social groups, where the right answer is often 'unknown' and a biased model guesses a stereotype."
+size = "10,864 questions; we sample 500"
+how_we_run = "500, deterministic sampling."
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/2110.08193" },
+  { label = "code and data", url = "https://github.com/nyu-mll/BBQ" },
+]
+
+[[suite]]
+id = "cmmlu"
+name = "CMMLU"
+group = "general"
+measures = "MMLU-style multiple-choice knowledge questions in Chinese."
+size = "11,582 questions"
+how_we_run = "Bundled with oMLX; not run here."
+run = false
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/2306.09212" },
+]
+
+[[suite]]
+id = "jmmlu"
+name = "JMMLU"
+group = "general"
+measures = "MMLU-style multiple-choice knowledge questions in Japanese."
+size = "7,536 questions"
+how_we_run = "Bundled with oMLX; not run here."
+run = false
+links = [
+  { label = "dataset", url = "https://github.com/nlp-waseda/JMMLU" },
+]
+
+[[suite]]
+id = "kmmlu"
+name = "KMMLU"
+group = "general"
+measures = "MMLU-style multiple-choice knowledge questions in Korean, written natively rather than translated."
+size = "35,030 questions"
+how_we_run = "Bundled with oMLX; not run here."
+run = false
+links = [
+  { label = "paper", url = "https://arxiv.org/abs/2402.11548" },
+]
+
+# ---- our own harnesses -----------------------------------------------------
+
+[[suite]]
+id = "taskbench"
+name = "taskbench"
+group = "harness"
+harness = true
+measures = "Jobs this stack is used for, each with a deterministic verifier: PlantUML and draw.io diagrams checked for the requested content, tool calls checked for name, argument types and enums, two-turn tool use, and Python checked by asserted behaviour."
+size = "five sub-suites: puml, drawio, toolcall, toolchain, pycode"
+how_we_run = "Through LiteLLM roles, as clients call them. Results stay local; nothing is uploaded."
+links = [
+  { label = "script", url = "../bench/taskbench.py" },
+]
+
+[[suite]]
+id = "longctx"
+name = "Long-context quality"
+group = "harness"
+harness = true
+measures = "Whether a long context is usable, not just admitted: needle retrieval swept over length and depth, plus one multi-hop question per length that combines two distant facts."
+size = "lengths up to 262,144 tokens"
+how_we_run = "Against a role's profile, usually `long` or `fast`."
+links = [
+  { label = "script", url = "../bench/longctx_quality.py" },
+]
+
+[[suite]]
+id = "candidate_gate"
+name = "Candidate gate"
+group = "harness"
+harness = true
+measures = "The cheap checks before any accuracy run: architecture supported, loads, real resident memory, and serves a 16k prompt while the shipped lineup stays resident."
+size = "two 16k-token calls per model"
+how_we_run = "Restores the lineup afterwards. --replaces drains a named model first."
+links = [
+  { label = "script", url = "../bench/candidate_gate.py" },
+]
+findings = [27, 42]
+
+[[suite]]
+id = "throughput"
+name = "Throughput and context"
+group = "harness"
+harness = true
+measures = "oMLX's own speed benchmarks: prefill and decode tokens per second by prompt length and concurrency, and the largest context the memory guard admits."
+size = "per run; results in results/tp_*.json and ctx_*.json"
+how_we_run = "Engine settings are recorded with every result, because a rate without its engine variant cannot be compared."
+links = [
+  { label = "script", url = "../bench/throughput.py" },
+  { label = "context bisect", url = "../bench/ctx_bisect.py" },
+]
