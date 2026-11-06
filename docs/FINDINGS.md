@@ -3627,3 +3627,112 @@ profiles, more sampling will not remove it.
 - **What would reverse `fast`:** the return-type habit showing up in `general`.
   That is the one fast-slot agent that writes code. The cheap fallback is that
   one agent back on `oq-agent`. oQ4e stays loaded and configured.
+
+## 42. Flint, preliminary: both builds pass the gate; thinking cannot be switched off
+
+**Status: preliminary.** No accuracy run yet. Source: the model-scout tick of
+2026-11-06, which reported three `promising` families. Engine oMLX 0.7.3rc1.
+Candidates: `flint-mixed-3-4bit` and `flint-oQ8e`, Recursive's flint, a
+39.8B mixture-of-experts with about 2.5B active per token.
+
+### Leaderboard first (D3 step 1)
+
+`omlx.ai/benchmarks/intelligence`, page 1 per model, read 2026-11-06:
+
+| model | livecodebench | other |
+|---|---|---|
+| `flint-oQ8e` | 76.0, 77.0 (n=100 each) | none |
+| `flint-mixed-3-4bit` | 70.0 (n=100) | MMLU 80.2 / 83.0, MathQA 88.0, MBPP 69 / 79 |
+| `MiniCPM-V-4.7-35B-A3B-OptiQ-4bit-REAP-19B` | none | MMLU 60.3, TruthfulQA 69.7 |
+
+MiniCPM was dropped: no code score, and its MMLU trails flint-mixed by 20 points.
+The run settings D3 asks about (`enable_thinking`, sampling, token cap) are not
+shown, so these are unvetted.
+
+**Correction made the same day.** A first reading put flint-oQ8e about 16 points
+above the 8-bit's 59.8. That 59.8 is from the harness before 0.7.1rc1 (§41), so
+the comparison is invalid. On the current harness `fast` scores 91.0, gemma-31B
+90.8 and oQ4e 81.4. flint's 70–77 sits below all three, if the leaderboard runs
+used the current harness, which is not known.
+
+### Gate (D3 steps 2–4)
+
+| run | verdict | resident | pool | result |
+|---|---|---|---|---|
+| flint-mixed, beside the lineup | PASS | +17.44 GiB | 69.89 GiB | `results/gate_flint_mixed_3_4bit.json` |
+| flint-oQ8e, beside the lineup | reject | +41.34 GiB | 93.78 GiB | `results/gate_flint_oq8e.json` |
+| flint-oQ8e, `--replaces` the 8-bit | PASS | +41.34 GiB | 64.93 GiB | `results/gate_flint_oq8e_replaces.json` |
+
+- The beside-the-lineup reject is narrow. Serving pushed the process to 91.6 GB
+  against a 91.5 GB soft limit and oMLX evicted the 0.6 GB embedder. The 8-bit
+  and `fast` stayed.
+- The scout classes flint-oQ8e as "replaces quality", so the beside test asked a
+  question nobody proposed. `candidate_gate.py --replaces` (added for this) gates
+  it in the 8-bit's slot: 12.5 GiB more than today's pool, with ~26 GB of headroom
+  to the soft limit.
+- Every gate call returned empty content at 256 tokens. That is thinking, not a
+  fault: a short call put 51 of 54 tokens in `reasoning_content`.
+
+### Thinking has no switch and no budget
+
+`bench/flint_thinking_probe.py` on flint-mixed, three short prompts per arm, all
+15 answers correct (`results/flint_thinking_probe.json`). Thinking tokens:
+
+| arm | arith | code | logic |
+|---|---|---|---|
+| bare call | 51 | 135 | 110 |
+| profile `enable_thinking: false` | 45 | 156 | 63 |
+| request `chat_template_kwargs` off | 48 | 251 | 57 |
+| profile thinking budget 64 | 40 | **251** | 76 |
+| system prompt "do not think" | 25 | 180 | 35 |
+
+The vendor's serving notes (`RecursiveSI/flint`, `sglang/README.md`) confirm it:
+the model decides per turn whether to reason, "there is no switch or budget",
+and `enable_thinking` in `chat_template_kwargs` has no effect. The chat template
+has no thinking variable; both builds ship the same file. oMLX's thinking budget
+is not enforced for flint either.
+
+What follows from that:
+
+- flint cannot match the `coder` or `long` profiles (thinking off). Any accuracy
+  comparison with the 8-bit is flint as shipped against the 8-bit as configured.
+- Nothing bounds its thinking except `max_tokens`, which truncates the answer too.
+- The vendor's numbers on hard problems: GPQA-Diamond median 4.3K reasoning
+  tokens, p95 33K, about 5% over 32K. The MLX card says "often 10–30K".
+  The 25–251 above are trivial prompts and say nothing about real work.
+
+### Serving requirements from the cards
+
+- Sampling 1.0 / 0.95 / 20; greedy is not validated. oMLX already applies these
+  from `generation_config.json`.
+- `max_tokens` of at least 32,768 for hard problems; evaluated with up to 81,920.
+- `reasoning_content` goes back on assistant messages in later turns. Content
+  must be a string. `tools` go with every request; tool calls use flint's own
+  XML format.
+
+These are a contract with every client behind a LiteLLM role, not with one
+harness. Whether LiteLLM passes `reasoning_content` back to oMLX in multi-turn
+traffic is not checked.
+
+### Open before an accuracy run
+
+- **The harness caps flint below the vendor's budget.** oMLX's livecodebench asks
+  for 16,384 tokens, and `--thinking` keeps that inside [8,192, 32,768]
+  (`omlx/eval/base.py`), so flint runs at 16K against a 32K recommendation.
+  Truncations must be counted, not read as wrong answers.
+- **The 8-bit has no current-harness livecodebench.** The 284 stdin problems are
+  prompted as before (§41), so flint can be paired against the stored 8-bit
+  answers on those without a 6.2 h re-run. The full 500 compares with `fast`,
+  gemma-31B and oQ4e on the current harness.
+
+### Timing sample: 16 livecodebench questions
+
+`flint-mixed-3-4bit`, `--thinking --sampling model_settings`, batch 8, 16 questions
+(under the upload threshold; `results/acc_flint_mixed_lcb_eta16.json`):
+
+- 15/16 correct. n=16 says nothing about rank; it is a rate measurement.
+- 385.7 s, so 24.1 s per question at batch 8. The 8-bit took 44.5 s on the old
+  harness without thinking.
+- Completion tokens from 468 to 16,384, median about 6,000. The one wrong answer
+  is the one that hit the 16,384 cap (`finish_reason: length`): the harness
+  cap costs flint answers, as expected above.
