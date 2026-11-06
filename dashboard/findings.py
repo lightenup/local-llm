@@ -282,11 +282,16 @@ def load_findings(findings_dir: Path) -> tuple[list[Finding], list[Problem]]:
 
 
 def _slug(title: str) -> str:
-    """GitHub anchor slug: lowercase, punctuation stripped, spaces -> dashes."""
-    s = title.lower()
+    """GitHub anchor slug: lowercase, punctuation stripped, and each space
+    becomes a dash. Runs are not collapsed: "offload — rejected" is
+    "offload--rejected" on GitHub, and site/findings.html uses the same ids."""
+    s = title.strip().lower()
     s = re.sub(r"[^\w\s-]", "", s, flags=re.UNICODE)
-    s = re.sub(r"[\s]+", "-", s.strip())
-    return s
+    return s.replace(" ", "-")
+
+
+def slug(title: str) -> str:
+    return _slug(title)
 
 
 _HEADING_RE = re.compile(r"^## (\d+)\. (.+)$")

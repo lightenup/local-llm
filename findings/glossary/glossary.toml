@@ -1,0 +1,60 @@
+# Terms the dashboard explains on first use per card (<abbr>) and lists in the
+# Glossary view. `section` links the FINDINGS section that settles the term.
+
+[[term]]
+term = "role"
+definition = "The name a client calls through LiteLLM (coder, reasoner, fast, long, embed, rerank). A role maps to one model and profile, so the model behind it can change without touching any client."
+
+[[term]]
+term = "tier"
+definition = "Where a shipped model sits in the lineup: quality (best answers), fast (best speed for good-enough answers) or additive (extra capability beside the other two)."
+section = 19
+
+[[term]]
+term = "profile"
+definition = "An oMLX model profile: one model with a fixed set of sampling, thinking and context settings, exposed under its own id such as Qwen3.8-27B-8bit:qwen-code."
+
+[[term]]
+term = "oQ4e"
+definition = "An oMLX mixed-precision 4-bit quantisation: most weights at 4 bits, sensitive layers kept higher. oQ6e and oQ8e are the 6- and 8-bit versions."
+section = 19
+
+[[term]]
+term = "MTP"
+definition = "Multi-token prediction: extra heads draft the next few tokens and the model verifies them in one pass, which speeds up decoding without changing the answer."
+section = 4
+
+[[term]]
+term = "thinking"
+definition = "Reasoning text a model writes before its answer. It usually raises accuracy and always costs tokens and time; some models cannot switch it off."
+section = 42
+
+[[term]]
+term = "gate"
+definition = "The cheap checks before any accuracy run (bench/candidate_gate.py): the architecture is supported, the model loads, its real memory cost, and that it serves a 16k prompt while the shipped lineup stays loaded. About 10 minutes. It says nothing about answer quality."
+section = 27
+
+[[term]]
+term = "paired"
+definition = "Comparing two models on the same questions, question by question, instead of comparing their overall scores. It separates real differences from noise at sample sizes where overall scores cannot."
+section = 8
+
+[[term]]
+term = "flips"
+definition = "In a paired comparison, the questions one model got right and the other got wrong, written as A/B. Only flips carry information; questions both got right or both got wrong do not."
+section = 8
+
+[[term]]
+term = "McNemar"
+definition = "The significance test for paired right/wrong results, computed from the flips. A small p (below 0.05) means the difference is unlikely to be chance."
+section = 8
+
+[[term]]
+term = "harness"
+definition = "The code that prompts the model and grades its answers; here, oMLX's bundled benchmark suites. An oMLX upgrade can change a prompt (0.7.1rc1 did for livecodebench), so scores only compare within one harness version."
+section = 41
+
+[[term]]
+term = "16K cap"
+definition = "oMLX's livecodebench allows at most 16,384 answer tokens. A model that thinks longer is cut off and the answer counts as wrong, so a capped score understates such a model."
+section = 42

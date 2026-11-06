@@ -104,7 +104,7 @@ class BoardTests(FixturesMixin, unittest.TestCase):
                       "some candidate is retired",
                       "some lever is a dead end",
                       "some question is open"):
-            self.assertEqual(board.count(f"<td>{title}</td>"), 1,
+            self.assertEqual(len(re.findall(rf'<td><a class="title-link" href="[^"]*">{re.escape(title)}</a></td>', board)), 1,
                              f"{title!r} should appear exactly once in #board")
 
     def test_status_mapping(self):
@@ -122,7 +122,7 @@ class BoardTests(FixturesMixin, unittest.TestCase):
         self.write_finding("closed_some_candidate.toml", RETIRED_FINDING)
         html = self._generate()
         board = _board(html)
-        row = re.search(r'<tr[^>]*><td>some candidate is retired</td>.*?</tr>', board, re.S)
+        row = re.search(r'<tr[^>]*><td><a class="title-link" href="[^"]*">some candidate is retired</a></td>.*?</tr>', board, re.S)
         self.assertIsNotNone(row)
         self.assertIn("Some-Candidate", row.group(0))
         self.assertIn("badge-retired", row.group(0))
@@ -136,10 +136,10 @@ class BoardTests(FixturesMixin, unittest.TestCase):
             ("some candidate is retired", "livecodebench 43.2 vs 59.8, pooled p = 0.00003."),
             ("some lever is a dead end", "Measured worse on every number at a 20 GB cost."),
         ):
-            row = re.search(rf'<tr[^>]*><td>{title}</td>.*?</tr>', board, re.S)
+            row = re.search(rf'<tr[^>]*><td><a class="title-link" href="[^"]*">{title}</a></td>.*?</tr>', board, re.S)
             self.assertIsNotNone(row, title)
             self.assertIn(rationale, row.group(0))
-            self.assertIn("docs/FINDINGS.md#", row.group(0))
+            self.assertIn("findings.html#", row.group(0))
 
     def test_no_rationale_row_is_not_blank(self):
         # a finding without a rationale still renders a row (empty cell, not a
@@ -148,7 +148,7 @@ class BoardTests(FixturesMixin, unittest.TestCase):
         self.write_finding("lineup_quality_8bit.toml", body)
         html = self._generate()
         board = _board(html)
-        row = re.search(r'<tr[^>]*><td>Qwen3.8-27B-8bit ships the quality tier</td>.*?</tr>',
+        row = re.search(r'<tr[^>]*><td><a class="title-link" href="[^"]*">Qwen3.8-27B-8bit ships the quality tier</a></td>.*?</tr>',
                         board, re.S)
         self.assertIsNotNone(row)
 
