@@ -3628,9 +3628,10 @@ profiles, more sampling will not remove it.
   That is the one fast-slot agent that writes code. The cheap fallback is that
   one agent back on `oq-agent`. oQ4e stays loaded and configured.
 
-## 42. Flint, preliminary: both builds pass the gate; thinking cannot be switched off
+## 42. Flint: both builds pass the gate; thinking cannot be switched off; neither beats the lineup at code
 
-**Status: preliminary.** No accuracy run yet. Source: the model-scout tick of
+**Status: measured, livecodebench only.** Both builds trail every lineup model
+on livecodebench 500 (see the last subsection). Source: the model-scout tick of
 2026-11-06, which reported three `promising` families. Engine oMLX 0.7.3rc1.
 Candidates: `flint-mixed-3-4bit` and `flint-oQ8e`, Recursive's flint, a
 39.8B mixture-of-experts with about 2.5B active per token.
@@ -3736,3 +3737,93 @@ traffic is not checked.
 - Completion tokens from 468 to 16,384, median about 6,000. The one wrong answer
   is the one that hit the 16,384 cap (`finish_reason: length`): the harness
   cap costs flint answers, as expected above.
+
+### livecodebench 500, both builds
+
+`bench/flint_lcb.sh`, 2026-11-06, oMLX 0.7.3rc1, `--thinking --sampling
+model_settings`, batch 8, current harness. flint-mixed ran beside the lineup;
+flint-oQ8e ran in the 8-bit's slot, as gated.
+
+| build | score | stdin 284 | functional 216 | hit the 16K cap | wrong and capped | wall time |
+|---|---|---|---|---|---|---|
+| flint-mixed-3-4bit | 72.4 (362) | 194 | 168 | 132 | 126 of 138 | 5.0 h |
+| flint-oQ8e | 73.0 (365) | 200 | 165 | 131 | 125 of 135 | 5.8 h |
+
+Results: `results/acc_flint_mixed_lcb500.json`, `results/acc_flint_oq8e_lcb500.json`.
+
+Paired (McNemar, exact):
+
+| flint build | against | n | flint vs other | flips (flint only / other only) | p |
+|---|---|---|---|---|---|
+| oQ8e | flint-mixed | 500 | 73.0 vs 72.4 | 27 / 24 | 0.78 |
+| mixed | `fast` (gemma-26B-A4B) | 500 | 72.4 vs 91.0 | 6 / 99 | 8e-23 |
+| oQ8e | `fast` (gemma-26B-A4B) | 500 | 73.0 vs 91.0 | 7 / 97 | 2e-21 |
+| mixed | gemma-31B | 500 | 72.4 vs 90.8 | 7 / 99 | 6e-22 |
+| oQ8e | gemma-31B | 500 | 73.0 vs 90.8 | 6 / 95 | 1e-21 |
+| mixed | oQ4e | 500 | 72.4 vs 81.4 | 28 / 73 | 9e-06 |
+| oQ8e | oQ4e | 500 | 73.0 vs 81.4 | 30 / 72 | 4e-05 |
+| mixed | 8-bit, as shipped (`acc_ship_code`) | 284 stdin | 68.3 vs 81.3 | 16 / 53 | 9e-06 |
+| oQ8e | 8-bit, as shipped (`acc_ship_code`) | 284 stdin | 70.4 vs 81.3 | 13 / 44 | 5e-05 |
+
+What this says:
+
+- The two builds do not differ (p 0.78). The 8-bit weights buy nothing measurable
+  here and cost 24 GiB more resident (gate table above).
+- Both lose to every lineup model by 8–19 points, all at p below 1e-4.
+- The 16K cap explains most of the gap, so it is a fact about flint under this
+  harness, and it holds for real clients too: 109 problems hit the cap on both
+  builds, and 91% of the wrong answers are truncations. A client with
+  `max_tokens` below 32K meets the same limit (vendor recommendation above).
+  Whether flint at 32K would close the gap is open; at a median of 8–9K
+  completion tokens and p90 at the cap, a 32K run would take an estimated 6 h or more per
+  build.
+- Not measured: general, reasoning and safety suites, taskbench, and the
+  `reasoning_content` round trip through LiteLLM.
+
+Run notes:
+
+- During flint-oQ8e's first 167 questions the homelab gateway's health probes
+  (`max_tokens=1` every 5 min on `coder` and `reasoner`) reloaded the 8-bit 21
+  times. Each reload evicted flint, so that stretch ran slower. The answers do
+  not depend on residency, so the score is assumed unaffected. The gateway was
+  stopped for the rest of the run.
+- After phase B the script's restore step could not reload the 8-bit: at
+  21:33:03 the machine's managed patch tool began installing oMLX 0.7.4.dev1
+  and stopped the server; the install finished at 21:38:03. The update came
+  after the run, not during it: flint-oQ8e's last answer and unload were at
+  21:32:12, and the server log shows one server process from 2026-11-05 08:28
+  until 21:32, so both builds ran on 0.7.3rc1. The tool had deferred the
+  update three times since 2026-11-05, the deferral limit; its record marks
+  the 21:33 install user-initiated.
+
+### Re-check on oMLX 0.7.4.dev1
+
+The managed update above replaced the engine after the run. On 2026-11-06,
+after the update, this checked whether the flint numbers still describe the
+new version:
+
+| check | 0.7.3rc1 | 0.7.4.dev1 | result |
+|---|---|---|---|
+| gate, flint-mixed beside the lineup | PASS, 17.44 GiB, pool 69.89 | PASS, 17.44 GiB, pool 69.89 | `results/gate_flint_mixed_3_4bit_074.json` |
+| gate, flint-oQ8e `--replaces` the 8-bit | PASS, 41.34 GiB, pool 64.93 | PASS, 41.34 GiB, pool 64.93 | `results/gate_flint_oq8e_replaces_074.json` |
+| livecodebench prompts, 500 problems | as run | 500 of 500 identical | rebuilt with the new `format_prompt` |
+| livecodebench grading of the stored answers | 362 and 365 | 362 and 365, 1,000 of 1,000 agree | re-graded with the new `extract_answer` and `check_answer` |
+| livecodebench answer cap | 16,384 | 16,384 | `get_max_tokens`; thinking clamp still [8,192, 32,768] |
+| thinking probe, 15 calls | all correct | all correct; budget 64 still not enforced (169 tokens) | `results/flint_thinking_probe_074.json` |
+
+- Gate call times match within noise. flint-oQ8e's first call took 9.7 s against
+  3.8 s in the morning's `--replaces` gate. The morning gate followed the
+  beside-the-lineup gate, whose cold first call took 10.8 s, so its prompt was
+  probably cached (assumed).
+- Thinking-token counts moved both ways, by up to 4x on these trivial prompts.
+  This is sampling at temperature 1.0 on 15 single calls, and says nothing
+  about livecodebench lengths.
+- Not checked: generation speed and answer lengths on real problems. Only
+  another accuracy run measures those.
+
+So the harness is unchanged and the results carry over: a new flint run on
+0.7.4.dev1 compares with the two above. The re-check found no evidence that
+the update changed what the model generates, but it did not test that.
+
+Decision: neither flint build goes into a role on this evidence. Status stays
+open until someone decides whether a 32K run is worth its cost.

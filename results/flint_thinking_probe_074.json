@@ -1,0 +1,167 @@
+[
+  {
+    "arm": "bare",
+    "prompt": "arith",
+    "ok": true,
+    "completion": 236,
+    "reasoning_tokens": 233,
+    "reasoning_chars": 784,
+    "finish": "stop",
+    "content": "391",
+    "wall_s": 8.2
+  },
+  {
+    "arm": "bare",
+    "prompt": "code",
+    "ok": true,
+    "completion": 269,
+    "reasoning_tokens": 259,
+    "reasoning_chars": 1083,
+    "finish": "stop",
+    "content": "```python\ns[::-1]\n```",
+    "wall_s": 1.9
+  },
+  {
+    "arm": "bare",
+    "prompt": "logic",
+    "ok": true,
+    "completion": 79,
+    "reasoning_tokens": 76,
+    "reasoning_chars": 303,
+    "finish": "stop",
+    "content": "Carol",
+    "wall_s": 0.7
+  },
+  {
+    "arm": "profile_off",
+    "prompt": "arith",
+    "ok": true,
+    "completion": 24,
+    "reasoning_tokens": 21,
+    "reasoning_chars": 74,
+    "finish": "stop",
+    "content": "391",
+    "wall_s": 0.2
+  },
+  {
+    "arm": "profile_off",
+    "prompt": "code",
+    "ok": true,
+    "completion": 221,
+    "reasoning_tokens": 215,
+    "reasoning_chars": 887,
+    "finish": "stop",
+    "content": "s[::-1]",
+    "wall_s": 1.6
+  },
+  {
+    "arm": "profile_off",
+    "prompt": "logic",
+    "ok": true,
+    "completion": 74,
+    "reasoning_tokens": 71,
+    "reasoning_chars": 321,
+    "finish": "stop",
+    "content": "Carol",
+    "wall_s": 0.5
+  },
+  {
+    "arm": "request_kwarg_off",
+    "prompt": "arith",
+    "ok": true,
+    "completion": 50,
+    "reasoning_tokens": 47,
+    "reasoning_chars": 166,
+    "finish": "stop",
+    "content": "391",
+    "wall_s": 0.4
+  },
+  {
+    "arm": "request_kwarg_off",
+    "prompt": "code",
+    "ok": true,
+    "completion": 451,
+    "reasoning_tokens": 441,
+    "reasoning_chars": 1746,
+    "finish": "stop",
+    "content": "```python\ns[::-1]\n```",
+    "wall_s": 3.2
+  },
+  {
+    "arm": "request_kwarg_off",
+    "prompt": "logic",
+    "ok": true,
+    "completion": 126,
+    "reasoning_tokens": 123,
+    "reasoning_chars": 517,
+    "finish": "stop",
+    "content": "Carol",
+    "wall_s": 0.9
+  },
+  {
+    "arm": "budget_64",
+    "prompt": "arith",
+    "ok": true,
+    "completion": 39,
+    "reasoning_tokens": 36,
+    "reasoning_chars": 137,
+    "finish": "stop",
+    "content": "391",
+    "wall_s": 0.3
+  },
+  {
+    "arm": "budget_64",
+    "prompt": "code",
+    "ok": true,
+    "completion": 179,
+    "reasoning_tokens": 169,
+    "reasoning_chars": 691,
+    "finish": "stop",
+    "content": "`lambda s: s[::-1]`",
+    "wall_s": 1.3
+  },
+  {
+    "arm": "budget_64",
+    "prompt": "logic",
+    "ok": true,
+    "completion": 79,
+    "reasoning_tokens": 76,
+    "reasoning_chars": 280,
+    "finish": "stop",
+    "content": "Carol",
+    "wall_s": 0.6
+  },
+  {
+    "arm": "system_no_think",
+    "prompt": "arith",
+    "ok": true,
+    "completion": 43,
+    "reasoning_tokens": 40,
+    "reasoning_chars": 146,
+    "finish": "stop",
+    "content": "391",
+    "wall_s": 0.4
+  },
+  {
+    "arm": "system_no_think",
+    "prompt": "code",
+    "ok": true,
+    "completion": 165,
+    "reasoning_tokens": 155,
+    "reasoning_chars": 615,
+    "finish": "stop",
+    "content": "```python\ns[::-1]\n```",
+    "wall_s": 1.4
+  },
+  {
+    "arm": "system_no_think",
+    "prompt": "logic",
+    "ok": true,
+    "completion": 55,
+    "reasoning_tokens": 52,
+    "reasoning_chars": 221,
+    "finish": "stop",
+    "content": "Carol",
+    "wall_s": 0.5
+  }
+]

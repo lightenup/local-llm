@@ -1,0 +1,43 @@
+[
+  {
+    "model_id": "flint-mixed-3-4bit",
+    "at": "2026-11-06T23:56:22",
+    "disk_gib": 17.44,
+    "config_model_type": "flint",
+    "context": 262144,
+    "mtp_compatible": false,
+    "mtp_reason": "model has no MTP heads in config",
+    "arch_supported": true,
+    "lineup": [
+      "Qwen3-Embedding-0.6B-8bit",
+      "Qwen3-Reranker-0.6B-mxfp8",
+      "Qwen3.8-27B-8bit",
+      "gemma-4-26B-A4B-it-oQ6e-mtp"
+    ],
+    "load_s": 9.0,
+    "resident_gib": 17.44,
+    "pool_gib": 69.89,
+    "lineup_survived_load": true,
+    "calls": [
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 15309,
+        "wall_s": 8.8,
+        "finish": "length",
+        "head": ""
+      },
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 15309,
+        "wall_s": 3.6,
+        "finish": "length",
+        "head": ""
+      }
+    ],
+    "lineup_survived_serving": true,
+    "coexists": true,
+    "verdict": "PASS -- coexists and serves"
+  }
+]
