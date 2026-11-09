@@ -21,11 +21,20 @@ set -euo pipefail
 
 home="${HERMES_HOME:-$HOME/.hermes}"
 repo="${SCOUT_REPO:-$home/workspace/local-llm}"
+repo_url="${SCOUT_REPO_URL:-https://github.com/lightenup/local-llm.git}"
 export SCOUT_STATE="${SCOUT_STATE:-$home/state/model_scout.json}"
 report="${SCOUT_REPORT:-$home/state/model_scout_report.json}"
+# This job and scout-assess update the same shallow clone. When two shallow
+# fetches overlap, git aborts one ("shallow file has changed since we read it",
+# 2026-11-09 07:30) instead of waiting, so both take this lock around the
+# update. It lives outside the clone so it also covers the first clone. Taken
+# in a subshell, it is released before the scan; `exec 9>` would hand it on.
+git_lock="$home/state/scout-git.lock"
+git_lock_wait="${SCOUT_GIT_LOCK_WAIT:-240}"
 . "$(dirname "${BASH_SOURCE[0]}")/git-auth.sh" 2>/dev/null \
   || . "$repo/scout/git-auth.sh" 2>/dev/null \
   || scout_git() { git "$@"; }
+mkdir -p "$home/state" "$(dirname "$repo")"
 
 stale=""
 if [ -d "$repo/.git" ]; then
@@ -36,15 +45,22 @@ if [ -d "$repo/.git" ]; then
   # read-only, and pull obeys the clone's branch config, which on 2026-11-06
   # named two merge heads and failed with "Cannot fast-forward to multiple
   # branches". This repairs any such state on the next tick.
-  if ! err=$( { scout_git -C "$repo" fetch -q --depth 1 origin main \
-                && git -C "$repo" checkout -q -f -B main FETCH_HEAD; } 2>&1); then
+  if ! err=$( (
+        flock -w "$git_lock_wait" 9 \
+          || { echo "timed out after ${git_lock_wait}s waiting for the scout git lock" >&2; exit 75; }
+        scout_git -C "$repo" fetch -q --depth 1 origin main \
+          && git -C "$repo" checkout -q -f -B main FETCH_HEAD
+      ) 9>"$git_lock" 2>&1); then
     stale="warning: git pull failed, scanned with the clone of $(git -C "$repo" log -1 --format=%cs): ${err%%$'\n'*}"
   fi
 else
-  mkdir -p "$(dirname "$repo")"
-  scout_git clone -q --depth 1 https://github.com/lightenup/local-llm.git "$repo"
+  (
+    flock -w "$git_lock_wait" 9 \
+      || { echo "timed out after ${git_lock_wait}s waiting for the scout git lock" >&2; exit 75; }
+    # A run that waited here behind another first clone finds it done.
+    [ -d "$repo/.git" ] || scout_git clone -q --depth 1 "$repo_url" "$repo"
+  ) 9>"$git_lock"
 fi
-
 status=0
 python3 "$repo/bench/model_scout.py" scan --quiet --report-out "$report" || status=$?
 [ -z "$stale" ] || printf '\n%s\n' "$stale"

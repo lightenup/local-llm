@@ -28,14 +28,22 @@ set -euo pipefail
 home="${HERMES_HOME:-$HOME/.hermes}"
 repo="${SCOUT_REPO:-$home/workspace/local-llm}"
 export SCOUT_ASSESS_STATE="${SCOUT_ASSESS_STATE:-$home/state/scout_assess.json}"
+# The same lock as hermes-cron.sh, for the reason given there.
+git_lock="$home/state/scout-git.lock"
+git_lock_wait="${SCOUT_GIT_LOCK_WAIT:-240}"
 
 # model-scout.sh keeps the clone current and reports a failed pull in its daily
 # message. Here any stdout starts a model call, so a failure only goes to stderr.
 . "$repo/scout/git-auth.sh" 2>/dev/null || scout_git() { git "$@"; }
-# Fetch and force onto main, not `pull`, for the reason in hermes-cron.sh.
-{ scout_git -C "$repo" fetch -q --depth 1 origin main \
-  && git -C "$repo" checkout -q -f -B main FETCH_HEAD; } >&2 || true
-
+mkdir -p "$home/state"
+# Fetch and force onto main, not `pull`, for the reason in hermes-cron.sh. The
+# subshell releases the lock before the exec below.
+(
+  flock -w "$git_lock_wait" 9 \
+    || { echo "timed out after ${git_lock_wait}s waiting for the scout git lock" >&2; exit 75; }
+  scout_git -C "$repo" fetch -q --depth 1 origin main \
+    && git -C "$repo" checkout -q -f -B main FETCH_HEAD
+) 9>"$git_lock" >&2 || true
 exec python3 "$repo/bench/model_scout.py" assess-gate \
   --report "${SCOUT_REPORT:-$home/state/model_scout_report.json}" \
   --jobs "$home/cron/jobs.json" --job-name "${SCOUT_ASSESS_JOB:-scout-assess}"

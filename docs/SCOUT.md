@@ -49,6 +49,15 @@ runs on the old clone and the delivered message ends with
 pass for a quiet week. The assessment job only logs a failed pull: any stdout there starts
 a model call.
 
+**One clone, one lock.** Both jobs update the same shallow clone, and when two shallow
+fetches overlap git aborts one ("shallow file has changed since we read it") instead of
+waiting; on 2026-11-09 the 07:30 scan ran on a stale clone because of it. Each script
+therefore takes an exclusive `flock` on `$HERMES_HOME/state/scout-git.lock` around its
+fetch or first clone, and releases it before the scan. `SCOUT_GIT_LOCK_WAIT` (default
+240 s) caps the wait; on a timeout the scan runs on the old clone with the usual
+`git pull failed` warning. `SCOUT_REPO_URL` overrides the clone URL, which the tests in
+`tests/test_scout_git_lock.py` use to clone from a local repo.
+
 Set `NTFY_MARKDOWN=true` in the agent's `.env` so the report renders. The `--notify` sinks
 below are the alternative for running without Hermes Agent.
 
