@@ -31,6 +31,13 @@ report="${SCOUT_REPORT:-$home/state/model_scout_report.json}"
 # in a subshell, it is released before the scan; `exec 9>` would hand it on.
 git_lock="$home/state/scout-git.lock"
 git_lock_wait="${SCOUT_GIT_LOCK_WAIT:-240}"
+# Takes the lock on fd 9, which the caller has opened on $git_lock.
+take_git_lock() {
+  command -v flock >/dev/null \
+    || { echo "flock is not installed, so the scout git lock cannot be taken" >&2; return 127; }
+  flock -w "$git_lock_wait" 9 \
+    || { echo "timed out after ${git_lock_wait}s waiting for the scout git lock" >&2; return 75; }
+}
 . "$(dirname "${BASH_SOURCE[0]}")/git-auth.sh" 2>/dev/null \
   || . "$repo/scout/git-auth.sh" 2>/dev/null \
   || scout_git() { git "$@"; }
@@ -46,8 +53,7 @@ if [ -d "$repo/.git" ]; then
   # named two merge heads and failed with "Cannot fast-forward to multiple
   # branches". This repairs any such state on the next tick.
   if ! err=$( (
-        flock -w "$git_lock_wait" 9 \
-          || { echo "timed out after ${git_lock_wait}s waiting for the scout git lock" >&2; exit 75; }
+        take_git_lock || exit
         scout_git -C "$repo" fetch -q --depth 1 origin main \
           && git -C "$repo" checkout -q -f -B main FETCH_HEAD
       ) 9>"$git_lock" 2>&1); then
@@ -55,8 +61,7 @@ if [ -d "$repo/.git" ]; then
   fi
 else
   (
-    flock -w "$git_lock_wait" 9 \
-      || { echo "timed out after ${git_lock_wait}s waiting for the scout git lock" >&2; exit 75; }
+    take_git_lock || exit
     # A run that waited here behind another first clone finds it done.
     [ -d "$repo/.git" ] || scout_git clone -q --depth 1 "$repo_url" "$repo"
   ) 9>"$git_lock"

@@ -34,7 +34,8 @@ keeps the seen-repo state there too (so the agent's backup covers it), and runs
 (`Model scout: nothing new since …`) when there is not, so a quiet day can be told
 apart from a scout that did not run:
 
-    cp scout/hermes-cron.sh "$HERMES_HOME/scripts/model-scout.sh"
+    printf '#!/usr/bin/env bash\nexec bash "$HERMES_HOME/workspace/local-llm/scout/hermes-cron.sh"\n' \
+      > "$HERMES_HOME/scripts/model-scout.sh"
     hermes cron create "30 7 * * *" --no-agent --script model-scout.sh \
       --deliver ntfy --name model-scout
     hermes cron run <job_id>
@@ -54,8 +55,15 @@ fetches overlap git aborts one ("shallow file has changed since we read it") ins
 waiting; on 2026-11-09 the 07:30 scan ran on a stale clone because of it. Each script
 therefore takes an exclusive `flock` on `$HERMES_HOME/state/scout-git.lock` around its
 fetch or first clone, and releases it before the scan. `SCOUT_GIT_LOCK_WAIT` (default
-240 s) caps the wait; on a timeout the scan runs on the old clone with the usual
-`git pull failed` warning. `SCOUT_REPO_URL` overrides the clone URL, which the tests in
+240 s) caps the wait. When the lock cannot be taken (a timeout, or no `flock` on the
+host), each job handles it as it handles any failed pull:
+
+- model-scout with a clone scans the old clone, and the message ends with the
+  `git pull failed` warning;
+- model-scout without a clone has nothing to scan, so the run fails and Hermes reports it;
+- scout-assess writes the error to stderr only and runs its gate on the old clone.
+
+`SCOUT_REPO_URL` overrides the clone URL, which the tests in
 `tests/test_scout_git_lock.py` use to clone from a local repo.
 
 Set `NTFY_MARKDOWN=true` in the agent's `.env` so the report renders. The `--notify` sinks

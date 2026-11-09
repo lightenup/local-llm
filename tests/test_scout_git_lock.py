@@ -157,6 +157,30 @@ class ScoutGitLockTests(unittest.TestCase):
         self.assertIn("timed out", err)
         self.assertEqual(self.clone_head(), before)
 
+    def test_missing_flock_is_named_not_reported_as_a_timeout(self):
+        # A PATH with what the scripts need except flock.
+        bin_dir = self.tmp / "bin"
+        bin_dir.mkdir()
+        for tool in ("bash", "git", "python3", "dirname", "mkdir"):
+            (bin_dir / tool).symlink_to(shutil.which(tool))
+        self.make_clone()
+        before = self.clone_head()
+        self.push_commit()
+
+        code, out, err = self.run_script(CRON, PATH=str(bin_dir))
+        self.assertEqual(code, 0, err)
+        self.assertIn("SCAN", out)
+        self.assertIn("warning: git pull failed", out)
+        self.assertIn("flock is not installed", out)
+        self.assertNotIn("timed out", out)
+        self.assertEqual(self.clone_head(), before)
+
+        code, out, err = self.run_script(ASSESS, PATH=str(bin_dir))
+        self.assertEqual(code, 0, err)
+        self.assertEqual(out, "SCAN\n")
+        self.assertIn("flock is not installed", err)
+        self.assertNotIn("timed out", err)
+
     def test_parallel_first_clone(self):
         lock = self.hold_lock()  # line both runs up behind the lock
         procs = [self.start(CRON) for _ in range(2)]

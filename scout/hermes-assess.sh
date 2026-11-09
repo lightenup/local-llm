@@ -31,6 +31,13 @@ export SCOUT_ASSESS_STATE="${SCOUT_ASSESS_STATE:-$home/state/scout_assess.json}"
 # The same lock as hermes-cron.sh, for the reason given there.
 git_lock="$home/state/scout-git.lock"
 git_lock_wait="${SCOUT_GIT_LOCK_WAIT:-240}"
+# Takes the lock on fd 9, which the caller has opened on $git_lock.
+take_git_lock() {
+  command -v flock >/dev/null \
+    || { echo "flock is not installed, so the scout git lock cannot be taken" >&2; return 127; }
+  flock -w "$git_lock_wait" 9 \
+    || { echo "timed out after ${git_lock_wait}s waiting for the scout git lock" >&2; return 75; }
+}
 
 # model-scout.sh keeps the clone current and reports a failed pull in its daily
 # message. Here any stdout starts a model call, so a failure only goes to stderr.
@@ -39,8 +46,7 @@ mkdir -p "$home/state"
 # Fetch and force onto main, not `pull`, for the reason in hermes-cron.sh. The
 # subshell releases the lock before the exec below.
 (
-  flock -w "$git_lock_wait" 9 \
-    || { echo "timed out after ${git_lock_wait}s waiting for the scout git lock" >&2; exit 75; }
+  take_git_lock || exit
   scout_git -C "$repo" fetch -q --depth 1 origin main \
     && git -C "$repo" checkout -q -f -B main FETCH_HEAD
 ) 9>"$git_lock" >&2 || true
