@@ -3911,10 +3911,30 @@ The reboots on 2026-11-07 and 2026-11-08 recovered.
 | doctor-quick under launchd, first run | 22/23: a queue check called bare `docker`, which is not on launchd's PATH. Fixed to an absolute path |
 | doctor-quick under launchd, second run | 23/23 in 12 s; `local_doctor_success 1` |
 
+### The homelab alert, deployed and drilled (2026-11-10)
+
+The homelab Prometheus alerts on these gauges (homelab spec 064):
+`MacStackComponentDown` fires when a component reads 0 for 10 minutes while
+the `:9464` scrape is up, and `MacDoctorFailing` fires on a failed or
+8-hour-stale scheduled doctor. Drill, with the supervisor booted out:
+
+| time | event |
+|---|---|
+| 09:44:25 | `litellm` stopped |
+| 09:44:36 | alert pending |
+| 09:54:36 | alert firing; received on the phone at 09:54 |
+| 09:57:16 | supervisor reloaded; ran `up -d` the same second |
+| 09:57:52 | `:4000` 200, alert inactive |
+
 Pending, owner actions: a reboot test (the chain answers and the doctor has
 run within 5 minutes of login, with no input), a 30-minute idle on AC at home
 with no Sleep entries in `pmset -g log`, then unplugging to see the hold
-release. The homelab alerts on these gauges are a separate change (spec 064).
+release.
+
+Open: why Docker's restart policy did not restart the containers on
+2026-11-09; and whether the gateway canary should stop reading an unreachable
+backend as "asleep" while the `:9464` scrape is up, which needs some days of
+data with the new keep-awake first.
 
 ### Decisions (owner, 2026-11-10)
 
