@@ -30,7 +30,9 @@ Policy:
 Only POST /v1/* is gated. Everything else (GET /v1/models, /health, the admin
 API) passes straight through. Stdlib only.
 
-Monitoring: GET /metrics (Prometheus text), GET /queue/status (JSON),
+Monitoring: GET /metrics (Prometheus text; with --stack-health also one
+up/down gauge per stack component plus the supervisor and doctor gauges,
+§43), GET /queue/status (JSON),
 --event-log (one JSON line per gated request), and X-LLM-Queue-Wait-Ms /
 X-LLM-Queue-Depth on every relayed response. LiteLLM keeps those as
 `llm_provider-x-llm-queue-*` in its logging payload.
@@ -46,6 +48,7 @@ import asyncio
 import itertools
 import json
 import logging
+import os
 import time
 from collections import deque
 from dataclasses import dataclass, field
@@ -295,6 +298,148 @@ class Metrics:
         return "\n".join(out) + "\n"
 
 
+# --------------------------------------------------------------------------
+# Stack health (FINDINGS §43): per-piece gauges for the homelab Prometheus
+# --------------------------------------------------------------------------
+
+STACK_COMPONENTS = ("omlx", "llm_queue", "litellm", "tls_terminator")
+
+
+def _http_probe(url: str, key: str = "", timeout: float = 1.0) -> bool:
+    import urllib.request
+    headers = {"Authorization": f"Bearer {key}"} if key else {}
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers=headers),
+                                    timeout=timeout) as r:
+            return 200 <= r.status < 300
+    except (OSError, ValueError):
+        return False
+
+
+def _tcp_probe(host: str, port: int, timeout: float = 1.0) -> bool:
+    import socket
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
+def _read_json(path: str | None) -> dict | None:
+    if not path:
+        return None
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def doctor_summary(doc: dict | None, mtime: float | None = None) -> dict | None:
+    """{"success": 0|1, "at": epoch} from a bench/doctor.py JSON, or None."""
+    if not doc or not isinstance(doc.get("results"), list):
+        return None
+    at = doc.get("at_epoch")
+    if at is None and doc.get("at"):
+        try:
+            at = time.mktime(time.strptime(doc["at"], "%Y-%m-%dT%H:%M:%S"))
+        except ValueError:
+            at = mtime
+    ok = bool(doc["results"]) and all(r.get("ok") for r in doc["results"])
+    return {"success": int(ok), "at": at}
+
+
+def render_stack(up: dict, supervisor: dict | None, doctor: dict | None) -> str:
+    """Prometheus text for the stack gauges. Pure, so it can be tested."""
+    out = ["# HELP local_stack_component_up 1 if the component answered its "
+           "probe (1 s timeout, refreshed every 10 s).",
+           "# TYPE local_stack_component_up gauge"]
+    for c in STACK_COMPONENTS:
+        if c in up:
+            out.append(f'local_stack_component_up{{component="{c}"}} {int(bool(up[c]))}')
+    if supervisor:
+        last = supervisor.get("last_action") or {}
+        out += ["# HELP local_stack_supervisor_actions_total Actions the stack "
+                "supervisor has taken, by action.",
+                "# TYPE local_stack_supervisor_actions_total counter"]
+        for a, n in sorted((supervisor.get("actions_total") or {}).items()):
+            out.append(f'local_stack_supervisor_actions_total{{action="{a}"}} {int(n)}')
+        if last.get("at") is not None:
+            out += ["# HELP local_stack_supervisor_last_action_timestamp_seconds "
+                    "When the supervisor last acted.",
+                    "# TYPE local_stack_supervisor_last_action_timestamp_seconds gauge",
+                    "local_stack_supervisor_last_action_timestamp_seconds "
+                    f"{float(last['at']):.0f}"]
+        if supervisor.get("heartbeat") is not None:
+            out += ["# HELP local_stack_supervisor_heartbeat_timestamp_seconds "
+                    "When the supervisor last completed a check.",
+                    "# TYPE local_stack_supervisor_heartbeat_timestamp_seconds gauge",
+                    "local_stack_supervisor_heartbeat_timestamp_seconds "
+                    f"{float(supervisor['heartbeat']):.0f}"]
+    if doctor:
+        out += ["# HELP local_doctor_success 1 if every check in the last "
+                "scheduled doctor run passed.",
+                "# TYPE local_doctor_success gauge",
+                f"local_doctor_success {doctor['success']}"]
+        if doctor.get("at") is not None:
+            out += ["# HELP local_doctor_last_run_timestamp_seconds When the "
+                    "last scheduled doctor run finished.",
+                    "# TYPE local_doctor_last_run_timestamp_seconds gauge",
+                    f"local_doctor_last_run_timestamp_seconds {float(doctor['at']):.0f}"]
+    return "\n".join(out) + "\n"
+
+
+class StackHealth:
+    """Probe each piece every `interval` s in a worker thread; a scrape only
+    reads the cached result, so it never waits on a probe or the request path."""
+
+    def __init__(self, probes: dict, supervisor_state: str | None = None,
+                 doctor_json: str | None = None, interval: float = 10.0):
+        self.probes = probes
+        self.supervisor_state, self.doctor_json = supervisor_state, doctor_json
+        self.interval = interval
+        self.text = ""
+
+    def refresh(self) -> str:
+        up = {}
+        for name, fn in self.probes.items():
+            try:
+                up[name] = bool(fn())
+            except Exception:  # noqa: BLE001  a crashing probe is a down probe
+                up[name] = False
+        mtime = None
+        if self.doctor_json:
+            try:
+                mtime = os.path.getmtime(self.doctor_json)
+            except OSError:
+                pass
+        self.text = render_stack(up, _read_json(self.supervisor_state),
+                                 doctor_summary(_read_json(self.doctor_json), mtime))
+        return self.text
+
+    async def run(self):
+        while True:
+            try:
+                await asyncio.to_thread(self.refresh)
+            except Exception as e:  # noqa: BLE001
+                log.warning("stack probe failed: %s", e)
+            await asyncio.sleep(self.interval)
+
+
+def default_probes(upstream: tuple[str, int], queue_port: int,
+                   litellm: str = "http://127.0.0.1:4000",
+                   tls: tuple[str, int] = ("127.0.0.1", 4443)) -> dict:
+    from inference_awake import api_key   # same key source as the awake agent
+    key = api_key()
+    uh, up = upstream
+    return {
+        "omlx": lambda: _http_probe(f"http://{uh}:{up}/api/status", key),
+        "llm_queue": lambda: _http_probe(f"http://127.0.0.1:{queue_port}/queue/status"),
+        "litellm": lambda: _http_probe(f"{litellm}/health/liveliness"),
+        "tls_terminator": lambda: _tcp_probe(*tls),
+    }
+
+
 def _text_response(text: str, ctype="text/plain; version=0.0.4") -> bytes:
     data = text.encode()
     return (f"HTTP/1.1 200 OK\r\nContent-Type: {ctype}\r\n"
@@ -316,6 +461,10 @@ class Server:
     def __init__(self, cfg: Config, queue: ModelQueue, event_log: str | None = None):
         self.cfg, self.q, self.event_log = cfg, queue, event_log
         self.metrics = Metrics()
+        self.stack: StackHealth | None = None
+
+    def metrics_text(self) -> str:
+        return self.metrics.render(self.q) + (self.stack.text if self.stack else "")
 
     def _event(self, **kw):
         if not self.event_log:
@@ -340,7 +489,7 @@ class Server:
                 await writer.drain()
                 return
             if method == "GET" and target.startswith("/metrics"):
-                writer.write(_text_response(self.metrics.render(self.q)))
+                writer.write(_text_response(self.metrics_text()))
                 await writer.drain()
                 return
 
@@ -469,6 +618,13 @@ def main() -> int:
     ap.add_argument("--metrics-listen", default=None, metavar="HOST:PORT",
                     help="extra listener serving only GET /metrics and "
                          "/queue/status, e.g. 0.0.0.0:9464 for a LAN Prometheus")
+    ap.add_argument("--stack-health", action="store_true",
+                    help="add local_stack_component_up{component} and the "
+                         "supervisor and doctor gauges to /metrics (§43)")
+    ap.add_argument("--supervisor-state", default=None, metavar="PATH",
+                    help="stack_supervisor.py's JSON state file")
+    ap.add_argument("--doctor-json", default=None, metavar="PATH",
+                    help="the scheduled doctor run's JSON result")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(message)s")
@@ -478,6 +634,11 @@ def main() -> int:
 
     async def run():
         server = await serve(args.listen, args.port, cfg, q, args.event_log)
+        if args.stack_health:
+            server.app.stack = StackHealth(
+                default_probes((uh, int(up)), args.port),
+                args.supervisor_state, args.doctor_json)
+            stack_task = asyncio.ensure_future(server.app.stack.run())  # noqa: F841  keep a reference
         if args.metrics_listen:
             mh, mp = args.metrics_listen.rsplit(":", 1)
             app = server.app
@@ -486,7 +647,7 @@ def main() -> int:
                 try:
                     method, target, _, _ = await _read_request(reader)
                     if method == "GET" and target.startswith("/metrics"):
-                        writer.write(_text_response(app.metrics.render(q)))
+                        writer.write(_text_response(app.metrics_text()))
                     elif method == "GET" and target.startswith("/queue/status"):
                         writer.write(_json_response(200, "OK", q.snapshot()))
                     else:

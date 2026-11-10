@@ -3035,6 +3035,7 @@ failure mode: something configured that silently stops being in effect.
 | 1 | before 2026-10-10 | `pmset -c sleep 0` (believed set) | found at 15 after the 18:09 incident; reverted or never applied |
 | 2 | 2026-10-10 19:53 | `sudo pmset -c sleep 0 womp 0` | **reverted** 2026-10-11 13:16:54: AC `sleep` back to 15, `womp` stayed 0. The plist was written at 13:16 on both days, the timer went back to exactly the CIS value, and an Intune script ended at 13:16:49.98 (pid 44039, exit 0). That is consistent with an Intune CIS remediation that enforces only the sleep timer, but not proven, because Intune does not log script contents. A global setting does not hold on this Mac |
 | 3 | 2026-10-11 19:19 | `proxy/inference_awake.py` as LaunchAgent `$LAUNCHD_PREFIX.inference-awake`: polls oMLX `/api/status` every 5 s and holds `caffeinate -i -s` while `active + waiting + models_loading > 0`, releasing 180 s after the last busy poll | live-verified: the assertion is held from model load through generation and released after the linger. An idle Mac still sleeps per policy, so this does not fight the MDM. Not covered: Clamshell Sleep. Doctor `host` layer now checks that this agent is running instead of `sleep=0` (fault-injected) |
+| 4 | 2026-11-10 08:59 | §43: `inference_awake` also holds while on AC with the default route inside `HOME_LAN_SUBNET`, regardless of traffic; the busy rule stays as the fallback off the home LAN | holding; the owner accepts an always-awake Mac on AC at home. 30-minute idle check pending |
 
 ### Gaps no setting closes
 
@@ -3827,3 +3828,103 @@ the update changed what the model generates, but it did not test that.
 
 Decision: neither flint build goes into a role on this evidence. Status stays
 open until someone decides whether a 32K run is worth its cost.
+
+---
+
+## 43. A broken stack looked like a sleeping Mac: one supervisor, an explicit keep-awake, per-piece health
+
+### What happened
+
+The Mac rebooted at 18:47 on 2026-11-09. At login (18:59) oMLX, `llm_queue`,
+the TLS terminator and `inference_awake` came back. The `litellm` and
+`litellm-postgres` containers did not: both stayed `Exited (0)` from the
+shutdown, although they have `restart: unless-stopped` and Docker Desktop was
+running. Nothing listened on `:4000` for over 13 hours, and nothing notified.
+
+The failure hid itself:
+
+1. Every homelab gateway request failed with `OpenAIException - Connection
+   error` (HTTP 500), so no request reached oMLX.
+2. `inference_awake` held its assertion only while oMLX was busy (§37,
+   attempt 3), so it never took a hold. `pmset -g log` shows Maintenance Sleep
+   about once a minute.
+3. The gateway canary recorded `backend_reachable=0`, which is the "Mac asleep"
+   case and by design does not notify.
+
+Before the reboot `llm_queue.log` shows 37 grants an hour through the night.
+Gateway probe traffic had been what kept the Mac awake: a 180 s linger against
+a 300 s probe interval, which held in practice but not by design.
+
+Why Docker did not restart the containers is **open**. Docker Desktop has
+`AutoStart: false` and `useResourceSaver: true` and starts as a Login Item.
+The reboots on 2026-11-07 and 2026-11-08 recovered.
+
+### The faults
+
+| fault | change |
+|---|---|
+| launchd, a Login Item and Docker's restart policy each owned part of the chain; nothing checked the whole after login | `proxy/stack_supervisor.py`, LaunchAgent `$LAUNCHD_PREFIX.stack-supervisor` |
+| staying awake depended on the stack being healthy | `inference_awake` holds on AC at home regardless of traffic |
+| health was checked per piece; the homelab scraped only `llm_queue`, which cannot see LiteLLM | `local_stack_component_up{component}` on `:9464` |
+| the doctor ran only by hand | `$LAUNCHD_PREFIX.doctor-quick` every 6 h, plus once after login |
+| LiteLLM was also published on `0.0.0.0:4000` in plain HTTP, a LAN path nothing used | compose binds `127.0.0.1:4000`; the TLS terminator on `:4443` is the LAN path |
+
+### What was built
+
+- **Supervisor.** Every 60 s, `GET :4000/health/liveliness` (2 s timeout). On
+  failure it runs `open -ga Docker` if the socket is missing, waits up to 120 s,
+  then `docker compose -f proxy/docker-compose.yml up -d` by absolute path. A
+  failed `up` backs off 60 s doubling to 10 min; a successful one waits 180 s
+  for the healthcheck. oMLX down for more than 5 minutes gets `open -ga oMLX`,
+  at most every 10 minutes. It never runs `down`, `restart` or
+  `--force-recreate`. Actions go to `stack_supervisor.log` and a JSON state
+  file.
+- **Keep-awake.** Hold `caffeinate -i -s` while `pmset -g batt` says
+  `AC Power` and the default-route interface's IPv4 is inside
+  `HOME_LAN_SUBNET` (`.env.local`). Re-evaluated every 5 s poll. The SSID is
+  not used because macOS restricts reading it. The Clamshell caveat from §37
+  still applies.
+- **Gauges** on `llm_queue`'s `:9464`, probed every 10 s in a worker thread so a
+  scrape only reads a cache: `local_stack_component_up` for `omlx`
+  (`/api/status` with the key), `llm_queue`, `litellm` (`/health/liveliness`)
+  and `tls_terminator` (TCP `:4443`), each with a 1 s timeout;
+  `local_stack_supervisor_actions_total{action}`,
+  `local_stack_supervisor_last_action_timestamp_seconds` and
+  `local_stack_supervisor_heartbeat_timestamp_seconds` from the state file;
+  `local_doctor_success` and `local_doctor_last_run_timestamp_seconds` from the
+  scheduled doctor's JSON.
+- **Scheduled doctor.** `doctor.py --quick --out $LLM_LOG_DIR/doctor.json`, so
+  the tracked `results/doctor.json` stays a hand-run record. The supervisor
+  kicks it once, 5 minutes after LiteLLM and oMLX first both answer. The `host`
+  layer gained a check that the supervisor agent is running.
+
+### Measured on 2026-11-10
+
+| check | result |
+|---|---|
+| `docker stop litellm` at 09:00:01 | supervisor ran `up` at 09:00:11; `:4000` answered 200 at 09:00:27 |
+| `local_stack_component_up{component="litellm"}` during the stop | 0 for 4 samples, then 1 |
+| `caffeinate` `PreventSystemSleep` during the stop | held at every 5 s sample (on AC at home) |
+| that `up` | recreated `litellm` with the new `127.0.0.1:4000` bind; `lsof` shows `127.0.0.1:4000` only |
+| from the gateway LXC | `:4443/health/liveliness` 200; `:4000` connection timed out |
+| gateway canary run after the change | `llm_router_canary_success{alias="hermes-fast"} 1` |
+| doctor-quick under launchd, first run | 22/23: a queue check called bare `docker`, which is not on launchd's PATH. Fixed to an absolute path |
+| doctor-quick under launchd, second run | 23/23 in 12 s; `local_doctor_success 1` |
+
+Pending, owner actions: a reboot test (the chain answers and the doctor has
+run within 5 minutes of login, with no input), a 30-minute idle on AC at home
+with no Sleep entries in `pmset -g log`, then unplugging to see the hold
+release. The homelab alerts on these gauges are a separate change (spec 064).
+
+### Decisions (owner, 2026-11-10)
+
+- **LiteLLM stays in Docker, supervised by launchd.** Native LiteLLM would
+  free the Docker VM (3.6 GB RSS with no containers, 8 GB cap), but Docker
+  serves other projects, the compose file's image digest pin matters after the
+  1.82.x malware advisory, and Postgres holds the gateway's key. Revisit if the
+  oMLX memory-guard 400s persist.
+- **The owner accepts that the Mac stays awake on AC at home**, regardless of
+  traffic. §37 showed that `pmset -c sleep 0` reverts daily (Intune
+  suspected). A process-held assertion is the same mechanism attempt 3 already
+  used, held for longer. Off the home LAN or on battery the CIS sleep policy
+  applies as before, apart from the busy-oMLX hold.

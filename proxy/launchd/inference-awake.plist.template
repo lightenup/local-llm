@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  inference_awake (FINDINGS §37, attempt 3): hold `caffeinate -i -s` only while
-  oMLX has active/waiting requests or a model loading, release 180 s after.
+  inference_awake (FINDINGS §37 attempt 3, §43): hold `caffeinate -i -s` while
+  on AC power with the default route inside HOME_LAN_SUBNET (.env.local), and
+  otherwise while oMLX has active/waiting requests or a model loading,
+  releasing 180 s after.
 
   Install / reload:   proxy/launchd/install.sh inference-awake
   Remove:             proxy/launchd/install.sh --remove inference-awake

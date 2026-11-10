@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  stack_supervisor (FINDINGS §43): every 60 s check LiteLLM :4000 and run
+  `docker compose up -d` (opening Docker Desktop first if needed) when it is
+  down; open oMLX if :8000 stays down; kick doctor-quick once after login.
+  Never runs down, restart or force-recreate.
+
+  Install / reload:   proxy/launchd/install.sh stack-supervisor
+  Remove:             proxy/launchd/install.sh --remove stack-supervisor
+  The @...@ placeholders are filled from .env.local; see install.sh.
+
+  /usr/bin/python3, like llm-queue: the interpreter the app firewall allows.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>@PREFIX@.stack-supervisor</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>@REPO@/proxy/stack_supervisor.py</string>
+    <string>--state</string>
+    <string>@LOG_DIR@/stack_supervisor.json</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>LAUNCHD_PREFIX</key>
+    <string>@PREFIX@</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>StandardOutPath</key>
+  <string>@LOG_DIR@/stack_supervisor.log</string>
+  <key>StandardErrorPath</key>
+  <string>@LOG_DIR@/stack_supervisor.log</string>
+</dict>
+</plist>

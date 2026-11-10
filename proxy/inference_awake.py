@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Hold a macOS sleep assertion while oMLX is doing inference, and only then.
+"""Hold a macOS sleep assertion while on AC at home, or while oMLX is busy.
 
 FINDINGS §37: every thermal emergency began with the Mac entering Idle or
 Clamshell Sleep while oMLX was mid-generation. `pmset -c sleep 0` was the
@@ -9,7 +9,18 @@ setting cannot be relied on. This watcher addresses the cause directly: no
 sleep *while inferring*. When idle, the Mac sleeps per policy, like with any
 other workload that holds an assertion (a call, a build).
 
-Every --interval seconds it polls oMLX's GET /api/status. When
+Since §43 the primary rule is explicit: while the Mac is on AC power *and*
+its default-route interface has an IPv4 address inside HOME_LAN_SUBNET (from
+the environment or .env.local), hold the assertion regardless of traffic. The
+homelab gateway depends on this Mac, and the old traffic-driven hold made a
+broken stack look like a sleeping Mac: no requests reached oMLX, so nothing
+held the Mac awake, so monitoring read the outage as "asleep". The condition
+is re-evaluated every poll, so unplugging or leaving home releases the hold.
+The SSID is not used; macOS restricts reading it. With HOME_LAN_SUBNET unset
+the rule is off.
+
+The busy rule stays as the fallback off the home LAN. Every --interval
+seconds it polls oMLX's GET /api/status. When
 active_requests + waiting_requests + models_loading > 0 it starts
 `caffeinate -i -s` (PreventUserIdleSystemSleep, plus PreventSystemSleep on
 AC). The assertion is released --linger seconds after the last active poll,
@@ -21,12 +32,14 @@ Not covered: Clamshell Sleep (closing the lid) overrides these assertions on a
 Mac without an external display. `doctor.py --layer host` checks the lid.
 
     python3 proxy/inference_awake.py                 # defaults: 5 s poll, 180 s linger
+    HOME_LAN_SUBNET=<lan-subnet> python3 proxy/inference_awake.py
     pmset -g assertions | grep caffeinate            # see it while a request runs
 """
 
 from __future__ import annotations
 
 import argparse
+import ipaddress
 import json
 import logging
 import os
@@ -37,6 +50,61 @@ from pathlib import Path
 
 log = logging.getLogger("inference_awake")
 OMLX_SETTINGS = Path.home() / ".omlx" / "settings.json"
+REPO = Path(__file__).resolve().parent.parent
+
+
+def home_subnet() -> str:
+    """HOME_LAN_SUBNET from the environment, else .env.local; "" when unset."""
+    if os.environ.get("HOME_LAN_SUBNET"):
+        return os.environ["HOME_LAN_SUBNET"]
+    try:
+        for line in (REPO / ".env.local").read_text().splitlines():
+            k, sep, v = line.partition("=")
+            if sep and k.strip() == "HOME_LAN_SUBNET":
+                return v.strip().strip("\"'")
+    except OSError:
+        pass
+    return ""
+
+
+def _out(argv: list[str]) -> str:
+    try:
+        return subprocess.run(argv, capture_output=True, text=True,
+                              timeout=5).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+
+
+def on_ac(batt: str) -> bool:
+    """`pmset -g batt` output says the Mac is drawing from AC."""
+    return "'AC Power'" in batt
+
+
+def default_interface(route: str) -> str:
+    """The interface named by `route -n get default`, or ""."""
+    for line in route.splitlines():
+        k, _, v = line.strip().partition(":")
+        if k == "interface":
+            return v.strip()
+    return ""
+
+
+def in_subnet(addr: str, subnet: str) -> bool:
+    try:
+        return ipaddress.ip_address(addr.strip()) in ipaddress.ip_network(
+            subnet, strict=False)
+    except ValueError:
+        return False
+
+
+def on_home_power(subnet: str, run=_out) -> bool:
+    """True when on AC power and the default route's IPv4 is inside subnet."""
+    if not subnet or not on_ac(run(["/usr/bin/pmset", "-g", "batt"])):
+        return False
+    iface = default_interface(run(["/sbin/route", "-n", "get", "default"]))
+    if not iface:
+        return False
+    return in_subnet(run(["/usr/sbin/ipconfig", "getifaddr", iface]), subnet)
 
 
 def api_key() -> str:
@@ -113,18 +181,26 @@ def fetch_status(base: str, key: str, timeout: float = 3.0) -> dict | None:
         return None
 
 
-def step(policy: Awake, caf: Caffeinate, status: dict | None, now: float) -> str | None:
+def step(policy: Awake, caf: Caffeinate, status: dict | None, now: float,
+         home: bool = False) -> str | None:
     """One poll. Returns 'hold'/'release' on a transition, else None."""
     busy = busy_from_status(status)
-    if policy.want_hold(busy, now):
+    # Evaluate the busy rule every poll, even at home, so last_busy stays
+    # current and the linger still applies after leaving home mid-request.
+    busy_hold = policy.want_hold(busy, now)
+    if home or busy_hold:
         if caf.hold():
-            log.info("hold     busy=%d (active=%s waiting=%s loading=%s)", busy,
-                     (status or {}).get("active_requests"),
-                     (status or {}).get("waiting_requests"),
-                     (status or {}).get("models_loading"))
+            if home:
+                log.info("hold     on AC at home")
+            else:
+                log.info("hold     busy=%d (active=%s waiting=%s loading=%s)", busy,
+                         (status or {}).get("active_requests"),
+                         (status or {}).get("waiting_requests"),
+                         (status or {}).get("models_loading"))
             return "hold"
     elif caf.release():
-        log.info("release  idle for %.0fs", now - (policy.last_busy or now))
+        log.info("release  not on AC at home, idle for %.0fs",
+                 now - (policy.last_busy or now))
         return "release"
     return None
 
@@ -139,12 +215,20 @@ def main() -> int:
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(message)s")
     key = api_key()
+    subnet = home_subnet()
     policy, caf = Awake(args.linger), Caffeinate()
-    log.info("watching %s every %.0fs, linger %.0fs", args.omlx, args.interval,
-             args.linger)
+    log.info("watching %s every %.0fs, linger %.0fs, home rule %s", args.omlx,
+             args.interval, args.linger,
+             "on" if subnet else "OFF (HOME_LAN_SUBNET unset)")
+    was_home = None
     try:
         while True:
-            step(policy, caf, fetch_status(args.omlx, key), time.monotonic())
+            home = on_home_power(subnet)
+            if home != was_home:
+                log.info("home     %s", "on AC at home" if home else
+                         "not on AC at home")
+                was_home = home
+            step(policy, caf, fetch_status(args.omlx, key), time.monotonic(), home)
             time.sleep(args.interval)
     except KeyboardInterrupt:
         pass
