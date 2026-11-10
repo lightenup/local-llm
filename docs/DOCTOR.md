@@ -5,29 +5,38 @@ to do. It exists because this stack's dominant failure mode is **configured
 and inert**: something enabled, no error, and no effect (FINDINGS §24). Every
 instance so far was found by measuring, not by reading config.
 
-## Status: manual, by decision (2026-10-12)
+## Status: scheduled `--quick`, full run by hand (since 2026-11-10)
 
-The doctor runs **only when someone runs it**. Nothing schedules it, calls it,
-or watches its result. There is no LaunchAgent, cron job, CI job, metric or
-alert. Keeping it manual was a deliberate choice for now.
+Until 2026-11-10 the doctor ran only when someone ran it. A failing check
+stayed invisible until the next run, which happened twice in October 2026:
+the engine layer would have flagged the `reason` profile's engine fields
+(§38), and the 8-bit decode floor had been failing for weeks while measuring
+the wrong decode path (§39).
 
-What that costs: a failing check stays invisible until the next run. It
-happened twice in October 2026. The engine layer would have flagged the
-`reason` profile's engine fields (§38), but nobody ran it. The 8-bit decode
-floor had been failing for weeks while measuring the wrong decode path (§39).
+Since FINDINGS §43:
 
-**So run it:**
+- The LaunchAgent `$LAUNCHD_PREFIX.doctor-quick`
+  (`proxy/launchd/doctor-quick.plist.template`) runs
+  `doctor.py --quick --out $LLM_LOG_DIR/doctor.json` every 6 hours. It has no
+  `RunAtLoad`: after a login the stack supervisor kicks it once, 5 minutes
+  after LiteLLM and oMLX first both answer.
+- `llm_queue`'s `/metrics` on `:9464` exports the result as
+  `local_doctor_success` (0 or 1) and `local_doctor_last_run_timestamp_seconds`.
+  The homelab Prometheus scrapes it and alerts when it fails or goes stale.
+- The scheduled run writes to the log directory, not `results/doctor.json`,
+  so the tracked record changes only when someone runs the doctor by hand.
+- `--quick` still sends one short chat request per role alias, through
+  LiteLLM and the queue. The full run uses the GPU for timed probes, so it
+  stays manual.
+
+**Run the full doctor by hand:**
 
 - after any change to oMLX, LiteLLM, the profiles, the queue or the power setup;
 - after an oMLX or LiteLLM upgrade;
 - before a long or unattended job (overnight runs, benches);
 - when something "feels off" (slow, looping, refusals).
 
-If it is ever automated, the pieces already exist: the LaunchAgent pattern in
-`proxy/launchd/`, the homelab Prometheus that already scrapes this Mac on
-`:9464`, and Alertmanager to Pushover. Run `--quick` on a schedule and export
-pass/fail as metrics. The full run uses the GPU, so it would have to go
-through llm_queue and run rarely.
+Run now through the agent: `launchctl kickstart gui/$(id -u)/$LAUNCHD_PREFIX.doctor-quick`.
 
 ## Running it
 
@@ -35,6 +44,7 @@ through llm_queue and run rarely.
 python3 bench/doctor.py                 # all layers, ~1-2 min, uses the GPU
 python3 bench/doctor.py --quick         # config + cheap probes only, seconds
 python3 bench/doctor.py --layer engine  # one layer (repeatable: --layer a --layer b)
+python3 bench/doctor.py --quick --out /tmp/doctor.json   # write the JSON elsewhere
 ```
 
 - Exit code 0 means all checks passed, 1 means at least one failed.

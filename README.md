@@ -58,12 +58,13 @@ python3 profiles/apply.py --verify-only
 # behavioural check of all four (code / tool call / reasoning / 46k needle)
 python3 bench/smoke.py
 
-# whole-stack self-check: host, oMLX, queue, LiteLLM, opencode (manual, not scheduled)
+# whole-stack self-check: host, oMLX, queue, LiteLLM, opencode
 python3 bench/doctor.py            # --quick for config + cheap probes only
 ```
 
-The doctor is run by hand. Nothing schedules it or watches its result, so run
-it after any change and before long jobs. See [docs/DOCTOR.md](docs/DOCTOR.md).
+A LaunchAgent runs `--quick` every 6 hours and its result is exported as a
+metric; run the full doctor by hand after any change and before long jobs.
+See [docs/DOCTOR.md](docs/DOCTOR.md).
 
 Use it:
 
@@ -188,7 +189,8 @@ bench/memory_probe.py    provoke the prefill guard and read its arithmetic
 bench/oq4e_overnight.sh  the oQ4e arm: residency, throughput, accuracy
 bench/codernext_*.sh     the retired Coder-Next runs, kept as the record
 proxy/                   LiteLLM + Postgres, role aliases, local-only key
-proxy/launchd/           LaunchAgent templates + install.sh (llm_queue, inference_awake, dashboard-live)
+proxy/launchd/           LaunchAgent templates + install.sh (llm_queue, inference_awake, stack_supervisor, doctor-quick, dashboard-live)
+proxy/stack_supervisor.py  brings LiteLLM back (docker compose up -d) and nudges oMLX (§43)
 dashboard/               findings dashboard: generate.py -> site/index.html, live.py -> site/running.html
 findings/               the findings layer the dashboard renders; findings/suites/ holds the benchmark cards
 scripts/check_public.sh  pre-push check: no secrets, no machine-specific values
@@ -210,6 +212,20 @@ docs/backlog.md          what is not done yet, across the whole local stack
 docs/SCOUT.md            model scout runbook, for the agent that schedules it
 scout/                   scout policy (scout.toml) and the Mac's exported setup.json
 ```
+
+## Keeping the stack up
+
+Each piece runs as a LaunchAgent rendered by `proxy/launchd/install.sh <name>`,
+labelled `$LAUNCHD_PREFIX.<name>` and logging to `$LLM_LOG_DIR` (FINDINGS §43):
+
+| agent | what it does |
+|---|---|
+| `llm-queue` | the queue on `127.0.0.1:8001`; `/metrics` on `:9464` with `local_stack_component_up{component}` and the supervisor and doctor gauges |
+| `stack-supervisor` | every 60 s: LiteLLM down → `open -ga Docker` if needed, then `docker compose up -d`, with back-off; oMLX down 5 min → `open -ga oMLX` |
+| `inference-awake` | `caffeinate -i -s` while on AC with the default route inside `HOME_LAN_SUBNET`, else while oMLX is busy |
+| `doctor-quick` | `bench/doctor.py --quick` every 6 h and once after login |
+
+oMLX and Docker Desktop are Login Items; LiteLLM and Postgres run in Docker.
 
 ## Dashboard
 
@@ -362,8 +378,9 @@ The API key is never hardcoded: if `OMLX_API_KEY` is unset the client reads
 `auth.api_key` from `~/.omlx/settings.json`.
 
 Machine-specific settings go in two untracked files, each with a committed
-example: `.env.local` (LaunchAgent label prefix and log directory, read by
-`proxy/launchd/install.sh` and `bench/doctor.py`) and `proxy/.env`
+example: `.env.local` (LaunchAgent label prefix, log directory and
+`HOME_LAN_SUBNET`, read by `proxy/launchd/install.sh`, `bench/doctor.py` and
+the agents in `proxy/`) and `proxy/.env`
 (proxy secrets, optional corporate root CA). Where the docs need a LAN address
 or host they use a placeholder such as `<mac-lan-ip>`; an untracked `LOCAL.md`
 resolves them on the author's machine.

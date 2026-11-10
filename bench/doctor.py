@@ -31,8 +31,10 @@ contract every harness and every engine is supposed to meet.
     python3 bench/doctor.py --layer proxy
     python3 bench/doctor.py --quick       # skip timed behavioural probes
 
-Manual by decision: nothing schedules this or watches its result. Full
-reference (layers, checks, reading failures, adding checks): docs/DOCTOR.md.
+Since §43 the doctor-quick LaunchAgent runs `--quick --out
+$LLM_LOG_DIR/doctor.json` every 6 hours, and once after login (kicked by the
+stack supervisor); llm_queue's /metrics exports the result. Full reference
+(layers, checks, reading failures, adding checks): docs/DOCTOR.md.
 """
 
 from __future__ import annotations
@@ -117,6 +119,17 @@ class Doctor:
         return ok
 
 
+def _docker() -> str:
+    """The docker CLI by absolute path: launchd's PATH (the doctor-quick agent)
+    is /usr/bin:/bin:/usr/sbin:/sbin and has no docker on it."""
+    for b in ("/usr/local/bin/docker",
+              "/Applications/Docker.app/Contents/Resources/bin/docker",
+              "/opt/homebrew/bin/docker"):
+        if os.access(b, os.X_OK):
+            return b
+    return "docker"
+
+
 def _key_file(p: Path) -> str:
     try:
         return p.read_text().strip()
@@ -174,6 +187,17 @@ def check_host(d: Doctor) -> None:
                     " — run proxy/launchd/install.sh inference-awake"))
     d.check("host", "sleep prevented during inference", "config",
             sleep_prevented_during_inference)
+
+    # §43: the stack supervisor is what brings LiteLLM back after a reboot.
+    def supervisor_loaded():
+        out = subprocess.run(["launchctl", "print",
+                              f"gui/{os.getuid()}/{LAUNCHD_PREFIX}.stack-supervisor"],
+                             capture_output=True, text=True).stdout
+        running = "state = running" in out
+        return running, ("stack-supervisor running" if running else
+                         "stack-supervisor NOT RUNNING; run "
+                         "proxy/launchd/install.sh stack-supervisor")
+    d.check("host", "stack supervisor agent running", "config", supervisor_loaded)
 
     # Wake-on-network turned each sleep into a DarkWake that kept serving
     # requests until the SMC raised a thermal emergency, 133 times in one cycle.
@@ -382,7 +406,7 @@ def check_queue(d: Doctor) -> None:
         compose = (ROOT / "proxy" / "docker-compose.yml").read_text()
         want = next((ln.split(":", 1)[1].strip() for ln in compose.splitlines()
                      if ln.strip().startswith("OMLX_BASE_URL:")), "?")
-        out = subprocess.run(["docker", "inspect", "litellm", "--format",
+        out = subprocess.run([_docker(), "inspect", "litellm", "--format",
                               "{{range .Config.Env}}{{println .}}{{end}}"],
                              capture_output=True, text=True)
         have = next((ln.split("=", 1)[1] for ln in out.stdout.splitlines()
@@ -478,6 +502,8 @@ def main() -> int:
     ap.add_argument("--layer", choices=sorted(LAYERS), action="append")
     ap.add_argument("--quick", action="store_true",
                     help="skip timed behavioural probes (decode-rate checks)")
+    ap.add_argument("--out", type=Path, default=ROOT / "results" / "doctor.json",
+                    help="where to write the JSON result (default results/doctor.json)")
     args = ap.parse_args()
 
     d = Doctor(quick=args.quick)
@@ -498,9 +524,12 @@ def main() -> int:
         print("\n  FAILURES:")
         for r in fails:
             print(f"    [{r.layer}] {r.name}\n        {r.detail}")
-    (ROOT / "results" / "doctor.json").write_text(json.dumps(
-        {"at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-         "results": [r.__dict__ for r in d.results]}, indent=2))
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = args.out.with_suffix(".tmp")
+    tmp.write_text(json.dumps(
+        {"at": time.strftime("%Y-%m-%dT%H:%M:%S"), "at_epoch": round(time.time()),
+         "quick": args.quick, "results": [r.__dict__ for r in d.results]}, indent=2))
+    os.replace(tmp, args.out)
     return 1 if fails else 0
 
 

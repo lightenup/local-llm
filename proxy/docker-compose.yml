@@ -41,14 +41,13 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      # Published on all interfaces so the homelab gateway LXC can reach this
-      # LiteLLM over the LAN (homelab spec 064, FR-016: oMLX stays on
-      # 127.0.0.1:8000, only THIS proxy is LAN-exposed and it enforces keys and
-      # access groups). Loopback is still bound, so local clients on 127.0.0.1
-      # are unaffected. macOS app firewall stays on; Docker's backend is already
-      # permitted inbound. The corporate proxy blocks the tailnet on this Mac,
-      # so `tailscale serve` is not the path — the LAN is.
-      - "0.0.0.0:4000:4000"
+      # Loopback only since FINDINGS §43. The homelab gateway reaches this
+      # LiteLLM through the TLS terminator on :4443 (homelab spec 064,
+      # mac-tls-terminator), which connects here over loopback; that is the
+      # only LAN path. Plain-HTTP :4000 on 0.0.0.0 was a second, unencrypted
+      # one that nothing used. The corporate proxy blocks the tailnet on this
+      # Mac, so `tailscale serve` is not the path either.
+      - "127.0.0.1:4000:4000"
     environment:
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY in .env}
       LITELLM_SALT_KEY: ${LITELLM_SALT_KEY:?set LITELLM_SALT_KEY in .env}

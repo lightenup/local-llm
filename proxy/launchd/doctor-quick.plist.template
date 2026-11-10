@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  bench/doctor.py quick, every 6 hours (FINDINGS §43). The result goes to
+  @LOG_DIR@/doctor.json, not the tracked results/doctor.json; llm_queue's
+  /metrics renders it as local_doctor_success and
+  local_doctor_last_run_timestamp_seconds.
+
+  No RunAtLoad: after a login the stack supervisor kicks this agent once,
+  5 minutes after LiteLLM and oMLX first both answer.
+
+  Install / reload:   proxy/launchd/install.sh doctor-quick
+  Remove:             proxy/launchd/install.sh --remove doctor-quick
+  Run now:            launchctl kickstart gui/$(id -u)/@PREFIX@.doctor-quick
+  The @...@ placeholders are filled from .env.local; see install.sh.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>@PREFIX@.doctor-quick</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>@REPO@/bench/doctor.py</string>
+    <string>--quick</string>
+    <string>--out</string>
+    <string>@LOG_DIR@/doctor.json</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>21600</integer>
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>StandardOutPath</key>
+  <string>@LOG_DIR@/doctor_quick.log</string>
+  <key>StandardErrorPath</key>
+  <string>@LOG_DIR@/doctor_quick.log</string>
+</dict>
+</plist>

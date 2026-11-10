@@ -2,7 +2,9 @@
 
 - busy counts active + waiting + loading; missing/unknown status is idle
 - hold on first busy poll, keep through gaps shorter than linger, release after
-- no assertion ever without a busy poll (an idle Mac must sleep per policy)
+- no assertion ever without a busy poll or the home rule
+- home rule (§43): AC + default route in HOME_LAN_SUBNET holds regardless of
+  traffic, and leaving home releases (after the linger if it was busy)
 - Caffeinate really creates and removes a PreventUserIdleSystemSleep assertion
 """
 
@@ -59,6 +61,50 @@ class PolicyTests(unittest.TestCase):
     def test_loading_counts_as_busy(self):
         p, c = ia.Awake(linger=10), FakeCaf()
         self.assertEqual(ia.step(p, c, {"models_loading": 1}, 0), "hold")
+
+
+class HomeRuleTests(unittest.TestCase):
+
+    BATT_AC = "Now drawing from 'AC Power'\n -InternalBattery-0 100%; charged;"
+    BATT_BAT = "Now drawing from 'Battery Power'\n -InternalBattery-0 80%;"
+    ROUTE = "   route to: default\n  gateway: 10.1.2.1\n  interface: en0\n"
+
+    def fake(self, batt, route=ROUTE, addr="10.1.2.50\n"):
+        def run(argv):
+            if "pmset" in argv[0]:
+                return batt
+            if "route" in argv[0]:
+                return route
+            if argv[-1] == "en0":
+                return addr
+            return ""
+        return run
+
+    def test_on_home_power(self):
+        net = "10.1.2.0/24"
+        self.assertTrue(ia.on_home_power(net, self.fake(self.BATT_AC)))
+        self.assertFalse(ia.on_home_power(net, self.fake(self.BATT_BAT)))
+        self.assertFalse(ia.on_home_power(net, self.fake(self.BATT_AC,
+                                                         addr="172.20.0.4\n")))
+        self.assertFalse(ia.on_home_power(net, self.fake(self.BATT_AC, route="")))
+        self.assertFalse(ia.on_home_power(net, self.fake(self.BATT_AC, addr="")))
+        self.assertFalse(ia.on_home_power("", self.fake(self.BATT_AC)))
+
+    def test_home_holds_without_traffic_and_releases_on_leaving(self):
+        p, c = ia.Awake(linger=180), FakeCaf()
+        idle = {"active_requests": 0}
+        self.assertEqual(ia.step(p, c, idle, 0, home=True), "hold")
+        for t in range(5, 3600, 5):
+            self.assertIsNone(ia.step(p, c, idle, t, home=True))
+        self.assertTrue(c.holding)
+        self.assertEqual(ia.step(p, c, idle, 3600, home=False), "release")
+
+    def test_leaving_home_mid_request_keeps_linger(self):
+        p, c = ia.Awake(linger=180), FakeCaf()
+        ia.step(p, c, {"active_requests": 1}, 0, home=True)
+        self.assertIsNone(ia.step(p, c, {"active_requests": 0}, 100, home=False))
+        self.assertEqual(ia.step(p, c, {"active_requests": 0}, 181, home=False),
+                         "release")
 
 
 def _assertion_present(pid: int) -> bool:

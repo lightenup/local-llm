@@ -12,6 +12,10 @@
   so the metrics-only listener on 0.0.0.0:9464 is reachable from the homelab
   Prometheus without a firewall change. Inference stays on loopback.
 
+  --stack-health adds local_stack_component_up and the supervisor and doctor
+  gauges to /metrics (FINDINGS §43). Probes run every 10 s off the request
+  path; a scrape only reads the cache.
+
   Soak mode: listens on 127.0.0.1:8001. LiteLLM still points at :8000, so only
   clients sent to :8001 explicitly are queued.
 -->
@@ -33,6 +37,11 @@
     <string>@LOG_DIR@/events.jsonl</string>
     <string>--metrics-listen</string>
     <string>0.0.0.0:9464</string>
+    <string>--stack-health</string>
+    <string>--supervisor-state</string>
+    <string>@LOG_DIR@/stack_supervisor.json</string>
+    <string>--doctor-json</string>
+    <string>@LOG_DIR@/doctor.json</string>
   </array>
   <key>RunAtLoad</key>
   <true/>
