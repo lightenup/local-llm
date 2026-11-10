@@ -1,0 +1,101 @@
+{
+  "arm_a": "acc_ship_general",
+  "arm_b": "acc_splash_8bit_general",
+  "suites": {
+    "mmlu": {
+      "n_shared": 500,
+      "both_correct": 399,
+      "neither_correct": 98,
+      "only_a_correct": 1,
+      "only_b_correct": 2,
+      "discordant": 3,
+      "net_to_b": 1,
+      "score_a": 80.0,
+      "score_b": 80.2,
+      "p_value": 1.0,
+      "flips_to_a_sample": [
+        "158"
+      ],
+      "flips_to_b_sample": [
+        "312",
+        "32"
+      ]
+    },
+    "arc_challenge": {
+      "n_shared": 500,
+      "both_correct": 475,
+      "neither_correct": 25,
+      "only_a_correct": 0,
+      "only_b_correct": 0,
+      "discordant": 0,
+      "net_to_b": 0,
+      "score_a": 95.0,
+      "score_b": 95.0,
+      "p_value": 1.0,
+      "flips_to_a_sample": [],
+      "flips_to_b_sample": []
+    },
+    "hellaswag": {
+      "n_shared": 500,
+      "both_correct": 468,
+      "neither_correct": 31,
+      "only_a_correct": 0,
+      "only_b_correct": 1,
+      "discordant": 1,
+      "net_to_b": 1,
+      "score_a": 93.6,
+      "score_b": 93.8,
+      "p_value": 1.0,
+      "flips_to_a_sample": [],
+      "flips_to_b_sample": [
+        "14143"
+      ]
+    },
+    "winogrande": {
+      "n_shared": 500,
+      "both_correct": 399,
+      "neither_correct": 96,
+      "only_a_correct": 2,
+      "only_b_correct": 3,
+      "discordant": 5,
+      "net_to_b": 1,
+      "score_a": 80.2,
+      "score_b": 80.4,
+      "p_value": 1.0,
+      "flips_to_a_sample": [
+        "262",
+        "788"
+      ],
+      "flips_to_b_sample": [
+        "433",
+        "754",
+        "911"
+      ]
+    },
+    "truthfulqa": {
+      "n_shared": 500,
+      "both_correct": 427,
+      "neither_correct": 71,
+      "only_a_correct": 1,
+      "only_b_correct": 1,
+      "discordant": 2,
+      "net_to_b": 0,
+      "score_a": 85.6,
+      "score_b": 85.6,
+      "p_value": 1.0,
+      "flips_to_a_sample": [
+        "157"
+      ],
+      "flips_to_b_sample": [
+        "643"
+      ]
+    }
+  },
+  "pooled": {
+    "questions": 2500,
+    "flips_to_a": 4,
+    "flips_to_b": 7,
+    "p_value": 0.54883
+  },
+  "verdict": "no significant difference (p=0.54883); B leads but within chance"
+}

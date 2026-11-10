@@ -4009,6 +4009,8 @@ budget runs decoded at about 59–61 t/s against 17.8 on MLX.
 
 - **Context.** Splash caps this model at 128K (`--max-context 131072`). The
   `qwen-long` profile promises 262k, so Splash cannot serve it as configured.
+  *Corrected in §45: the 128K comes from the base model's
+  `max_context_window`, not from Splash; at 262144 Splash retrieves 5/5.*
 - **KV cache is int8** (`integrations.splash_kv_format`). Accuracy against the
   bf16 KV of the MLX path is unmeasured.
 - **Accuracy and long-context retrieval are unmeasured.** Smoke and the 46k
@@ -4024,3 +4026,200 @@ None yet. The shipped variant stays `plain` on MLX; `set_variant.py splash`
 switches the 8-bit and verifies Splash is serving. Promotion needs the
 accuracy suites on Splash, long-context retrieval up to 128K, a coexistence
 check, and an answer for `qwen-long`.
+
+## 45. Splash, part 2: the 8-bit scores the same, coexists, and reaches 262k
+
+Round 2 on the 8-bit (`bench/splash_round2.sh`, 2026-11-10, oMLX 0.7.4.dev1,
+Splash 1.6.0, drafter `Qwen3.8-27B-DFlash2`) answers the five open caveats of
+§44. Deterministic sampling, thinking off, 500 questions per suite, uploaded to
+omlx.ai. The MLX control (`*_mlx_8bit_plain_074`) is the shipped `plain`
+variant on the same oMLX build.
+
+### Accuracy: no suite moves (`paired_*.json`, exact McNemar, paired by question)
+
+| suites | MLX vs Splash int8 | flips (MLX only / Splash only) | p |
+|---|---|---|---|
+| reason (mmlu_pro, gsm8k, mathqa; 1,500) | 66.9 vs 67.0 | 12 / 14 | 0.85 |
+| general (mmlu, arc, hellaswag, winogrande, truthfulqa; 2,500) | 86.9 vs 87.0 | 4 / 7 | 0.55 |
+| safety (safetybench, bbq; 1,000) | 90.5 vs 90.7 | 1 / 3 | 0.63 |
+| code, same-prompt questions (948) | 83.0 vs 82.5 | 22 / 17 | 0.52 |
+
+The MLX arm of the first three rows is the stored baseline (`acc_plain_reason`,
+`acc_ship_general`, `acc_ship_safety`). The 0.7.4 control on reason agrees with
+it (13 / 14 flips, p = 1.0), so the stored files stand in for this build.
+
+Code needs care. Splash's livecodebench reads 82.8 against the stored 59.8,
+and that gap is the harness, not the engine: §41 found that 0.7.1rc1 re-prompts
+the 216 functional problems. On the 284 stdin problems, whose prompts did not
+change, both score 81.3 (14 / 14 flips, p = 1.0). The 82.8 is the 8-bit's first
+livecodebench 500 on the current harness, which §42 listed as missing. `fast`
+(gemma-26B-A4B) scores 91.0 on the same harness. Results:
+`acc_splash_8bit_code.json`, `paired_splash_vs_mlx_code_sameprompt.json`.
+
+KV format does not matter either. Splash with bf16 KV pages against int8 on
+reason: 14 / 15 flips, p = 1.0 (`paired_splash_bf16_vs_int8_reason.json`).
+
+Suites finish 3–5× sooner on Splash: reason in 15.5 min against about 45 min
+on MLX, code in about 75 min.
+
+### Coexistence (`coexist_*.json`)
+
+All three lineup models loaded, three rounds of 16k prompts to each through its
+agent profile. Both engines pass 9/9 calls. With Splash the pool is 79.98 GiB
+against 73.1, because oMLX counts Splash at its 35.73 GiB budget and not at the
+model's 28.85. Peak system memory was 106.3 GB (99.0 GiB), under the 103 GiB
+pool ceiling.
+
+### Prefix cache (`cache_splash_8bit.json`, `cache_mlx_8bit_plain_074.json`)
+
+16k-token shared prefix, six repeats, four unrelated requests of churn, then an
+engine reload.
+
+| | cold | repeat | after churn | after reload |
+|---|---|---|---|---|
+| Splash | 11.0 s | 0.86 s, 100% cached | 0.84 s | 0.82 s, 100% cached |
+| MLX | 15.75 s | ~4.5 s, 89% cached | 3.5 s, 100% cached | |
+
+Splash keeps its own cache and it survives a reload. oMLX's cache probe does
+not see it ("Scheduler unavailable for loaded model"), so the hit rate comes
+from the request's `cached_tokens`.
+
+### Long context (`longctx_*.json`)
+
+Needle retrieval at five depths plus one multi-hop question per length.
+
+| engine | 64k | 128k | 262k |
+|---|---|---|---|
+| Splash, base `max_context_window` 131072 | 5/5 | 5/5 | |
+| Splash, base 262144 (`set_variant.py splash_262k`) | | | 5/5, multi-hop ok |
+| MLX `plain` | 5/5 | 5/5 | |
+
+**Correction to §44.** The 128K cap is not Splash's. Splash sizes its KV pool
+to the base model's `max_context_window` at load (131072 as shipped), and oMLX
+then caps every profile, `qwen-long`'s 262k included, at what Splash planned.
+Splash reports the plan in its log ("Ready · … · context 128K"), and
+`engine_info.planned_context()` now records it in every result. Raising the
+base value to 262144 makes `qwen-long` servable on Splash. The cost is a larger
+KV pool held for every profile; that budget was not measured.
+
+### Throughput A/B (`tp_splash_8bit_bf16.json`, `tp_splash_8bit_noane.json`)
+
+| prompt | decode int8 (§44) | decode bf16 | decode ANE off | prefill int8 | prefill bf16 | prefill ANE off |
+|---|---|---|---|---|---|---|
+| 1k | 55.9 | 51.5 | 59.9 | 1166 | 1139 | 1031 |
+| 4k | 62.6 | 59.1 | 57.5 | 1210 | 938 | 844 |
+| 16k | 83.4 | 95.9 | 70.9 | 1033 | 890 | 801 |
+| 64k | 58.4 | 55.6 | 59.2 | 772 | 702 | 655 |
+
+ANE prefill is worth 8–15% of prefill on Splash; on MLX the auto-tuner
+recommended against it. bf16 KV
+prefills slower at 4k and above and is not more accurate. Decode varies with
+what the drafter guesses; single runs, so differences under about 15% are
+noise. The defaults (int8, ANE on) stay.
+
+### Run to run: Splash repeats itself (`paired_splash_repeat_sameprompt.json`)
+
+The int8 reason suite run a second time, same settings, 90 minutes later:
+11 of 1,500 answers flipped (4 / 7, p = 0.55), mmlu_pro not at all. That is the
+noise floor for every Splash comparison above: 0.7% of answers. MLX has none;
+§14 found it bit-exact at temperature 0, so Splash's floor is new. The engine
+comparisons flip 0.4–1.7% outside code, and 4.1% on code, where the MLX arm is
+from an older build.
+
+### Concurrency, cache-equal (`concurrency_*_{cold,warm}.json`)
+
+`concurrency.py --salt` makes every prompt new for the cold run; the warm run
+repeats the same salt. Both engines then cache the same ~1,024 tokens of each
+2k prompt. `agent` profile, 200 tokens, aggregate completion t/s:
+
+| concurrent | Splash cold | MLX cold | Splash warm | MLX warm |
+|---|---|---|---|---|
+| 1 | 36.1 | 14.0 | 35.6 | 16.4 |
+| 2 | 32.4 | 18.6 | 81.2 | 24.3 |
+| 4 | 42.2 | 26.9 | 128.4 | 45.8 |
+
+Warm, Splash is 2.2–3.3× MLX. Splash's warm column matches §44's
+(39.5 / 83.8 / 124.9); §44's MLX column was the colder one.
+Cold, the advantage shrinks to 1.6–2.6× and Splash barely scales: four cold
+requests finish at 7.7–10.2 s, two at 4.0–4.7 s, so Splash appears to prefill
+cold prompts one after another. Single runs per cell.
+### Decision
+
+Splash passes every check §44 set: accuracy (within its own run-to-run noise),
+coexistence, prefix cache, retrieval to 262k, and the KV and ANE defaults.
+Promotion is a separate change with its own doctor run; this section records
+that nothing measured stands in the way. Two things to settle when it is
+made: the base `max_context_window` for `qwen-long` (262144 holds a larger KV
+pool for every profile, unmeasured), and cold concurrent prefill.
+
+## 46. Qwen3.6-35B-A3B: the 27B's accuracy at 2–3.5× its Splash decode, and not `fast`
+
+First measurement of Qwen's own 35B-A3B release here
+(`lmstudio-community/Qwen3.6-35B-A3B-MLX-8bit`, `qwen3_5_moe`, 36.9 GiB,
+262,144 native context). §34's two 35B-A3B models were third-party fine-tunes
+of the same architecture; this is the base. Its config declares MTP layers the
+weights do not contain, so there is no MLX speculative decode. On Splash it
+drafts with `incoai/Qwen3.6-35B-A3B-DFlash2`. Runs: `bench/q36_round.sh` and
+`bench/q36_extras.sh`, 2026-11-10/11, same settings as §45. No profiles exist
+for it; every request used the bare id with thinking off.
+
+### Gate (`gate_q36_*.json`)
+
+| engine | beside the full lineup | in `fast`'s slot, 8-bit and gemma-31B resident |
+|---|---|---|
+| MLX | reject: evicts gemma-26B-A4B | **pass**, pool 87.6 GiB |
+| Splash (41.0 GiB budget) | not measured with the 8-bit resident | **reject**: evicts the 8-bit |
+
+`gate_q36_splash_beside.json` and `gate_q36_splash_replaces_fast.json` ran after
+a throughput run had unloaded the 8-bit, so they pass without proving anything;
+`gate_q36_splash_replaces_fast_full.json` is the valid Splash gate. The gate
+answers came back empty at the 256-token cap because the model thinks by
+default (`check_q36_8bit_splash.json`: thinking off on request works, sampling
+gives 4/4 distinct).
+
+### Throughput (`tp_q36_8bit_{mlx,splash}.json`)
+
+| prompt | decode MLX | decode Splash | prefill MLX | prefill Splash |
+|---|---|---|---|---|
+| 1k | 99.0 | 195.1 | 4161 | 5374 |
+| 4k | 98.6 | 165.5 | 5927 | 6090 |
+| 16k | 89.7 | 250.7 | 5399 | 5354 |
+| 64k | 75.7 | 114.5 | 3423 | 3215 |
+
+Batch 4 at 1k: 226 against 419 t/s aggregate. Against the dense 8-bit (§44),
+MLX decodes 5–6× faster and Splash 2–3.5× faster, and prefill is 4–6.5× faster
+on either engine.
+
+### Accuracy (`acc_q36_*.json`, `paired_q36_sameprompt.json`)
+
+| group | Splash | MLX | Splash vs MLX p | vs the 8-bit | vs `fast` (gemma-26B-A4B) |
+|---|---|---|---|---|---|
+| code (1,164) | 82.3 | 82.0 | 0.77 | 82.3 vs 82.9, p = 0.64 | **82.3 vs 89.7, p = 6e-13** |
+| reason (1,500) | 66.9 | 67.3 | 0.35 | 66.9 vs 66.9, p = 1.0 | **78.6 vs 83.2 on mmlu_pro + gsm8k, p = 0.0004** |
+| general (2,500) | 87.0 | 87.4 | 0.26 | 87.0 vs 86.9, p = 0.85 | not measured |
+| safety (1,000) | 89.7 | 89.7 | 1.0 | 89.7 vs 90.5, p = 0.42 | not measured |
+
+The 8-bit column pairs with the Splash 8-bit for code and the stored MLX 8-bit
+otherwise. livecodebench is 80.0 against `fast`'s 91.0 and the 8-bit's 82.8,
+all on the current harness. The one suite-level difference to the 8-bit is
+arc_challenge, 92.4 against 95.0 (p = 0.02, one of 13 suites tested).
+
+Suite wall times are the shortest measured here: on Splash code 31 min, reason
+7 min, general 4 min; on MLX code 57 min, reason 12 min.
+
+### Long context (`longctx_q36_8bit_splash*.json`)
+
+64k and 131k: 10/10. 262k with the base `max_context_window` set to 262144:
+5/5, multi-hop correct, 214 s to prefill cold. The first 64k/131k run scored
+0/10 because every answer was empty: with a bare id the model thought through
+its 64-token budget. `longctx_quality.py` now sends `enable_thinking: false`
+for bare ids, and the rerun replaced that file.
+
+### Decision
+
+It does not take `fast`: gemma-26B-A4B beats it on code and reason at
+p < 0.001. It matches the 8-bit on all four groups at several times the speed,
+which makes it a candidate for the 8-bit's roles instead. That needs what this
+round did not measure: a gate in the 8-bit's slot, agentic work (`taskbench`,
+an opencode session; §34 showed the toolcall category alone misleads), and
+profiles with their own thinking settings. Backlog A12.

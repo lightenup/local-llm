@@ -22,9 +22,10 @@ import json
 import sys
 import time
 from pathlib import Path
+from typing import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from engine_info import engine_snapshot, engine_tag  # noqa: E402
+from engine_info import EngineWatch, engine_tag  # noqa: E402
 from omlx_client import MODEL, Omlx, OmlxError  # noqa: E402
 
 GROUPS: dict[str, list[str]] = {
@@ -36,7 +37,12 @@ GROUPS: dict[str, list[str]] = {
 UPLOAD_THRESHOLD = 100  # _MIN_UPLOAD_QUESTIONS in omlx/admin/accuracy_upload.py
 
 
-def wait_for_idle(o: Omlx, timeout: float = 36000.0, poll: float = 20.0) -> dict:
+def wait_for_idle(
+    o: Omlx,
+    timeout: float = 36000.0,
+    poll: float = 20.0,
+    on_poll: Callable[[], None] | None = None,
+) -> dict:
     """Block until the accuracy queue drains.
 
     Transient polling failures must NOT abort the wait. The status endpoint is
@@ -67,6 +73,11 @@ def wait_for_idle(o: Omlx, timeout: float = 36000.0, poll: float = 20.0) -> dict
                   f"going", flush=True)
             time.sleep(min(poll * consecutive_errors, 120))
             continue
+        if on_poll is not None and st.get("running"):
+            try:
+                on_poll()
+            except Exception:  # noqa: BLE001
+                pass
         if not st.get("running") and not st.get("queue"):
             return st
         msg = (
@@ -159,7 +170,10 @@ def main() -> int:
         print("   queued; not waiting")
         return 0
 
-    wait_for_idle(o)
+    # The suite unloads the model when it finishes, so the engine has to be
+    # read while it runs.
+    watch = EngineWatch(o, args.model)
+    wait_for_idle(o, on_poll=watch)
     allres = o.accuracy_results()["results"]
     fresh = allres[before_count:]
     if not fresh:
@@ -188,7 +202,7 @@ def main() -> int:
             )
             and v not in (None, False)
         },
-        "engine": engine_snapshot(o, args.model),
+        "engine": watch.result(),
         "results": fresh or allres,
     }
     Omlx.save(f"acc_{args.label}", payload)

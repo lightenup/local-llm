@@ -88,6 +88,41 @@ def check_budget(o: Omlx, ids: dict, repeats: int, budget: int) -> dict:
             "all_answered": answered, "runs": runs}
 
 
+def check_bare(o: Omlx, model: str) -> dict:
+    """For a model with no profiles: its own sampling, and thinking off on request.
+
+    The accuracy suites call the bare id with enable_thinking false, so that
+    switch has to hold on the engine under test.
+    """
+    outs = [
+        (o.chat(RIVER, model=model, max_tokens=40,
+                chat_template_kwargs={"enable_thinking": False})
+         ["choices"][0]["message"].get("content") or "")
+        for _ in range(4)
+    ]
+    sampling = {"ok": len(set(outs)) >= 2, "distinct": len(set(outs)), "of": len(outs)}
+    rows = {}
+    for name, kwargs in (("thinking_off", {"chat_template_kwargs": {"enable_thinking": False}}),
+                         ("default", {})):
+        resp = o.chat([{"role": "user", "content": "What is 17 * 23? Answer briefly."}],
+                      model=model, max_tokens=4000, **kwargs)
+        msg = resp["choices"][0]["message"]
+        reasoning = msg.get("reasoning_content") or ""
+        content = msg.get("content") or ""
+        rows[name] = {
+            "thought": bool(reasoning) or bool(THINK_RE.search(content)),
+            "reasoning_chars": len(reasoning),
+            "answer_has_391": "391" in content,
+            "completion_tokens": (resp.get("usage") or {}).get("completion_tokens"),
+        }
+    off = rows["thinking_off"]
+    # "default" is recorded, not judged: it is the template's own choice.
+    return {
+        "sampling": sampling,
+        "thinking": {"ok": not off["thought"] and off["answer_has_391"], **rows},
+    }
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("label")
@@ -98,6 +133,23 @@ def main() -> int:
 
     o = Omlx()
     ids = served_ids(o, args.model)
+    if not ids:
+        print(f"== bare-model checks '{args.label}' on {args.model} (no profiles)")
+        checks = check_bare(o, args.model)
+        for n, c in checks.items():
+            print(f"   {n}: {c}")
+        payload = {
+            "label": args.label,
+            "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "model_id": args.model,
+            "engine": engine_snapshot(o, args.model),
+            "profiles": {},
+            "checks": checks,
+            "ok": all(c["ok"] for c in checks.values()),
+        }
+        Omlx.save(f"check_{args.label}", payload)
+        print(f"   engine={engine_tag(payload)}  all ok={payload['ok']}")
+        return 0 if payload["ok"] else 1
     reason = next(p for p in o.list_profiles(args.model) if p["name"] == "reason")
     budget = (reason.get("settings") or {}).get("thinking_budget_tokens") or 8192
 

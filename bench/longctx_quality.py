@@ -300,6 +300,18 @@ def chars_for(calib: dict, tokens: int) -> int:
     return max(len(FILLER), int((tokens - calib["intercept"]) / calib["slope"]))
 
 
+def chat_extra(model: str) -> dict:
+    """Request fields for a bare model id, which has no profile to set thinking.
+
+    A thinking model left at its template default spends the whole answer
+    budget reasoning and returns empty content, which scores as a failed
+    retrieval. Profile ids carry their own setting and are left alone.
+    """
+    if ":" in model:
+        return {}
+    return {"chat_template_kwargs": {"enable_thinking": False}}
+
+
 def ask(o: Omlx, model: str, prefix: list[dict], prompt: str, max_tokens: int) -> dict:
     """One chat request. Never raises: an unattended run must not die here."""
     messages = prefix + [{"role": "user", "content": prompt}]
@@ -309,6 +321,7 @@ def ask(o: Omlx, model: str, prefix: list[dict], prompt: str, max_tokens: int) -
             model=model,
             max_tokens=max_tokens,
             timeout=REQUEST_TIMEOUT,
+            **chat_extra(model),
         )
         return {
             "ok": True,
@@ -557,6 +570,8 @@ def main() -> int:
 
     print(f"== longctx quality on {model}")
     print(f"   lengths={lengths} depths={depths} max_tokens={args.max_tokens}")
+    if chat_extra(model):
+        print(f"   bare model id, sending {chat_extra(model)}")
     # Print the switches, not just the knobs. Filtering on truthiness hides
     # every `*_enabled: False` while leaving its tuning parameters on screen, so
     # a disabled accelerator reads as an enabled one -- turboquant_kv_bits=4.0
@@ -608,6 +623,7 @@ def main() -> int:
             "sections": SECTIONS,
             "seed": SEED,
             "safety_tokens": SAFETY_TOKENS,
+            "chat_extra": chat_extra(model),
         },
         "calibration": calib,
         "records": rows,

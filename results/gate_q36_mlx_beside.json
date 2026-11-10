@@ -1,0 +1,49 @@
+[
+  {
+    "model_id": "Qwen3.6-35B-A3B-MLX-8bit",
+    "at": "2026-11-10T22:16:21",
+    "disk_gib": 36.89,
+    "config_model_type": "qwen3_5_moe",
+    "context": 262144,
+    "mtp_compatible": false,
+    "mtp_reason": "Config declares MTP layers but the weight files contain neither mtp.* tensors nor native nextn layers. Re-convert from H",
+    "arch_supported": true,
+    "lineup": [
+      "Qwen3.8-27B-8bit",
+      "gemma-4-26B-A4B-it-oQ6e-mtp",
+      "gemma-4-31B-it-qat-OptiQ-4bit"
+    ],
+    "load_s": 18.4,
+    "resident_gib": 14.51,
+    "pool_gib": 87.61,
+    "lineup_survived_load": false,
+    "evicted_on_load": [
+      "gemma-4-26B-A4B-it-oQ6e-mtp"
+    ],
+    "calls": [
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 16645,
+        "wall_s": 6.9,
+        "finish": "length",
+        "head": ""
+      },
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 16645,
+        "wall_s": 2.6,
+        "finish": "length",
+        "head": ""
+      }
+    ],
+    "engine": {
+      "engine": "mlx",
+      "omlx_version": "0.7.4.dev1"
+    },
+    "lineup_survived_serving": false,
+    "coexists": false,
+    "verdict": "reject: cannot serve while the lineup is resident"
+  }
+]

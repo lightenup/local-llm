@@ -25,6 +25,11 @@ DRAFT = "Qwen3.8-27B-MTP-8bit"
 # otherwise takes the first helper whose config fits, which can be the 4-bit
 # ProCreations/Qwen3.8-27B-DFlash2-Q4 from FINDINGS §23.
 SPLASH_DRAFT = "Qwen3.8-27B-DFlash2"
+# The DFlash2 drafter for each model a Splash variant may be applied to.
+SPLASH_DRAFTS = {
+    MODEL: SPLASH_DRAFT,
+    "Qwen3.6-35B-A3B-MLX-8bit": "Qwen3.6-35B-A3B-DFlash2",
+}
 
 # Every engine-level key we touch, so each variant is a full reset rather
 # than a patch on top of whatever the last experiment left behind.
@@ -44,6 +49,23 @@ RESET = {
     "specprefill_threshold": None,
     "external_engine": None,
 }
+
+# Splash reads its KV format and ANE prefill from oMLX global settings, so a
+# Splash variant has to reset those too. These are oMLX's defaults.
+GLOBAL_RESET = {
+    "splash_kv_format": "int8",
+    "splash_ane_prefill": True,
+}
+GLOBAL_VARIANTS: dict[str, dict] = {
+    "splash_bf16": {"splash_kv_format": "bf16"},
+    "splash_noane": {"splash_ane_prefill": False},
+}
+
+# Splash sizes its KV pool to the base model's max_context_window at load, and
+# oMLX then caps every profile at what Splash planned; qwen-long's own 262,144
+# does not reach it. The shipped base value is 131,072.
+CONTEXT_RESET = 131072
+CONTEXT_VARIANTS: dict[str, int] = {"splash_262k": 262144}
 
 VARIANTS: dict[str, dict] = {
     # GPU-only prefill, no speculative decode. The measured baseline.
@@ -107,6 +129,21 @@ VARIANTS: dict[str, dict] = {
         "external_engine": "splash",
         "dflash_draft_model": SPLASH_DRAFT,
     },
+    # The same, with bf16 KV pages instead of int8 (GLOBAL_VARIANTS).
+    "splash_bf16": {
+        "external_engine": "splash",
+        "dflash_draft_model": SPLASH_DRAFT,
+    },
+    # The same, with ANE prefill off (GLOBAL_VARIANTS).
+    "splash_noane": {
+        "external_engine": "splash",
+        "dflash_draft_model": SPLASH_DRAFT,
+    },
+    # The same, with the KV pool sized for 262,144 tokens (CONTEXT_VARIANTS).
+    "splash_262k": {
+        "external_engine": "splash",
+        "dflash_draft_model": SPLASH_DRAFT,
+    },
     # The intended production stack: speculative decode + compressed KV.
     "mtp_tqkv": {
         "vlm_mtp_enabled": True,
@@ -132,9 +169,26 @@ def apply(o: Omlx, name: str, model_id: str = MODEL, reload: bool = True) -> dic
     if name not in VARIANTS:
         raise SystemExit(f"unknown variant {name!r}; have {list(VARIANTS)}")
     patch = {**RESET, **VARIANTS[name]}
+    if patch.get("external_engine") == "splash":
+        if model_id not in SPLASH_DRAFTS:
+            raise SystemExit(f"no Splash drafter recorded for {model_id}; add it to SPLASH_DRAFTS")
+        patch["dflash_draft_model"] = SPLASH_DRAFTS[model_id]
+    if model_id == MODEL:
+        patch["max_context_window"] = CONTEXT_VARIANTS.get(name, CONTEXT_RESET)
+    else:
+        # Other models have no shipped base value; None falls back to the
+        # checkpoint's own model_context_length.
+        patch["max_context_window"] = CONTEXT_VARIANTS.get(name)
+    globals_patch = {**GLOBAL_RESET, **GLOBAL_VARIANTS.get(name, {})}
     print(f"== applying variant '{name}'")
-    active = {k: v for k, v in VARIANTS[name].items()}
+    active = {k: patch[k] for k in VARIANTS[name]}
+    active.update(GLOBAL_VARIANTS.get(name, {}))
+    if name in CONTEXT_VARIANTS:
+        active["max_context_window"] = CONTEXT_VARIANTS[name]
     print(f"   {json.dumps(active) if active else '(all accelerators off)'}")
+    glob = o.global_settings().get("integrations") or {}
+    if any(glob.get(k) != v for k, v in globals_patch.items()):
+        o.update_global_settings(globals_patch)
     o.update_settings(patch, model_id=model_id)
     if reload:
         print("   reloading engine…")
@@ -168,7 +222,10 @@ def main() -> int:
         return 0
     if args.action == "show":
         s = o.settings(args.model)
-        print(json.dumps({k: s.get(k) for k in RESET}, indent=2))
+        g = o.global_settings().get("integrations") or {}
+        print(json.dumps({**{k: s.get(k) for k in RESET},
+                          "max_context_window": s.get("max_context_window"),
+                          **{k: g.get(k) for k in GLOBAL_RESET}}, indent=2))
         return 0
     if not args.name:
         raise SystemExit("apply needs a variant name")

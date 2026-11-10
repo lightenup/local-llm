@@ -1,0 +1,306 @@
+{
+  "timestamp": "2026-11-10T22:38:31+00:00",
+  "model_id": "Qwen3.8-27B-8bit",
+  "request": {
+    "experiment": "scaling",
+    "levels": [
+      1,
+      2,
+      4
+    ],
+    "profile": "agent",
+    "max_tokens": 200,
+    "prompt_tokens_target": 2000,
+    "salt": "splash_8bit-1794350291-",
+    "request_timeout_s": 1800.0
+  },
+  "profiles": {
+    "code": "Qwen3.8-27B-8bit:qwen-code",
+    "agent": "Qwen3.8-27B-8bit:qwen-agent",
+    "reason": "Qwen3.8-27B-8bit:qwen-reason",
+    "longctx": "Qwen3.8-27B-8bit:qwen-long"
+  },
+  "variant": {
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_scheme": "turboquant",
+    "turboquant_kv_bits": 4.0,
+    "turboquant_skip_last": true,
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_tail_padding_min_tokens": 0,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_shared_fraction": 1.0,
+    "qwen35_ane_prefill_fused_down": false,
+    "qwen35_ane_prefill_max_layers": 64,
+    "qwen35_ane_prefill_dual_ane": true,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_gdn_max_layers": 48,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "qwen35_ane_prefill_cpu_down_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_gdn_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_threads": 8,
+    "qwen35_ane_prefill_cpu_shared_resource": true,
+    "specprefill_enabled": false,
+    "specprefill_draft_model": null,
+    "specprefill_keep_pct": null,
+    "specprefill_threshold": null,
+    "dflash_enabled": false,
+    "dflash_draft_model": "Qwen3.8-27B-DFlash2",
+    "dflash_draft_quant_enabled": false,
+    "dflash_draft_quant_weight_bits": null,
+    "dflash_draft_quant_group_size": null,
+    "dflash_draft_window_size": null,
+    "dflash_block_size": null,
+    "dflash_verify_mode": null,
+    "mtp_enabled": false,
+    "mtp_adaptive_max_depth": null,
+    "mtp_fixed_depth": null,
+    "vlm_mtp_enabled": false,
+    "vlm_mtp_draft_model": null,
+    "vlm_mtp_draft_block_size": null,
+    "external_engine": "splash"
+  },
+  "scheduler": {
+    "max_concurrent_requests": 8,
+    "embedding_batch_size": 32,
+    "chunked_prefill": false,
+    "prefill_priority": "context",
+    "decode_fairness": true
+  },
+  "scaling": {
+    "model": "Qwen3.8-27B-8bit:qwen-agent",
+    "levels": [
+      1,
+      2,
+      4
+    ],
+    "baseline_concurrency": 1,
+    "summary": [
+      {
+        "requested": 1,
+        "ok": 1,
+        "failed": 0,
+        "wall_s": 3.143,
+        "median_latency_s": 3.143,
+        "p95_latency_s": 3.143,
+        "min_latency_s": 3.143,
+        "max_latency_s": 3.143,
+        "completion_tokens": 112,
+        "prompt_tokens": 1053,
+        "cached_tokens": 1024,
+        "aggregate_tok_per_s": 35.63,
+        "concurrency": 1,
+        "throughput_ratio_vs_base": 1.0,
+        "scaling_efficiency": 1.0,
+        "latency_ratio_vs_base": 1.0
+      },
+      {
+        "requested": 2,
+        "ok": 2,
+        "failed": 0,
+        "wall_s": 1.65,
+        "median_latency_s": 1.515,
+        "p95_latency_s": 1.649,
+        "min_latency_s": 1.381,
+        "max_latency_s": 1.649,
+        "completion_tokens": 134,
+        "prompt_tokens": 2097,
+        "cached_tokens": 2048,
+        "aggregate_tok_per_s": 81.23,
+        "concurrency": 2,
+        "throughput_ratio_vs_base": 2.28,
+        "scaling_efficiency": 1.14,
+        "latency_ratio_vs_base": 0.48
+      },
+      {
+        "requested": 4,
+        "ok": 4,
+        "failed": 0,
+        "wall_s": 3.823,
+        "median_latency_s": 3.651,
+        "p95_latency_s": 3.822,
+        "min_latency_s": 3.313,
+        "max_latency_s": 3.822,
+        "completion_tokens": 491,
+        "prompt_tokens": 4197,
+        "cached_tokens": 4096,
+        "aggregate_tok_per_s": 128.44,
+        "concurrency": 4,
+        "throughput_ratio_vs_base": 3.6,
+        "scaling_efficiency": 0.901,
+        "latency_ratio_vs_base": 1.16
+      }
+    ],
+    "runs": {
+      "1": {
+        "stats": {
+          "requested": 1,
+          "ok": 1,
+          "failed": 0,
+          "wall_s": 3.143,
+          "median_latency_s": 3.143,
+          "p95_latency_s": 3.143,
+          "min_latency_s": 3.143,
+          "max_latency_s": 3.143,
+          "completion_tokens": 112,
+          "prompt_tokens": 1053,
+          "cached_tokens": 1024,
+          "aggregate_tok_per_s": 35.63,
+          "concurrency": 1,
+          "throughput_ratio_vs_base": 1.0,
+          "scaling_efficiency": 1.0,
+          "latency_ratio_vs_base": 1.0
+        },
+        "rows": [
+          {
+            "client": 0,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 3.143,
+            "prompt_tokens": 1053,
+            "completion_tokens": 112,
+            "cached_tokens": 1024,
+            "tok_per_s": 35.64,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 3.143
+          }
+        ]
+      },
+      "2": {
+        "stats": {
+          "requested": 2,
+          "ok": 2,
+          "failed": 0,
+          "wall_s": 1.65,
+          "median_latency_s": 1.515,
+          "p95_latency_s": 1.649,
+          "min_latency_s": 1.381,
+          "max_latency_s": 1.649,
+          "completion_tokens": 134,
+          "prompt_tokens": 2097,
+          "cached_tokens": 2048,
+          "aggregate_tok_per_s": 81.23,
+          "concurrency": 2,
+          "throughput_ratio_vs_base": 2.28,
+          "scaling_efficiency": 1.14,
+          "latency_ratio_vs_base": 0.48
+        },
+        "rows": [
+          {
+            "client": 1,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 1.381,
+            "prompt_tokens": 1049,
+            "completion_tokens": 68,
+            "cached_tokens": 1024,
+            "tok_per_s": 49.26,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 1.381
+          },
+          {
+            "client": 2,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 1.649,
+            "prompt_tokens": 1048,
+            "completion_tokens": 66,
+            "cached_tokens": 1024,
+            "tok_per_s": 40.02,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 1.649
+          }
+        ]
+      },
+      "4": {
+        "stats": {
+          "requested": 4,
+          "ok": 4,
+          "failed": 0,
+          "wall_s": 3.823,
+          "median_latency_s": 3.651,
+          "p95_latency_s": 3.822,
+          "min_latency_s": 3.313,
+          "max_latency_s": 3.822,
+          "completion_tokens": 491,
+          "prompt_tokens": 4197,
+          "cached_tokens": 4096,
+          "aggregate_tok_per_s": 128.44,
+          "concurrency": 4,
+          "throughput_ratio_vs_base": 3.6,
+          "scaling_efficiency": 0.901,
+          "latency_ratio_vs_base": 1.16
+        },
+        "rows": [
+          {
+            "client": 3,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 3.313,
+            "prompt_tokens": 1050,
+            "completion_tokens": 111,
+            "cached_tokens": 1024,
+            "tok_per_s": 33.5,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 3.313
+          },
+          {
+            "client": 4,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 3.755,
+            "prompt_tokens": 1049,
+            "completion_tokens": 115,
+            "cached_tokens": 1024,
+            "tok_per_s": 30.62,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 3.756
+          },
+          {
+            "client": 5,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 3.546,
+            "prompt_tokens": 1049,
+            "completion_tokens": 115,
+            "cached_tokens": 1024,
+            "tok_per_s": 32.44,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 3.546
+          },
+          {
+            "client": 6,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 3.822,
+            "prompt_tokens": 1049,
+            "completion_tokens": 150,
+            "cached_tokens": 1024,
+            "tok_per_s": 39.25,
+            "finish_reason": "stop",
+            "start_offset_s": 0.001,
+            "end_offset_s": 3.823
+          }
+        ]
+      }
+    }
+  },
+  "engine": {
+    "engine": "splash",
+    "omlx_version": "0.7.4.dev1",
+    "splash": {
+      "version": "1.6.0",
+      "draft_model": "Qwen3.8-27B-DFlash2",
+      "kv_format": "int8",
+      "ane_prefill": true,
+      "max_memory_gb": null,
+      "ssd_cache_gb": null,
+      "serving": true,
+      "max_context_window": 131072,
+      "planned_context": 131072,
+      "memory_budget_gb": 35.73,
+      "process_memory_gb": 33.31
+    }
+  }
+}

@@ -378,7 +378,8 @@ every later wave on this lane:
   assembled drafter is already on disk. **Re-opened 2026-11-10:** oMLX 0.7.4
   runs Splash as an external engine with a native DFlash2 drafter, and the 8-bit
   decodes 3.3–5.2× faster with sampling intact (FINDINGS §44). Accuracy,
-  long context and coexistence are still to measure.
+  coexistence, prefix cache and retrieval to 262k all pass (FINDINGS §45);
+  promotion to the shipped variant is the remaining step.
 - **C8 — Hermes over the tailnet.** No stated urgency, and it depends on C1 and C2
   landing first anyway.
 
@@ -1087,7 +1088,7 @@ time a sampling A/B lands inside the noise and the answer actually matters.
 
 ### B4. DFlash — parked
 
-**Update 2026-11-10:** superseded by the Splash engine, see FINDINGS §44.
+**Update 2026-11-10:** superseded by the Splash engine, see FINDINGS §44–§45.
 
 `dflash_draft_model` needs a purpose-built block-diffusion draft checkpoint and no
 local model qualifies: the MTP drafter is `qwen3_5_mtp`, and `Qwen2.5-Coder-3B-8bit`
@@ -1597,6 +1598,19 @@ When picked up:
 
 The dashboard's Candidates view shows the gap: no MMLU, HellaSwag or safety
 chips on those rows.
+
+### A12. Qwen3.6-35B-A3B for the 8-bit's roles — OPEN 2026-11-11
+
+FINDINGS §46: Qwen's own 35B-A3B matches the 8-bit on code, reason, general
+and safety (all p > 0.4) and decodes 5–6× faster on MLX, 2–3.5× on Splash. It
+loses to `fast` on code and reason, so it is not a `fast` replacement.
+
+What would settle it as a replacement for the 8-bit:
+1. Gate it in the 8-bit's slot (`candidate_gate.py --replaces Qwen3.8-27B-8bit`),
+   on MLX and on Splash (41 GiB there).
+2. Profiles with their own thinking settings; bare requests think by default.
+3. Agentic work: `taskbench` beyond `toolcall` (§34), and one real opencode
+   session against the 8-bit.
 
 ## D. Evaluation
 

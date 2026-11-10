@@ -1,0 +1,256 @@
+{
+  "timestamp": "2026-11-10T18:08:37.678458+00:00",
+  "model_id": "Qwen3.8-27B-8bit:qwen-long",
+  "variant": {
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_scheme": "turboquant",
+    "turboquant_kv_bits": 4.0,
+    "turboquant_skip_last": true,
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_tail_padding_min_tokens": 0,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_shared_fraction": 1.0,
+    "qwen35_ane_prefill_fused_down": false,
+    "qwen35_ane_prefill_max_layers": 64,
+    "qwen35_ane_prefill_dual_ane": true,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_gdn_max_layers": 48,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "qwen35_ane_prefill_cpu_down_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_gdn_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_threads": 8,
+    "qwen35_ane_prefill_cpu_shared_resource": true,
+    "specprefill_enabled": false,
+    "specprefill_draft_model": null,
+    "specprefill_keep_pct": null,
+    "specprefill_threshold": null,
+    "dflash_enabled": false,
+    "dflash_draft_model": "Qwen3.8-27B-DFlash2",
+    "dflash_draft_quant_enabled": false,
+    "dflash_draft_quant_weight_bits": null,
+    "dflash_draft_quant_group_size": null,
+    "dflash_draft_window_size": null,
+    "dflash_block_size": null,
+    "dflash_verify_mode": null,
+    "mtp_enabled": false,
+    "mtp_adaptive_max_depth": null,
+    "mtp_fixed_depth": null,
+    "vlm_mtp_enabled": false,
+    "vlm_mtp_draft_model": null,
+    "vlm_mtp_draft_block_size": null,
+    "external_engine": "splash"
+  },
+  "request": {
+    "lengths": [
+      262144
+    ],
+    "depths": [
+      0.05,
+      0.25,
+      0.5,
+      0.75,
+      0.95
+    ],
+    "max_tokens": 64,
+    "max_length_seconds": 5400.0,
+    "sections": 240,
+    "seed": 20260906,
+    "safety_tokens": 256
+  },
+  "calibration": {
+    "slope": 0.168275,
+    "intercept": 1285.5,
+    "fitted": true,
+    "probes": [
+      {
+        "chars": 60000,
+        "prompt_tokens": 11382,
+        "ok": true,
+        "error": null
+      },
+      {
+        "chars": 180000,
+        "prompt_tokens": 31575,
+        "ok": true,
+        "error": null
+      }
+    ]
+  },
+  "records": [
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.05,
+      "expected": "36478",
+      "got": "36478",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 261816,
+      "cached_tokens": 0,
+      "wall_s": 747.233,
+      "error": null
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.25,
+      "expected": "74064",
+      "got": "74064",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 261816,
+      "cached_tokens": 261792,
+      "wall_s": 1.615,
+      "error": null
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.5,
+      "expected": "64656",
+      "got": "64656",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 261816,
+      "cached_tokens": 261792,
+      "wall_s": 1.55,
+      "error": null
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.75,
+      "expected": "65111",
+      "got": "65111",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 261816,
+      "cached_tokens": 261792,
+      "wall_s": 1.577,
+      "error": null
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "retrieval",
+      "depth": 0.95,
+      "expected": "37145",
+      "got": "37145",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 261816,
+      "cached_tokens": 261792,
+      "wall_s": 1.556,
+      "error": null
+    },
+    {
+      "target_tokens": 262144,
+      "kind": "multihop",
+      "depth": null,
+      "expected": "73623",
+      "got": "73623",
+      "correct": true,
+      "skipped": false,
+      "prompt_tokens": 261826,
+      "cached_tokens": 258048,
+      "wall_s": 18.78,
+      "error": null
+    }
+  ],
+  "summary": {
+    "lengths": [
+      262144
+    ],
+    "depths": [
+      0.05,
+      0.25,
+      0.5,
+      0.75,
+      0.95
+    ],
+    "by_length": {
+      "262144": {
+        "asked": 5,
+        "scored": 5,
+        "correct": 5,
+        "skipped": 0,
+        "accuracy": 1.0,
+        "verified_prompt_tokens": 261826,
+        "repeat_requests": 5,
+        "mean_cached_fraction": 0.997
+      }
+    },
+    "by_depth": {
+      "0.05": {
+        "asked": 1,
+        "scored": 1,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.25": {
+        "asked": 1,
+        "scored": 1,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.5": {
+        "asked": 1,
+        "scored": 1,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.75": {
+        "asked": 1,
+        "scored": 1,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 1.0
+      },
+      "0.95": {
+        "asked": 1,
+        "scored": 1,
+        "correct": 1,
+        "skipped": 0,
+        "accuracy": 1.0
+      }
+    },
+    "multihop": {
+      "262144": {
+        "correct": true,
+        "skipped": false,
+        "expected": "73623",
+        "got": "73623",
+        "error": null
+      }
+    },
+    "overall_retrieval": {
+      "asked": 5,
+      "scored": 5,
+      "correct": 5,
+      "skipped": 0,
+      "accuracy": 1.0
+    }
+  },
+  "engine": {
+    "engine": "splash",
+    "omlx_version": "0.7.4.dev1",
+    "splash": {
+      "version": "1.6.0",
+      "draft_model": "Qwen3.8-27B-DFlash2",
+      "kv_format": "int8",
+      "ane_prefill": true,
+      "max_memory_gb": null,
+      "ssd_cache_gb": null,
+      "serving": true,
+      "max_context_window": 262144,
+      "planned_context": 262144,
+      "memory_budget_gb": 39.79,
+      "process_memory_gb": 39.61
+    }
+  }
+}

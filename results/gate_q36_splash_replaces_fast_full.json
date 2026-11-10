@@ -1,0 +1,62 @@
+[
+  {
+    "model_id": "Qwen3.6-35B-A3B-MLX-8bit",
+    "at": "2026-11-10T23:21:28",
+    "disk_gib": 36.89,
+    "config_model_type": "qwen3_5_moe",
+    "context": 262144,
+    "mtp_compatible": false,
+    "mtp_reason": "Config declares MTP layers but the weight files contain neither mtp.* tensors nor native nextn layers. Re-convert from H",
+    "arch_supported": true,
+    "lineup": [
+      "Qwen3.8-27B-8bit",
+      "gemma-4-31B-it-qat-OptiQ-4bit"
+    ],
+    "load_s": 21.5,
+    "resident_gib": 12.15,
+    "pool_gib": 62.87,
+    "lineup_survived_load": false,
+    "evicted_on_load": [
+      "Qwen3.8-27B-8bit"
+    ],
+    "calls": [
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 16645,
+        "wall_s": 4.5,
+        "finish": "length",
+        "head": ""
+      },
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 16645,
+        "wall_s": 1.4,
+        "finish": "length",
+        "head": ""
+      }
+    ],
+    "engine": {
+      "engine": "splash",
+      "omlx_version": "0.7.4.dev1",
+      "splash": {
+        "version": "1.6.0",
+        "draft_model": "Qwen3.6-35B-A3B-DFlash2",
+        "kv_format": "int8",
+        "ane_prefill": true,
+        "max_memory_gb": null,
+        "ssd_cache_gb": null,
+        "serving": true,
+        "max_context_window": null,
+        "planned_context": 262144,
+        "memory_budget_gb": 41.0,
+        "process_memory_gb": 37.42
+      }
+    },
+    "lineup_survived_serving": false,
+    "coexists": false,
+    "verdict": "reject: cannot serve while the lineup is resident",
+    "replaces": "gemma-4-26B-A4B-it-oQ6e-mtp"
+  }
+]

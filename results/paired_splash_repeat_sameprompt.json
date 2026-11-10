@@ -1,0 +1,46 @@
+{
+ "method": "exact McNemar on questions whose stored prompt is identical in both arms",
+ "pairs": [
+  {
+   "a": "acc_splash_8bit_reason",
+   "b": "acc_splash_8bit_reason_repeat",
+   "suites": {
+    "mmlu_pro": {
+     "n": 500,
+     "of": 500,
+     "a": 64.2,
+     "b": 64.2,
+     "a_only": 0,
+     "b_only": 0,
+     "p": 1.0
+    },
+    "gsm8k": {
+     "n": 500,
+     "of": 500,
+     "a": 93.2,
+     "b": 93.4,
+     "a_only": 0,
+     "b_only": 1,
+     "p": 1.0
+    },
+    "mathqa": {
+     "n": 500,
+     "of": 500,
+     "a": 43.6,
+     "b": 44.0,
+     "a_only": 4,
+     "b_only": 6,
+     "p": 0.754
+    }
+   },
+   "pooled": {
+    "n": 1500,
+    "a": 67.0,
+    "b": 67.2,
+    "a_only": 4,
+    "b_only": 7,
+    "p": 0.549
+   }
+  }
+ ]
+}

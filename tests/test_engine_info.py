@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -75,6 +76,34 @@ class EngineSnapshotTest(unittest.TestCase):
 
         snap = engine_info.engine_snapshot(Broken(), "M")
         self.assertIn("error", snap)
+
+
+class PlannedContextTest(unittest.TestCase):
+    def test_last_ready_line_wins(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".log", delete=False) as f:
+            f.write("17:34:05 Ready · omlx/M-1 · context 128K · http://127.0.0.1:1\n")
+            f.write("17:40:00 Started · input 36\n")
+            f.write("18:01:12 Ready · omlx/M-1 · context 256K · http://127.0.0.1:2\n")
+        self.assertEqual(engine_info.planned_context(f.name), 262144)
+        Path(f.name).unlink()
+
+    def test_missing_log(self):
+        self.assertIsNone(engine_info.planned_context(None))
+        self.assertIsNone(engine_info.planned_context("/nonexistent/splash.log"))
+
+
+class EngineWatchTest(unittest.TestCase):
+    def test_keeps_the_snapshot_taken_while_serving(self):
+        glob = {k: v for k, v in SPLASH_GLOBAL.items()}
+        o = FakeOmlx({"external_engine": "splash"}, glob)
+        watch = engine_info.EngineWatch(o, "M")
+        watch()
+        self.assertTrue(watch.result()["splash"]["serving"])
+        # The benchmark unloads the model at the end; a later poll must not
+        # overwrite the serving snapshot.
+        o._glob = {**glob, "external_engines": {"splash": {"version": "1.6.0", "models": []}}}
+        watch()
+        self.assertTrue(watch.result()["splash"]["serving"])
 
 
 class EngineTagTest(unittest.TestCase):

@@ -69,6 +69,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
+from engine_info import EngineWatch, engine_tag  # noqa: E402
 from omlx_client import MODEL, Omlx, OmlxError  # noqa: E402
 
 VARIANT_PREFIXES = (
@@ -78,6 +79,7 @@ VARIANT_PREFIXES = (
     "dflash",
     "specprefill",
     "qwen35_ane",
+    "external_engine",
 )
 
 # Roughly 3.1 characters per token was measured on this checkpoint (see
@@ -184,6 +186,7 @@ def run_arm(
     label: str,
     hot_size: str,
     args: argparse.Namespace,
+    watch: EngineWatch,
 ) -> dict:
     """Set the hot cache to hot_size, then run the full workload once."""
     print(f"\n{'=' * 68}\n== arm '{label}': hot_cache_max_size={hot_size}\n{'=' * 68}")
@@ -234,6 +237,16 @@ def run_arm(
     print("\n-- post-churn (same prefix, same question as cold)")
     post = ask(o, prefix, QUESTIONS[0], args.model, args.max_tokens)
     _show(post)
+    watch()
+
+    post_reload = None
+    if args.post_reload:
+        # Whether the prefix survives an engine restart, i.e. comes back from
+        # the persistent SSD tier rather than being prefilled again.
+        print("\n-- post-reload (unload, load, same prefix and question)")
+        o.reload_model(args.model.split(":", 1)[0])
+        post_reload = ask(o, prefix, QUESTIONS[0], args.model, args.max_tokens)
+        _show(post_reload)
 
     ok_repeats = [r for r in repeats if "error" not in r]
     return {
@@ -245,6 +258,7 @@ def run_arm(
         "repeats": repeats,
         "churn": churned,
         "post_churn": post,
+        "post_reload": post_reload,
         "summary": {
             "cold_s": cold.get("wall_s"),
             "repeat_median_s": round(
@@ -259,6 +273,8 @@ def run_arm(
             else None,
             "post_churn_s": post.get("wall_s"),
             "post_churn_cached_frac": post.get("cached_frac"),
+            "post_reload_s": (post_reload or {}).get("wall_s"),
+            "post_reload_cached_frac": (post_reload or {}).get("cached_frac"),
         },
     }
 
@@ -294,6 +310,16 @@ def main() -> int:
         help="baseline measures at the shipped value and changes nothing",
     )
     ap.add_argument(
+        "--post-reload",
+        action="store_true",
+        help="after post-churn, reload the engine and ask once more",
+    )
+    ap.add_argument(
+        "--label",
+        default="cache_ab",
+        help="results/<label>.json; the default overwrites the previous run",
+    )
+    ap.add_argument(
         "--restore",
         default="0",
         help="value to restore on exit; the shipped value is 0 (disabled)",
@@ -324,10 +350,11 @@ def main() -> int:
     }[args.arms]
 
     arms: list[dict] = []
+    watch = EngineWatch(o, args.model)
     try:
         for label, size in plan:
             try:
-                arms.append(run_arm(o, label, size, args))
+                arms.append(run_arm(o, label, size, args, watch))
             except Exception as e:  # noqa: BLE001
                 print(f"!! arm '{label}' failed: {type(e).__name__}: {e}")
                 arms.append({"arm": label, "error": f"{type(e).__name__}: {e}"})
@@ -353,8 +380,10 @@ def main() -> int:
         "hot_cache_restored_to": args.restore,
         "request": vars(args),
         "arms": arms,
+        "engine": watch.result(),
     }
-    Omlx.save("cache_ab", payload)
+    Omlx.save(args.label, payload)
+    print(f"   engine={engine_tag(payload)}")
 
     print(f"\n  {'arm':<10} {'cold s':>8} {'repeat s':>9} {'repeat hit':>11} "
           f"{'post-churn s':>13} {'post hit':>9}")

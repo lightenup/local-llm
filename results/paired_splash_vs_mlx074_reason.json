@@ -1,0 +1,88 @@
+{
+  "arm_a": "acc_mlx_8bit_plain_074_reason",
+  "arm_b": "acc_splash_8bit_reason",
+  "suites": {
+    "mmlu_pro": {
+      "n_shared": 500,
+      "both_correct": 316,
+      "neither_correct": 177,
+      "only_a_correct": 2,
+      "only_b_correct": 5,
+      "discordant": 7,
+      "net_to_b": 3,
+      "score_a": 63.6,
+      "score_b": 64.2,
+      "p_value": 0.45312,
+      "flips_to_a_sample": [
+        "4899",
+        "5020"
+      ],
+      "flips_to_b_sample": [
+        "11194",
+        "4222",
+        "4344",
+        "8038",
+        "9601"
+      ]
+    },
+    "gsm8k": {
+      "n_shared": 500,
+      "both_correct": 464,
+      "neither_correct": 27,
+      "only_a_correct": 7,
+      "only_b_correct": 2,
+      "discordant": 9,
+      "net_to_b": -5,
+      "score_a": 94.2,
+      "score_b": 93.2,
+      "p_value": 0.17969,
+      "flips_to_a_sample": [
+        "1190",
+        "182",
+        "233",
+        "380",
+        "409",
+        "830",
+        "924"
+      ],
+      "flips_to_b_sample": [
+        "334",
+        "93"
+      ]
+    },
+    "mathqa": {
+      "n_shared": 500,
+      "both_correct": 211,
+      "neither_correct": 278,
+      "only_a_correct": 4,
+      "only_b_correct": 7,
+      "discordant": 11,
+      "net_to_b": 3,
+      "score_a": 43.0,
+      "score_b": 43.6,
+      "p_value": 0.54883,
+      "flips_to_a_sample": [
+        "2315",
+        "2684",
+        "438",
+        "536"
+      ],
+      "flips_to_b_sample": [
+        "1879",
+        "2166",
+        "248",
+        "2874",
+        "2921",
+        "646",
+        "953"
+      ]
+    }
+  },
+  "pooled": {
+    "questions": 1500,
+    "flips_to_a": 13,
+    "flips_to_b": 14,
+    "p_value": 1.0
+  },
+  "verdict": "no significant difference (p=1.00000); B leads but within chance"
+}

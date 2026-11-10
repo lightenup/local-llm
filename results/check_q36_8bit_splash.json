@@ -1,0 +1,46 @@
+{
+  "label": "q36_8bit_splash",
+  "timestamp": "2026-11-10T21:22:21+00:00",
+  "model_id": "Qwen3.6-35B-A3B-MLX-8bit",
+  "engine": {
+    "engine": "splash",
+    "omlx_version": "0.7.4.dev1",
+    "splash": {
+      "version": "1.6.0",
+      "draft_model": "Qwen3.6-35B-A3B-DFlash2",
+      "kv_format": "int8",
+      "ane_prefill": true,
+      "max_memory_gb": null,
+      "ssd_cache_gb": null,
+      "serving": true,
+      "max_context_window": null,
+      "planned_context": 262144,
+      "memory_budget_gb": 41.0,
+      "process_memory_gb": 37.11
+    }
+  },
+  "profiles": {},
+  "checks": {
+    "sampling": {
+      "ok": true,
+      "distinct": 4,
+      "of": 4
+    },
+    "thinking": {
+      "ok": true,
+      "thinking_off": {
+        "thought": false,
+        "reasoning_chars": 0,
+        "answer_has_391": true,
+        "completion_tokens": 4
+      },
+      "default": {
+        "thought": true,
+        "reasoning_chars": 474,
+        "answer_has_391": true,
+        "completion_tokens": 217
+      }
+    }
+  },
+  "ok": true
+}

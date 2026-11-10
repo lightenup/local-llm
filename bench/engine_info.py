@@ -14,6 +14,7 @@ what `engine_tag()` reports for them.
 from __future__ import annotations
 
 import plistlib
+import re
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +29,25 @@ def omlx_version() -> str | None:
             return plistlib.load(f).get("CFBundleShortVersionString")
     except (OSError, plistlib.InvalidFileException):
         return None
+
+
+def planned_context(log_path: str | None) -> int | None:
+    """The context Splash planned at its last start, from its own log.
+
+    oMLX caps every request, profiles included, at this figure, so it is the
+    real context limit of a Splash-served model.
+    """
+    if not log_path:
+        return None
+    try:
+        text = Path(log_path).read_text(errors="replace")
+    except OSError:
+        return None
+    found = re.findall(r"Ready · .*? · context (\d+)([KM]?)", text)
+    if not found:
+        return None
+    n, unit = found[-1]
+    return int(n) * {"": 1, "K": 1024, "M": 1_000_000}[unit]
 
 
 def engine_snapshot(o: Any, model_id: str) -> dict:
@@ -67,10 +87,38 @@ def engine_snapshot(o: Any, model_id: str) -> dict:
         "max_memory_gb": integrations.get("splash_max_memory_gb"),
         "ssd_cache_gb": integrations.get("splash_ssd_cache_gb"),
         "serving": served is not None,
+        "max_context_window": settings.get("max_context_window"),
+        "planned_context": planned_context((served or {}).get("log_path")),
         "memory_budget_gb": round(budget / GIB, 2) if budget else None,
         "process_memory_gb": round(memory / GIB, 2) if memory else None,
     }
     return snap
+
+
+class EngineWatch:
+    """Snapshot the serving engine while a benchmark runs.
+
+    The admin benchmarks unload the model when they finish, and an external
+    engine such as Splash reports a model as served only while its process
+    runs. A snapshot taken afterwards would mark a real Splash run "NOT
+    SERVING", so keep the first one taken while it was served.
+    """
+
+    def __init__(self, o: Any, model_id: str) -> None:
+        self.o = o
+        self.model_id = model_id
+        self.snap: dict = {}
+
+    def served(self) -> bool:
+        sp = self.snap.get("splash")
+        return self.snap.get("engine") == "mlx" or bool(sp and sp.get("serving"))
+
+    def __call__(self, _res: Any = None) -> None:
+        if not self.served():
+            self.snap = engine_snapshot(self.o, self.model_id)
+
+    def result(self) -> dict:
+        return self.snap or engine_snapshot(self.o, self.model_id)
 
 
 def engine_tag(run: dict) -> str:
