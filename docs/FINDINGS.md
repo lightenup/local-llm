@@ -3948,3 +3948,79 @@ data with the new keep-awake first.
   suspected). A process-held assertion is the same mechanism attempt 3 already
   used, held for longer. Off the home LAN or on battery the CIS sleep policy
   applies as before, apart from the busy-oMLX hold.
+
+## 44. Splash, part 1: the 8-bit decodes 3.3–5.2× faster, and sampling survives
+
+oMLX 0.7.4.dev1 can hand a model to an external engine. With the model setting
+`external_engine: "splash"` it runs Splash (incoai/splash 1.6.0, a separate
+Metal engine with DFlash2 speculative decoding) as a child process and proxies
+requests to it. This is the native DFlash path §23 said to wait for. The
+drafter is `incoai/Qwen3.8-27B-DFlash2` (BF16, 3.85 GB), registered after an
+oMLX restart. `dflash_draft_model` must be set explicitly, or oMLX may pick the
+older assembled `Qwen3.8-27B-DFlash2-Q4` from §23.
+
+Every result file now records the engine (`bench/engine_info.py`): `mlx`, or
+Splash with its version, drafter, KV format, ANE prefill and whether it was
+serving when measured. Files written before this section read as `mlx`. The
+baseline is the shipped `plain` variant re-measured on the same oMLX build
+(`*_mlx_8bit_plain_074.json`); the Splash runs are `*_splash_8bit.json`.
+
+### Correctness first (`check_*.json`, `doctor_splash_8bit.json`)
+
+| check | Splash |
+|---|---|
+| doctor smoke | 4/4, 0 reloads; 46k needle found |
+| profile samples at the profile temperature | 4/4 distinct |
+| client `temperature: 0` override ignored | 4/4 distinct |
+| thinking only on `reason` | yes; no `<think>` leaks into content |
+| reason budget 8192 | max 8192 reasoning tokens, both runs answered |
+| tool calls through the proxy | preserved (`proxy_toolcall_splash_8bit.json`) |
+
+This matters because of §39: a fast path that ignores the sampler is the
+failure this repo has already shipped once. Splash honours the profile
+sampling.
+
+### Throughput (`tp_*.json`, admin benchmark, `code_python`, 128 generated tokens)
+
+| prompt | decode t/s Splash | decode t/s MLX | ratio | prefill t/s Splash | prefill t/s MLX |
+|---|---|---|---|---|---|
+| 1k | 55.9 | 16.8 | 3.3× | 1166 | 820 |
+| 4k | 62.6 | 16.7 | 3.7× | 1210 | 936 |
+| 16k | 83.4 | 16.1 | 5.2× | 1033 | 833 |
+| 64k | 58.4 | 14.4 | 4.1× | 772 | 636 |
+
+TTFT at 64k: 84.9 s against 103.1 s. The 64k Splash run stopped at 98 of 128
+tokens. Batched at 1k, aggregate decode is 108.1 against 32.3 t/s at batch 2,
+and 217.7 against 60.3 at batch 4. Peak memory is 31–35.5 GB against
+28.5–33.3 GB; Splash's own budget is 35.73 GB.
+
+Through oMLX with the `agent` profile (`concurrency_*.json`, 2k prompts, 200
+tokens) aggregate throughput is 39.5 / 83.8 / 124.9 t/s at 1 / 2 / 4
+concurrent requests, against 16.2 / 17.9 / 23.0. This comparison is not
+cache-equal: the Splash run hit its prefix cache on every prompt, the MLX run
+at n=2 on none. The decode ratio above is the cleaner number. The first Splash
+request after a load took about 12 s to start the engine.
+
+Decode speed depends on what the drafter can guess. `code_python` is
+favourable content; agent and prose traffic will see less. The `reason`
+budget runs decoded at about 59–61 t/s against 17.8 on MLX.
+
+### Caveats, all open
+
+- **Context.** Splash caps this model at 128K (`--max-context 131072`). The
+  `qwen-long` profile promises 262k, so Splash cannot serve it as configured.
+- **KV cache is int8** (`integrations.splash_kv_format`). Accuracy against the
+  bf16 KV of the MLX path is unmeasured.
+- **Accuracy and long-context retrieval are unmeasured.** Smoke and the 46k
+  needle pass; that is not a benchmark score.
+- **SSD cache.** Splash keeps its own cache (8.1 GB after this round) with the
+  300 GB quota inherited from oMLX.
+- **Coexistence** with the other lineup models has not been checked at the
+  higher peak memory.
+
+### Decision
+
+None yet. The shipped variant stays `plain` on MLX; `set_variant.py splash`
+switches the 8-bit and verifies Splash is serving. Promotion needs the
+accuracy suites on Splash, long-context retrieval up to 128K, a coexistence
+check, and an answer for `qwen-long`.

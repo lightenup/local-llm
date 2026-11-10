@@ -17,9 +17,14 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from engine_info import engine_snapshot, engine_tag  # noqa: E402
 from omlx_client import MODEL, Omlx  # noqa: E402
 
 DRAFT = "Qwen3.8-27B-MTP-8bit"
+# The BF16 DFlash2 release Splash is built for. Name it explicitly: oMLX
+# otherwise takes the first helper whose config fits, which can be the 4-bit
+# ProCreations/Qwen3.8-27B-DFlash2-Q4 from FINDINGS §23.
+SPLASH_DRAFT = "Qwen3.8-27B-DFlash2"
 
 # Every engine-level key we touch, so each variant is a full reset rather
 # than a patch on top of whatever the last experiment left behind.
@@ -37,6 +42,7 @@ RESET = {
     "specprefill_draft_model": None,
     "specprefill_keep_pct": None,
     "specprefill_threshold": None,
+    "external_engine": None,
 }
 
 VARIANTS: dict[str, dict] = {
@@ -94,6 +100,13 @@ VARIANTS: dict[str, dict] = {
         "specprefill_keep_pct": 0.2,
         "specprefill_threshold": 8192,
     },
+    # Serve through Splash (an external Metal engine with DFlash2 speculative
+    # decoding) instead of in-process. Its KV format, ANE prefill and memory
+    # budget are oMLX global settings (integrations.splash_*), not model ones.
+    "splash": {
+        "external_engine": "splash",
+        "dflash_draft_model": SPLASH_DRAFT,
+    },
     # The intended production stack: speculative decode + compressed KV.
     "mtp_tqkv": {
         "vlm_mtp_enabled": True,
@@ -129,6 +142,14 @@ def apply(o: Omlx, name: str, model_id: str = MODEL, reload: bool = True) -> dic
     after = o.settings(model_id)
     got = {k: after.get(k) for k in patch if after.get(k) not in (None, False)}
     print(f"   active engine settings: {json.dumps(got)}")
+    if reload and after.get("external_engine"):
+        # Selecting an engine and seeing no error is not evidence it serves
+        # (FINDINGS §23), so ask the engine itself.
+        snap = engine_snapshot(o, model_id)
+        tag = engine_tag({"engine": snap})
+        if not (snap.get("splash") or {}).get("serving"):
+            raise SystemExit(f"!! {model_id} is set to {tag} but Splash is not serving it")
+        print(f"   serving: {tag} {json.dumps(snap.get('splash'))}")
     return got
 
 

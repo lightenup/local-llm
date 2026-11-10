@@ -1,0 +1,63 @@
+{
+  "at": "2026-11-10T16:42:30+00:00",
+  "results": [
+    {
+      "model": "Qwen3.8-27B-8bit:qwen-agent",
+      "direct": {
+        "ok": true,
+        "why": "ok",
+        "name": "edit_file",
+        "args": {
+          "path": "/tmp/demo/app.py",
+          "old_string": "timeout = 30",
+          "new_string": "timeout = 120"
+        },
+        "n_calls": 1,
+        "wall_s": 1.07
+      },
+      "proxy": {
+        "ok": true,
+        "why": "ok",
+        "name": "edit_file",
+        "args": {
+          "path": "/tmp/demo/app.py",
+          "old_string": "timeout = 30",
+          "new_string": "timeout = 120"
+        },
+        "n_calls": 1,
+        "wall_s": 0.69
+      },
+      "verdict": "hop preserves tool calls"
+    },
+    {
+      "model": "Qwen3-Coder-Next-6bit:cn-agent",
+      "direct": {
+        "ok": false,
+        "why": "HTTP 404: {\"error\":{\"message\":\"Model 'Qwen3-Coder-Next-6bit:cn-agent' not found. Available models: Qwen3.8-27B-oQ4e-mtp, Qwen3.8-Flash-Next-oQ4e-mtp, gemma-4-26B-A4B-it-o",
+        "wall_s": 0.0
+      },
+      "proxy": {
+        "ok": false,
+        "why": "HTTP 400: {\"error\":{\"message\":\"/chat/completions: Invalid model name passed in model=Qwen3-Coder-Next-6bit:cn-agent. Call `/v1/models` to view available models for your k",
+        "wall_s": 0.02
+      },
+      "verdict": "model fails tool call in BOTH - not a proxy fault"
+    }
+  ],
+  "label": "proxy_toolcall_splash_8bit",
+  "engine": {
+    "engine": "splash",
+    "omlx_version": "0.7.4.dev1",
+    "splash": {
+      "version": "1.6.0",
+      "draft_model": "Qwen3.8-27B-DFlash2",
+      "kv_format": "int8",
+      "ane_prefill": true,
+      "max_memory_gb": null,
+      "ssd_cache_gb": null,
+      "serving": true,
+      "memory_budget_gb": 35.73,
+      "process_memory_gb": 33.93
+    }
+  }
+}

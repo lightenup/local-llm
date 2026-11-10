@@ -1,0 +1,91 @@
+{
+  "label": "splash_8bit",
+  "timestamp": "2026-11-10T16:42:30+00:00",
+  "model_id": "Qwen3.8-27B-8bit",
+  "engine": {
+    "engine": "splash",
+    "omlx_version": "0.7.4.dev1",
+    "splash": {
+      "version": "1.6.0",
+      "draft_model": "Qwen3.8-27B-DFlash2",
+      "kv_format": "int8",
+      "ane_prefill": true,
+      "max_memory_gb": null,
+      "ssd_cache_gb": null,
+      "serving": true,
+      "memory_budget_gb": 35.73,
+      "process_memory_gb": 33.79
+    }
+  },
+  "profiles": {
+    "code": "Qwen3.8-27B-8bit:qwen-code",
+    "agent": "Qwen3.8-27B-8bit:qwen-agent",
+    "reason": "Qwen3.8-27B-8bit:qwen-reason",
+    "longctx": "Qwen3.8-27B-8bit:qwen-long"
+  },
+  "checks": {
+    "client_temperature": {
+      "ok": true,
+      "distinct": 4,
+      "of": 4
+    },
+    "thinking": {
+      "ok": true,
+      "profiles": {
+        "code": {
+          "ok": true,
+          "reasoning_chars": 0,
+          "think_tag_in_content": false,
+          "answer_has_391": true,
+          "completion_tokens": 4
+        },
+        "agent": {
+          "ok": true,
+          "reasoning_chars": 0,
+          "think_tag_in_content": false,
+          "answer_has_391": true,
+          "completion_tokens": 4
+        },
+        "longctx": {
+          "ok": true,
+          "reasoning_chars": 0,
+          "think_tag_in_content": false,
+          "answer_has_391": true,
+          "completion_tokens": 4
+        },
+        "reason": {
+          "ok": true,
+          "reasoning_chars": 103,
+          "think_tag_in_content": false,
+          "answer_has_391": true,
+          "completion_tokens": 59
+        }
+      }
+    },
+    "budget": {
+      "ok": true,
+      "budget": 8192,
+      "max_reasoning_tokens": 8192,
+      "all_answered": true,
+      "runs": [
+        {
+          "reasoning_tokens": 8192,
+          "reasoning_tokens_reported": true,
+          "completion_tokens": 8830,
+          "finish_reason": "stop",
+          "tok_per_s": 60.71,
+          "answer_chars": 1748
+        },
+        {
+          "reasoning_tokens": 8192,
+          "reasoning_tokens_reported": true,
+          "completion_tokens": 8976,
+          "finish_reason": "stop",
+          "tok_per_s": 57.67,
+          "answer_chars": 2114
+        }
+      ]
+    }
+  },
+  "ok": true
+}

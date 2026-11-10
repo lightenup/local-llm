@@ -62,6 +62,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from engine_info import engine_snapshot, engine_tag  # noqa: E402
 from omlx_client import MODEL, Omlx, OmlxError  # noqa: E402
 
 # Same intent as bench/throughput.py::VARIANT_KEYS, by prefix rather than by an
@@ -74,6 +75,7 @@ VARIANT_PREFIXES = (
     "dflash",
     "specprefill",
     "qwen35_ane",
+    "external_engine",
 )
 
 REQUEST_TIMEOUT = 1800.0
@@ -512,6 +514,12 @@ def main() -> int:
         "--prompt-tokens", type=int, default=2000, help="approximate filler size"
     )
     ap.add_argument("--model", default=MODEL)
+    ap.add_argument(
+        "--label",
+        default="concurrency",
+        help="result name, results/<label>.json; the default overwrites the "
+             "previous run",
+    )
     args = ap.parse_args()
 
     levels = sorted({n for n in args.levels if n > 0})
@@ -583,7 +591,9 @@ def main() -> int:
             print(f"!! mixed experiment aborted: {type(e).__name__}: {e}")
             payload["mixed"] = {"error": f"{type(e).__name__}: {str(e)[:300]}"}
 
-    Omlx.save("concurrency", payload)
+    payload["engine"] = engine_snapshot(o, args.model)
+    Omlx.save(args.label, payload)
+    print(f"   engine={engine_tag(payload)}")
 
     scaling = payload.get("scaling") or {}
     if scaling.get("summary"):

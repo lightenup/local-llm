@@ -375,7 +375,10 @@ every later wave on this lane:
   format. The attractive third-party number (76.1 tok/s) comes from raw mlx-lm
   plus a community port, i.e. a third serving stack, which is the same trade
   §22 rejected. Re-open only if oMLX ships native DFlash drafter support; the
-  assembled drafter is already on disk.
+  assembled drafter is already on disk. **Re-opened 2026-11-10:** oMLX 0.7.4
+  runs Splash as an external engine with a native DFlash2 drafter, and the 8-bit
+  decodes 3.3–5.2× faster with sampling intact (FINDINGS §44). Accuracy,
+  long context and coexistence are still to measure.
 - **C8 — Hermes over the tailnet.** No stated urgency, and it depends on C1 and C2
   landing first anyway.
 
@@ -1083,6 +1086,8 @@ sampling A/B since is uninterpretable at fine granularity. One repeat of
 time a sampling A/B lands inside the noise and the answer actually matters.
 
 ### B4. DFlash — parked
+
+**Update 2026-11-10:** superseded by the Splash engine, see FINDINGS §44.
 
 `dflash_draft_model` needs a purpose-built block-diffusion draft checkpoint and no
 local model qualifies: the MTP drafter is `qwen3_5_mtp`, and `Qwen2.5-Coder-3B-8bit`

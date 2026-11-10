@@ -1,0 +1,292 @@
+{
+  "timestamp": "2026-11-10T16:54:14+00:00",
+  "model_id": "Qwen3.8-27B-8bit",
+  "request": {
+    "experiment": "scaling",
+    "levels": [
+      1,
+      2,
+      4
+    ],
+    "profile": "agent",
+    "max_tokens": 200,
+    "prompt_tokens_target": 2000,
+    "request_timeout_s": 1800.0
+  },
+  "profiles": {
+    "code": "Qwen3.8-27B-8bit:qwen-code",
+    "agent": "Qwen3.8-27B-8bit:qwen-agent",
+    "reason": "Qwen3.8-27B-8bit:qwen-reason",
+    "longctx": "Qwen3.8-27B-8bit:qwen-long"
+  },
+  "variant": {
+    "turboquant_kv_enabled": false,
+    "turboquant_kv_scheme": "turboquant",
+    "turboquant_kv_bits": 4.0,
+    "turboquant_skip_last": true,
+    "qwen35_ane_prefill_enabled": false,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_tail_padding_min_tokens": 0,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_shared_fraction": 1.0,
+    "qwen35_ane_prefill_fused_down": false,
+    "qwen35_ane_prefill_max_layers": 64,
+    "qwen35_ane_prefill_dual_ane": true,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_gdn_max_layers": 48,
+    "qwen35_ane_prefill_cpu_enabled": false,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "qwen35_ane_prefill_cpu_down_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_gdn_fraction": 0.0,
+    "qwen35_ane_prefill_cpu_threads": 8,
+    "qwen35_ane_prefill_cpu_shared_resource": true,
+    "specprefill_enabled": false,
+    "specprefill_draft_model": null,
+    "specprefill_keep_pct": null,
+    "specprefill_threshold": null,
+    "dflash_enabled": false,
+    "dflash_draft_model": null,
+    "dflash_draft_quant_enabled": false,
+    "dflash_draft_quant_weight_bits": null,
+    "dflash_draft_quant_group_size": null,
+    "dflash_draft_window_size": null,
+    "dflash_block_size": null,
+    "dflash_verify_mode": null,
+    "mtp_enabled": false,
+    "mtp_adaptive_max_depth": null,
+    "mtp_fixed_depth": null,
+    "vlm_mtp_enabled": false,
+    "vlm_mtp_draft_model": null,
+    "vlm_mtp_draft_block_size": null,
+    "external_engine": null
+  },
+  "scheduler": {
+    "max_concurrent_requests": 8,
+    "embedding_batch_size": 32,
+    "chunked_prefill": false,
+    "prefill_priority": "context",
+    "decode_fairness": true
+  },
+  "scaling": {
+    "model": "Qwen3.8-27B-8bit:qwen-agent",
+    "levels": [
+      1,
+      2,
+      4
+    ],
+    "baseline_concurrency": 1,
+    "summary": [
+      {
+        "requested": 1,
+        "ok": 1,
+        "failed": 0,
+        "wall_s": 6.649,
+        "median_latency_s": 6.649,
+        "p95_latency_s": 6.649,
+        "min_latency_s": 6.649,
+        "max_latency_s": 6.649,
+        "completion_tokens": 108,
+        "prompt_tokens": 1038,
+        "cached_tokens": 1031,
+        "aggregate_tok_per_s": 16.24,
+        "concurrency": 1,
+        "throughput_ratio_vs_base": 1.0,
+        "scaling_efficiency": 1.0,
+        "latency_ratio_vs_base": 1.0
+      },
+      {
+        "requested": 2,
+        "ok": 2,
+        "failed": 0,
+        "wall_s": 9.921,
+        "median_latency_s": 9.848,
+        "p95_latency_s": 9.921,
+        "min_latency_s": 9.774,
+        "max_latency_s": 9.921,
+        "completion_tokens": 178,
+        "prompt_tokens": 2067,
+        "cached_tokens": 0,
+        "aggregate_tok_per_s": 17.94,
+        "concurrency": 2,
+        "throughput_ratio_vs_base": 1.1,
+        "scaling_efficiency": 0.552,
+        "latency_ratio_vs_base": 1.48
+      },
+      {
+        "requested": 4,
+        "ok": 4,
+        "failed": 0,
+        "wall_s": 20.016,
+        "median_latency_s": 15.785,
+        "p95_latency_s": 20.015,
+        "min_latency_s": 12.709,
+        "max_latency_s": 20.015,
+        "completion_tokens": 461,
+        "prompt_tokens": 4137,
+        "cached_tokens": 0,
+        "aggregate_tok_per_s": 23.03,
+        "concurrency": 4,
+        "throughput_ratio_vs_base": 1.42,
+        "scaling_efficiency": 0.355,
+        "latency_ratio_vs_base": 2.37
+      }
+    ],
+    "runs": {
+      "1": {
+        "stats": {
+          "requested": 1,
+          "ok": 1,
+          "failed": 0,
+          "wall_s": 6.649,
+          "median_latency_s": 6.649,
+          "p95_latency_s": 6.649,
+          "min_latency_s": 6.649,
+          "max_latency_s": 6.649,
+          "completion_tokens": 108,
+          "prompt_tokens": 1038,
+          "cached_tokens": 1031,
+          "aggregate_tok_per_s": 16.24,
+          "concurrency": 1,
+          "throughput_ratio_vs_base": 1.0,
+          "scaling_efficiency": 1.0,
+          "latency_ratio_vs_base": 1.0
+        },
+        "rows": [
+          {
+            "client": 0,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 6.649,
+            "prompt_tokens": 1038,
+            "completion_tokens": 108,
+            "cached_tokens": 1031,
+            "tok_per_s": 16.24,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 6.649
+          }
+        ]
+      },
+      "2": {
+        "stats": {
+          "requested": 2,
+          "ok": 2,
+          "failed": 0,
+          "wall_s": 9.921,
+          "median_latency_s": 9.848,
+          "p95_latency_s": 9.921,
+          "min_latency_s": 9.774,
+          "max_latency_s": 9.921,
+          "completion_tokens": 178,
+          "prompt_tokens": 2067,
+          "cached_tokens": 0,
+          "aggregate_tok_per_s": 17.94,
+          "concurrency": 2,
+          "throughput_ratio_vs_base": 1.1,
+          "scaling_efficiency": 0.552,
+          "latency_ratio_vs_base": 1.48
+        },
+        "rows": [
+          {
+            "client": 1,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 9.921,
+            "prompt_tokens": 1034,
+            "completion_tokens": 97,
+            "cached_tokens": 0,
+            "tok_per_s": 9.78,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 9.921
+          },
+          {
+            "client": 2,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 9.774,
+            "prompt_tokens": 1033,
+            "completion_tokens": 81,
+            "cached_tokens": 0,
+            "tok_per_s": 8.29,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 9.774
+          }
+        ]
+      },
+      "4": {
+        "stats": {
+          "requested": 4,
+          "ok": 4,
+          "failed": 0,
+          "wall_s": 20.016,
+          "median_latency_s": 15.785,
+          "p95_latency_s": 20.015,
+          "min_latency_s": 12.709,
+          "max_latency_s": 20.015,
+          "completion_tokens": 461,
+          "prompt_tokens": 4137,
+          "cached_tokens": 0,
+          "aggregate_tok_per_s": 23.03,
+          "concurrency": 4,
+          "throughput_ratio_vs_base": 1.42,
+          "scaling_efficiency": 0.355,
+          "latency_ratio_vs_base": 2.37
+        },
+        "rows": [
+          {
+            "client": 3,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 15.956,
+            "prompt_tokens": 1035,
+            "completion_tokens": 104,
+            "cached_tokens": 0,
+            "tok_per_s": 6.52,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 15.956
+          },
+          {
+            "client": 4,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 15.615,
+            "prompt_tokens": 1034,
+            "completion_tokens": 112,
+            "cached_tokens": 0,
+            "tok_per_s": 7.17,
+            "finish_reason": "stop",
+            "start_offset_s": 0.0,
+            "end_offset_s": 15.616
+          },
+          {
+            "client": 5,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 12.709,
+            "prompt_tokens": 1034,
+            "completion_tokens": 86,
+            "cached_tokens": 0,
+            "tok_per_s": 6.77,
+            "finish_reason": "stop",
+            "start_offset_s": 0.001,
+            "end_offset_s": 12.709
+          },
+          {
+            "client": 6,
+            "model": "Qwen3.8-27B-8bit:qwen-agent",
+            "latency_s": 20.015,
+            "prompt_tokens": 1034,
+            "completion_tokens": 159,
+            "cached_tokens": 0,
+            "tok_per_s": 7.94,
+            "finish_reason": "stop",
+            "start_offset_s": 0.001,
+            "end_offset_s": 20.016
+          }
+        ]
+      }
+    }
+  },
+  "engine": {
+    "engine": "mlx",
+    "omlx_version": "0.7.4.dev1"
+  }
+}

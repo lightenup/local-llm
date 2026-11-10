@@ -13,7 +13,7 @@ import time
 import urllib.error
 import urllib.request
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 BASE = os.environ.get("OMLX_BASE", "http://127.0.0.1:8000")
 MODEL = os.environ.get("OMLX_MODEL", "Qwen3.8-27B-8bit")
@@ -265,6 +265,7 @@ class Omlx:
         model_id: str = MODEL,
         poll: float = 5.0,
         timeout: float = 7200.0,
+        on_poll: Callable[[dict], None] | None = None,
     ) -> dict:
         body = {
             "model_id": model_id,
@@ -278,7 +279,7 @@ class Omlx:
         started = self.post("/admin/api/bench/start", body, timeout=120)
         bench_id = started["bench_id"]
         return self._poll_bench(
-            f"/admin/api/bench/{bench_id}/results", poll, timeout, bench_id
+            f"/admin/api/bench/{bench_id}/results", poll, timeout, bench_id, on_poll
         )
 
     def bench_context(
@@ -350,12 +351,19 @@ class Omlx:
         raise OmlxError(f"ANE tuning timed out: {tuning_id}")
 
     def _poll_bench(
-        self, results_path: str, poll: float, timeout: float, bench_id: str
+        self,
+        results_path: str,
+        poll: float,
+        timeout: float,
+        bench_id: str,
+        on_poll: Callable[[dict], None] | None = None,
     ) -> dict:
         deadline = time.time() + timeout
         last = ""
         while time.time() < deadline:
             res = self.get(results_path, timeout=60)
+            if on_poll is not None:
+                on_poll(res)
             status = res.get("status")
             msg = f"{status} {res.get('phase','')} {res.get('message','')}".strip()
             if msg != last:

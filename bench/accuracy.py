@@ -24,6 +24,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from engine_info import engine_snapshot, engine_tag  # noqa: E402
 from omlx_client import MODEL, Omlx, OmlxError  # noqa: E402
 
 GROUPS: dict[str, list[str]] = {
@@ -182,13 +183,16 @@ def main() -> int:
             # `qwen4_` catches qwen4_ple_ssd_offload, which no other prefix
             # matches and which decides a Flash-Next run's whole memory shape.
             if k.startswith(
-                ("qwen35_ane", "qwen4_", "turboquant", "vlm_mtp", "mtp_", "dflash")
+                ("qwen35_ane", "qwen4_", "turboquant", "vlm_mtp", "mtp_", "dflash",
+                 "external_engine")
             )
             and v not in (None, False)
         },
+        "engine": engine_snapshot(o, args.model),
         "results": fresh or allres,
     }
     Omlx.save(f"acc_{args.label}", payload)
+    print(f"   engine={engine_tag(payload)}")
 
     print(f"\n  {'suite':<16} {'score':>8} {'correct':>9} {'total':>7} {'time s':>8}  upload")
     print("  " + "-" * 62)

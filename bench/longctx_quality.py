@@ -57,6 +57,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from engine_info import engine_snapshot, engine_tag  # noqa: E402
 from omlx_client import Omlx, OmlxError  # noqa: E402
 
 # Seed estimate only, used to size the two calibration probes. The real
@@ -84,6 +85,7 @@ VARIANT_PREFIXES = (
     "dflash",
     "specprefill",
     "qwen35_ane",
+    "external_engine",
 )
 
 FILLER = (
@@ -611,7 +613,9 @@ def main() -> int:
         "records": rows,
         "summary": summary,
     }
+    payload["engine"] = engine_snapshot(o, model)
     Omlx.save(args.label, payload)
+    print(f"   engine={engine_tag(payload)}")
     print_matrix(rows, summary)
 
     ov = summary["overall_retrieval"]
