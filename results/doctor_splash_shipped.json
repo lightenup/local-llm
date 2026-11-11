@@ -1,0 +1,210 @@
+{
+  "at": "2026-11-11T06:52:54",
+  "at_epoch": 1794376374,
+  "quick": false,
+  "results": [
+    {
+      "name": "sleep prevented during inference",
+      "ok": true,
+      "kind": "config",
+      "detail": "inference_awake running, AC sleep=15",
+      "layer": "host"
+    },
+    {
+      "name": "stack supervisor agent running",
+      "ok": true,
+      "kind": "config",
+      "detail": "stack-supervisor running",
+      "layer": "host"
+    },
+    {
+      "name": "AC wake-on-network disabled",
+      "ok": true,
+      "kind": "config",
+      "detail": "AC womp=0",
+      "layer": "host"
+    },
+    {
+      "name": "on AC power",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "on AC",
+      "layer": "host"
+    },
+    {
+      "name": "lid open",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "lid open",
+      "layer": "host"
+    },
+    {
+      "name": "no thermal-emergency sleep in last 24h",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "none in 24h",
+      "layer": "host"
+    },
+    {
+      "name": "server responds",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "status=healthy",
+      "layer": "engine"
+    },
+    {
+      "name": "profiles match their definitions",
+      "ok": true,
+      "kind": "config",
+      "detail": "27B 4/4 and oQ4e 3/3 match definitions",
+      "layer": "engine"
+    },
+    {
+      "name": "8-bit base engine variant is the shipped one",
+      "ok": true,
+      "kind": "config",
+      "detail": "base == set_variant 'splash_262k'",
+      "layer": "engine"
+    },
+    {
+      "name": "8-bit served by the shipped engine",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "splash 1.6.0 int8, planned context 262144 (need 262144)",
+      "layer": "engine"
+    },
+    {
+      "name": "no retired profiles still served",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "22 served",
+      "layer": "engine"
+    },
+    {
+      "name": "profile samples: Qwen3.8-27B-8bit:qwen-code",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "4/4 distinct",
+      "layer": "engine"
+    },
+    {
+      "name": "profile samples: Qwen3.8-27B-8bit:qwen-agent",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "4/4 distinct",
+      "layer": "engine"
+    },
+    {
+      "name": "profile samples: Qwen3.8-27B-oQ4e-mtp:oq-agent",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "4/4 distinct",
+      "layer": "engine"
+    },
+    {
+      "name": "speculative decode active: Qwen3.8-27B-oQ4e-mtp",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "68.3 tok/s (floor 44.0; below means speculative decoding is NOT engaging)",
+      "layer": "engine"
+    },
+    {
+      "name": "llm_queue reachable",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "depth=0 running=None granted=1231",
+      "layer": "queue"
+    },
+    {
+      "name": "LiteLLM upstream matches compose",
+      "ok": true,
+      "kind": "config",
+      "detail": "LIVE (queued): http://host.docker.internal:8001/v1",
+      "layer": "queue"
+    },
+    {
+      "name": "a LiteLLM request passes through the queue",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "fast: queue granted 1231 -> 1232",
+      "layer": "queue"
+    },
+    {
+      "name": "proxy reachable",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "HTTP 200",
+      "layer": "proxy"
+    },
+    {
+      "name": "role alias answers: coder",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "answers; served as 'coder'",
+      "layer": "proxy"
+    },
+    {
+      "name": "role alias answers: reasoner",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "answers; served as 'reasoner'",
+      "layer": "proxy"
+    },
+    {
+      "name": "role alias answers: fast",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "answers; served as 'fast'",
+      "layer": "proxy"
+    },
+    {
+      "name": "role alias answers: long",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "answers; served as 'long'",
+      "layer": "proxy"
+    },
+    {
+      "name": "access group refuses out-of-group models",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "refused with HTTP 403",
+      "layer": "proxy"
+    },
+    {
+      "name": "enable_pre_call_checks is on",
+      "ok": true,
+      "kind": "config",
+      "detail": "without it max_input_tokens is inert metadata (\u00a716)",
+      "layer": "proxy"
+    },
+    {
+      "name": "router fallbacks are empty",
+      "ok": true,
+      "kind": "config",
+      "detail": "a fallback fires even for keys barred from the target (\u00a7C2)",
+      "layer": "proxy"
+    },
+    {
+      "name": "provider env vars visible non-interactively",
+      "ok": true,
+      "kind": "behaviour",
+      "detail": "all set in a non-interactive shell",
+      "layer": "harness"
+    },
+    {
+      "name": "every agent's model is declared",
+      "ok": true,
+      "kind": "config",
+      "detail": "2 providers, 9 agents all resolve",
+      "layer": "harness"
+    },
+    {
+      "name": "Spec Kit commands are unmodified",
+      "ok": true,
+      "kind": "config",
+      "detail": "stock",
+      "layer": "harness"
+    }
+  ]
+}

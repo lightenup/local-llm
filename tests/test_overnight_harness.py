@@ -138,3 +138,16 @@ class Qwen36ProfilesTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ShippedVariantTest(unittest.TestCase):
+    def test_shipped_splash_reaches_qwen_long(self):
+        import doctor
+        sys.path.insert(0, str(ROOT / "profiles"))
+        import definitions
+        v = set_variant.VARIANTS[doctor.SHIPPED_VARIANT]
+        if v.get("external_engine") != "splash":
+            return
+        self.assertIn(set_variant.MODEL, set_variant.SPLASH_DRAFTS)
+        need = max(p["settings"]["max_context_window"] for p in definitions.PROFILES)
+        self.assertGreaterEqual(set_variant.CONTEXT_VARIANTS.get(doctor.SHIPPED_VARIANT, 0), need)

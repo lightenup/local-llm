@@ -4292,3 +4292,46 @@ No switch is made here. Two things remain, both supervised: one real opencode
 session on `q36-agent` against `coder` (§25's workflow), and a decision on
 diagram work, which would stay on the 8-bit or gemma-31B if Qwen3.6 takes
 `coder`. Backlog A12.
+
+## 48. Splash ships: the 8-bit's engine, with the KV pool sized for 262k
+
+2026-11-11. The 8-bit base model now carries `set_variant.py`'s
+`splash_262k`: `external_engine: splash`, drafter `Qwen3.8-27B-DFlash2` named
+explicitly, and base `max_context_window` 262144. That last value settles the
+one open question of §45's decision: Splash sizes its KV pool from it, so
+`qwen-long` (and the `long` role) reaches 262k. The cost is Splash's memory
+budget, 39.79 GiB against 35.73 at 131072, for every profile. The other open
+question, cold concurrent prefill, is accepted: §45 measured Splash ahead of
+MLX at every concurrency even cold.
+
+### Checks after the switch (`results/*_splash_8bit_262k*.json`, `doctor_splash_shipped.json`)
+
+| check | result |
+|---|---|
+| Splash serving, planned context | yes, 262,144; budget 39.79 GiB |
+| client `temperature: 0` ignored | 4/4 distinct |
+| thinking only on `reason`, no `<think>` in content | yes |
+| reason budget 8192 | 8192 and 8191, both answered, 61 t/s |
+| coexistence, three lineup models, 3 rounds of 16k each | 9/9, no eviction, pool 84.05 GiB; peak active wired memory 108.1 GB (100.7 GiB), under the 107.97 GiB ceiling oMLX reports |
+| 262k needle through `qwen-long`, run straight after | found, 261,805 tokens, 765 s cold |
+| full doctor | 29/29 |
+
+The pool is 4.1 GiB above §45's 79.98 because of the larger budget; peak
+memory rose from 106.3 GB to 108.1 GB. Whether the other two models
+stayed loaded during the 262k needle was not recorded; Splash's KV pool is
+reserved up front, so the long prompt does not grow it.
+
+### What changed in the repo
+
+- `bench/doctor.py`: `SHIPPED_VARIANT = "splash_262k"`. The base check now
+  compares `max_context_window` as well, and a new behaviour check asks the
+  engine itself whether Splash serves the 8-bit with at least 262,144 planned
+  (§44: choosing Splash gives no error when it is not running the model).
+- The dashboard's quality card names `engine = "splash"`, so its candidate
+  row shows the Splash suite runs.
+
+### Rollback
+
+`python3 bench/set_variant.py apply plain` (in-process MLX, base 131072) and
+`SHIPPED_VARIANT = "plain"` in `bench/doctor.py`. MLX serves `qwen-long` at
+262k with its own profile value, as before §44.

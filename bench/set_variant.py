@@ -63,7 +63,8 @@ GLOBAL_VARIANTS: dict[str, dict] = {
 
 # Splash sizes its KV pool to the base model's max_context_window at load, and
 # oMLX then caps every profile at what Splash planned; qwen-long's own 262,144
-# does not reach it. The shipped base value is 131,072.
+# does not reach it. 131,072 is the base value for every other variant; the
+# shipped splash_262k (doctor.SHIPPED_VARIANT) raises it.
 CONTEXT_RESET = 131072
 CONTEXT_VARIANTS: dict[str, int] = {"splash_262k": 262144}
 

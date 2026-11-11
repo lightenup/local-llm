@@ -19,15 +19,24 @@ config switching, no engine reload.
 | `Qwen3.8-27B-8bit:qwen-reason` | hard reasoning, architecture | 0.6 | on (8k budget) | 131k |
 | `Qwen3.8-27B-8bit:qwen-long` | whole-repo / long-document analysis | 0.3 | off | **262k** |
 
-All four share one resident engine with MTP speculative decoding enabled, so
-switching between them costs nothing and every one of them decodes at
-**~36–40 tok/s** instead of the stock ~18.
+All four share one resident engine, so switching between them costs nothing.
+Since 2026-11-11 that engine is **Splash** (oMLX's external Metal engine with
+DFlash2 speculative decoding, FINDINGS §44–§45, §48): **~56–83 tok/s** decode on
+code prompts against ~16–17 in-process on MLX, at the same accuracy. MTP was the
+shipped speed-up until §39 found its decode path ignored the sampler.
+
+Splash needs more than installing it: the drafter
+`incoai/Qwen3.8-27B-DFlash2` downloaded and registered (restart oMLX), and the
+base model set to `external_engine: splash`, that drafter named explicitly and
+`max_context_window: 262144` (Splash sizes its KV pool from it and caps every
+profile there). `python3 bench/set_variant.py apply splash_262k` does all three
+and checks Splash is serving; `apply plain` rolls back to in-process MLX.
 
 ### Headline results
 
 | | baseline | shipped |
 |---|---|---|
-| decode @ 16k prompt | 17.3 t/s | **34.0 t/s** (1.97×) |
+| decode @ 16k prompt | 16.1 t/s (MLX, `plain`) | **83.4 t/s** (Splash, 5.2×) |
 | max usable context | 32,768 (config cap) | **262,144** (verified) |
 | `top_k` | 0 (disabled — a defect) | 20 (per checkpoint) |
 
@@ -281,7 +290,7 @@ python3 bench/smoke.py
 # A/B an engine-level change (this DOES reload the engine)
 python3 bench/set_variant.py apply plain
 python3 bench/throughput.py my_experiment --lengths 4096 16384
-python3 bench/set_variant.py apply mtp        # back to shipped
+python3 bench/set_variant.py apply splash_262k   # back to shipped
 ```
 
 ## Overnight validation

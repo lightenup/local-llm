@@ -63,7 +63,7 @@ Layers run in this order: the cheapest and most fundamental first.
 | layer | what it guards | checks |
 |---|---|---|
 | **host** | the Mac under everything (§37) | sleep prevented during inference (`inference_awake` running, or AC sleep 0), AC wake-on-network off, on AC power, lid open, no thermal-emergency sleep in 24 h |
-| **engine** | oMLX | server responds; profiles match `profiles/definitions.py` (and carry no engine fields); 8-bit base engine variant equals `SHIPPED_VARIANT` (`plain`, §39); no retired profiles served; *full only:* each profile in `SAMPLING_PROFILES` actually samples (4 identical requests, at least 2 distinct, §39); oQ4e speculative decode above its floor (§23) |
+| **engine** | oMLX | server responds; profiles match `profiles/definitions.py` (and carry no engine fields); 8-bit base engine variant, base context included, equals `SHIPPED_VARIANT` (`splash_262k`, §48); the 8-bit is served by that engine with the context it needs (Splash serving, planned context ≥ 262,144, §44/§45); no retired profiles served; *full only:* each profile in `SAMPLING_PROFILES` actually samples (4 identical requests, at least 2 distinct, §39); oQ4e speculative decode above its floor (§23) |
 | **queue** | `proxy/llm_queue.py` (§38) | queue reachable; the LiteLLM container's `OMLX_BASE_URL` matches the compose file (reports LIVE, or BYPASSED after a rollback); *full only:* a LiteLLM request is granted by the queue |
 | **proxy** | LiteLLM, the contract every client uses | reachable; each role alias answers; access group refuses out-of-group models; `enable_pre_call_checks` on (§16); router fallbacks empty (C2) |
 | **harness** | opencode | provider env vars visible to non-interactive shells (§24); every agent's model is declared; Spec Kit commands are stock |
@@ -79,7 +79,8 @@ Knobs at the top of the file: `MTP_FLOORS`, `SHIPPED_VARIANT`,
 | sleep prevented during inference | `$LAUNCHD_PREFIX.inference-awake` not running | `launchctl print gui/$(id -u)/$LAUNCHD_PREFIX.inference-awake`, FINDINGS §37 |
 | no thermal-emergency sleep in 24 h | the Mac hit a thermal emergency | `pmset -g log \| rg Thermal`, §37 |
 | profiles match their definitions | profile drift, or engine fields copied into a profile | `python3 profiles/apply.py` re-applies, §38 |
-| 8-bit base engine variant | base drifted from `set_variant.py` | `python3 bench/set_variant.py apply plain`, §38/§39 |
+| 8-bit base engine variant | base drifted from `set_variant.py` | `python3 bench/set_variant.py apply splash_262k`, §38/§48 |
+| 8-bit served by the shipped engine | Splash not running the model, or it planned less context than `qwen-long` needs | `set_variant.py apply splash_262k` reloads and checks; Splash's log (path in oMLX's `external_engines.splash` status), §44/§45 |
 | profile samples: … (1/4 distinct) | a decode path ignores the sampler, so agents will loop | §39 |
 | speculative decode active | the drafter loaded but is not accelerating | §23 |
 | LiteLLM upstream matches compose | compose edited without recreating the container | `cd proxy && docker compose up -d` |
