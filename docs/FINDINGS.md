@@ -3519,7 +3519,7 @@ mixed 6-bit, MTP head in the checkpoint. Profiles in `profiles/gemma4moe.py`.
 | 4k | 62.8 | 97.8 | 1.56x | 972 | 3,864 | 3.98x |
 | 16k | 77.8 | 92.0 | 1.18x | 812 | 3,556 | 4.38x |
 
-- **Concurrency**, `bench/concurrency.py` scaling, ~2k prompts, 200 tokens
+- **Concurrency**, `bench/concurrency.py` scaling, ~1k-token prompts, 200 tokens
   (`results/a10d3_conc_*.json`). At 8 in flight the MoE delivers 98 t/s aggregate
   with a 7.7 s median latency; oQ4e gives 27 t/s and 31.9 s. The MoE's
   single-request row (37 s) was a cold load and is not a measurement.
@@ -3994,7 +3994,7 @@ tokens. Batched at 1k, aggregate decode is 108.1 against 32.3 t/s at batch 2,
 and 217.7 against 60.3 at batch 4. Peak memory is 31–35.5 GB against
 28.5–33.3 GB; Splash's own budget is 35.73 GB.
 
-Through oMLX with the `agent` profile (`concurrency_*.json`, 2k prompts, 200
+Through oMLX with the `agent` profile (`concurrency_*.json`, ~1k-token prompts, 200
 tokens) aggregate throughput is 39.5 / 83.8 / 124.9 t/s at 1 / 2 / 4
 concurrent requests, against 16.2 / 17.9 / 23.0. This comparison is not
 cache-equal: the Splash run hit its prefix cache on every prompt, the MLX run
@@ -4072,15 +4072,17 @@ pool ceiling.
 
 ### Prefix cache (`cache_splash_8bit.json`, `cache_mlx_8bit_plain_074.json`)
 
-16k-token shared prefix, six repeats, four unrelated requests of churn, then an
+A shared prefix of about 9,200 tokens (the harness asks for 16,384 and sends
+that), six repeats, four unrelated requests of churn, then an
 engine reload.
 
 | | cold | repeat | after churn | after reload |
 |---|---|---|---|---|
 | Splash | 11.0 s | 0.86 s, 100% cached | 0.84 s | 0.82 s, 100% cached |
-| MLX | 15.75 s | ~4.5 s, 89% cached | 3.5 s, 100% cached | |
+| MLX | 15.75 s | ~4.5 s, 89% cached | 3.5 s, 100% cached | 3.45 s, 100% cached |
 
-Splash keeps its own cache and it survives a reload. oMLX's cache probe does
+Both caches survive a reload, and a hit costs about 4× less time on Splash.
+Splash keeps its own cache. oMLX's cache probe does
 not see it ("Scheduler unavailable for loaded model"), so the hit rate comes
 from the request's `cached_tokens`.
 
@@ -4129,8 +4131,8 @@ from an older build.
 ### Concurrency, cache-equal (`concurrency_*_{cold,warm}.json`)
 
 `concurrency.py --salt` makes every prompt new for the cold run; the warm run
-repeats the same salt. Both engines then cache the same ~1,024 tokens of each
-2k prompt. `agent` profile, 200 tokens, aggregate completion t/s:
+repeats the same salt. Warm, Splash caches 1,024 tokens of each ~1,050-token
+prompt and MLX 1,051. `agent` profile, 200 tokens, aggregate completion t/s:
 
 | concurrent | Splash cold | MLX cold | Splash warm | MLX warm |
 |---|---|---|---|---|
