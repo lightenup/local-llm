@@ -262,3 +262,18 @@ class LoadSectionsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class EngineFieldTests(unittest.TestCase):
+    def test_engine_is_optional_and_validated(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            write_toml(d, "lineup_quality_8bit.toml", VALID)
+            fs, problems = load(d)
+            self.assertEqual((problems, fs[0].engine), ([], None))
+            write_toml(d, "lineup_quality_8bit.toml",
+                       VALID.replace("section = 19", 'section = 19\nengine = "splash"'))
+            self.assertEqual(load(d)[0][0].engine, "splash")
+            write_toml(d, "lineup_quality_8bit.toml",
+                       VALID.replace("section = 19", 'section = 19\nengine = "cuda"'))
+            self.assertIn("engine", " | ".join(str(p) for p in load(d)[1]))

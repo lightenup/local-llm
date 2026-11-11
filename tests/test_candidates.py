@@ -118,3 +118,52 @@ class ReviewRegressionTests(unittest.TestCase):
                                     section=13, title="broad")
             for order in ([shipped, broad], [broad, shipped]):
                 self.assertIs(build(d, order)[0].finding, shipped)
+
+
+def acc(model, bench, n, correct, engine=None, current=True):
+    data = lcb(model, n, correct, current) if bench == "livecodebench" else {
+        "results": [{"model_id": model, "benchmark": bench, "accuracy": correct / n,
+                     "total": n, "question_results": []}]}
+    if engine:
+        data["engine"] = {"engine": engine}
+    return data
+
+
+class EngineTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.d = Path(self.tmp.name)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def write(self, name, data):
+        (self.d / name).write_text(json.dumps(data))
+
+    def test_served_engine_wins_over_file_name(self):
+        # "acc_z_splash" sorts after "acc_a_ship"; the MLX run must still win
+        self.write("acc_a_ship.json", acc("M", "mmlu_pro", 500, 320))
+        self.write("acc_z_splash.json", acc("M", "mmlu_pro", 500, 321, engine="splash"))
+        run = build(self.d, [])[0].suites["mmlu_pro"]
+        self.assertEqual((run.file, run.engine), ("acc_a_ship.json", "mlx"))
+
+    def test_finding_engine_decides_what_is_served(self):
+        self.write("acc_a.json", acc("M", "mmlu_pro", 500, 320))
+        self.write("acc_b.json", acc("M", "mmlu_pro", 500, 321, engine="splash"))
+        on_splash = SimpleNamespace(models=["M"], status="shipped", section=1, title="t",
+                                    engine="splash")
+        self.assertEqual(build(self.d, [on_splash])[0].suites["mmlu_pro"].engine, "splash")
+
+    def test_current_harness_beats_served_engine_and_is_labelled(self):
+        from render import _candidate_notes
+        self.write("acc_old.json", acc("M", "livecodebench", 500, 300, current=False))
+        self.write("acc_new.json", acc("M", "livecodebench", 500, 400, engine="splash"))
+        self.write("acc_r.json", acc("M", "mmlu_pro", 500, 320))
+        self.write("gate_s.json", [{"model_id": "M", "verdict": "PASS",
+                                    "engine": {"engine": "splash"}}])
+        c = build(self.d, [])[0]
+        self.assertEqual(c.suites["livecodebench"].engine, "splash")
+        html = _candidate_notes(c, {})
+        self.assertEqual(html.count('aria-label="engine">splash</span>'), 1)
+        self.assertIn("beside the lineup on splash", html)
+        self.assertIn("engine: mlx", html)

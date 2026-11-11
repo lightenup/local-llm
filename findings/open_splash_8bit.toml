@@ -1,0 +1,61 @@
+id      = "open_splash_8bit"
+title   = "Splash serves the 8-bit 3–5× faster at the same scores"
+status  = "open"
+models  = ["Qwen3.8-27B-8bit"]
+section = 45
+section_title = "Splash, part 2: the 8-bit scores the same, coexists, and reaches 262k"
+updated = 2026-11-10
+rationale = "Splash (an external Metal engine with DFlash2 speculative decoding) passes every check §44 set: accuracy within its own run-to-run noise (reason p = 0.85, general 0.55, safety 0.63), coexistence with the lineup, prefix cache that survives a reload, and retrieval to 262k with the base max_context_window raised. The shipped 8-bit still runs on MLX: promotion is a separate change with its own doctor run, and two things are unsettled, the KV pool a 262144 base context holds for every profile and cold concurrent prefill. §44–§45."
+
+[[metrics]]
+name      = "decode @ 16k prompt"
+unit      = "tok/s"
+direction = "higher"
+headline  = true
+tooltip_what     = "Sustained decode throughput at a 16,384-token prompt, single stream, on Splash."
+tooltip_how      = "bench/throughput.py, code_python context, 128-token generations; MLX baseline is the shipped plain variant on the same oMLX build."
+tooltip_evidence = "3.3x at 1k to 5.2x at 16k; depends on what the drafter guesses, so agent and prose traffic see less; see §44."
+source_file = "tp_splash_8bit.json"
+source_path  = "summary[?pp=16384].decode_tps"
+baseline_label = "MLX"
+baseline_source_file = "tp_mlx_8bit_plain_074.json"
+baseline_source_path = "summary[?pp=16384].decode_tps"
+
+[[metrics]]
+name      = "prefill @ 16k prompt"
+unit      = "tok/s"
+direction = "higher"
+headline  = false
+tooltip_what     = "Prompt processing rate at a 16,384-token prompt, single stream, on Splash."
+tooltip_how      = "bench/throughput.py, same runs as the decode figure."
+tooltip_evidence = "1.2-1.4x MLX; ANE prefill is worth 8-15% of it; see §44-§45."
+source_file = "tp_splash_8bit.json"
+source_path  = "summary[?pp=16384].prefill_tps"
+baseline_label = "MLX"
+baseline_source_file = "tp_mlx_8bit_plain_074.json"
+baseline_source_path = "summary[?pp=16384].prefill_tps"
+
+[[metrics]]
+name      = "mmlu_pro accuracy"
+unit      = "score"
+direction = "higher"
+headline  = false
+tooltip_what     = "MMLU-Pro accuracy, 500 questions, on Splash with int8 KV."
+tooltip_how      = "bench/accuracy.py reason, deterministic sampling, thinking off; MLX baseline is the stored shipped run."
+tooltip_evidence = "Reason group 66.9 vs 67.0, flips 12/14, p = 0.85; Splash's own repeat flips 0.7% of answers; see §45."
+source_file = "acc_splash_8bit_reason.json"
+source_path  = "results[?benchmark=mmlu_pro].accuracy"
+baseline_label = "MLX"
+baseline_source_file = "acc_plain_reason.json"
+baseline_source_path = "results[?benchmark=mmlu_pro].accuracy"
+
+[[metrics]]
+name      = "context verified"
+unit      = "tokens"
+direction = "higher"
+headline  = false
+tooltip_what     = "Longest context with every needle retrieved, on Splash."
+tooltip_how      = "bench/longctx_quality.py through qwen-long, five depths plus one multi-hop question, base max_context_window 262144."
+tooltip_evidence = "5/5 and multi-hop correct at 262k; at the shipped base value Splash plans 128K and caps qwen-long there; see §45."
+source_file = "longctx_splash_8bit_262k.json"
+source_path  = "summary.by_length.262144.verified_prompt_tokens"

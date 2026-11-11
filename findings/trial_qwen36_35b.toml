@@ -1,0 +1,61 @@
+id      = "trial_qwen36_35b"
+title   = "Qwen3.6-35B-A3B matches the 8-bit at 5x its decode"
+status  = "on-trial"
+models  = ["Qwen3.6-35B-A3B-MLX-8bit"]
+section = 47
+section_title = "Qwen3.6-35B-A3B in the 8-bit's roles: fits, profiles hold, tool use perfect, diagrams weaker"
+updated = 2026-11-11
+rationale = "Equal to the 8-bit on all four suite groups (code p = 0.64, reason 1.0, general 0.85, safety 0.42) and on taskbench (q36-code 201/220, q36-agent 206/220 against coder's 209/220, p = 0.18 and 0.68). It passes the gate in the 8-bit's slot on MLX and Splash, its profiles hold, and it retrieves to 262k. It differs in kind: every tool call and chain passes, PlantUML is weaker. It loses fast's slot to gemma-26B-A4B on code and reason (p < 0.001). Profiles q36-code and q36-agent are LiteLLM trial routes behind no alias; still open are a supervised opencode session and the diagram question. §46-§47, backlog A12."
+
+[[metrics]]
+name      = "decode @ 16k prompt"
+unit      = "tok/s"
+direction = "higher"
+headline  = true
+tooltip_what     = "Sustained decode throughput at a 16,384-token prompt, single stream, on MLX."
+tooltip_how      = "bench/throughput.py, code_python context, 128-token generations; baseline is the 8-bit's shipped plain variant on the same oMLX build."
+tooltip_evidence = "5-6x the 8-bit on MLX, 2-3.5x on Splash; no MLX speculative decode, the config declares MTP layers the weights lack; see §46."
+source_file = "tp_q36_8bit_mlx.json"
+source_path  = "summary[?pp=16384].decode_tps"
+baseline_label = "Qwen3.8-27B-8bit"
+baseline_source_file = "tp_mlx_8bit_plain_074.json"
+baseline_source_path = "summary[?pp=16384].decode_tps"
+
+[[metrics]]
+name      = "livecodebench accuracy"
+unit      = "score"
+direction = "higher"
+headline  = false
+tooltip_what     = "LiveCodeBench accuracy, 500 samples, current oMLX harness, on MLX."
+tooltip_how      = "bench/accuracy.py code, deterministic sampling, thinking off; the 8-bit baseline is its Splash run, its only one on the current harness."
+tooltip_evidence = "Code group 82.3 vs 82.9 against the 8-bit, p = 0.64; fast scores 91.0; see §46."
+source_file = "acc_q36_8bit_mlx_code.json"
+source_path  = "results[?benchmark=livecodebench].accuracy"
+baseline_label = "Qwen3.8-27B-8bit on Splash"
+baseline_source_file = "acc_splash_8bit_code.json"
+baseline_source_path = "results[?benchmark=livecodebench].accuracy"
+
+[[metrics]]
+name      = "mmlu_pro accuracy"
+unit      = "score"
+direction = "higher"
+headline  = false
+tooltip_what     = "MMLU-Pro accuracy, 500 questions, on MLX."
+tooltip_how      = "bench/accuracy.py reason, deterministic sampling, thinking off."
+tooltip_evidence = "Reason group 66.9 vs 66.9 against the 8-bit, p = 1.0; see §46."
+source_file = "acc_q36_8bit_mlx_reason.json"
+source_path  = "results[?benchmark=mmlu_pro].accuracy"
+baseline_label = "Qwen3.8-27B-8bit"
+baseline_source_file = "acc_plain_reason.json"
+baseline_source_path = "results[?benchmark=mmlu_pro].accuracy"
+
+[[metrics]]
+name      = "context verified"
+unit      = "tokens"
+direction = "higher"
+headline  = false
+tooltip_what     = "Longest context with every needle retrieved, on MLX."
+tooltip_how      = "bench/longctx_quality.py, bare id with thinking off, five depths plus one multi-hop question."
+tooltip_evidence = "5/5 at 262k with no base-context change; q36-long 10/10 at 64k and 131k and stays capped at 131,072; see §47."
+source_file = "longctx_q36_mlx_262k.json"
+source_path  = "summary.by_length.262144.verified_prompt_tokens"
