@@ -107,5 +107,34 @@ class SetVariantContextTest(unittest.TestCase):
         self.assertEqual(p["dflash_draft_model"], set_variant.SPLASH_DRAFTS[self.OTHER])
 
 
+class Qwen36ProfilesTest(unittest.TestCase):
+    def setUp(self):
+        sys.path.insert(0, str(ROOT / "profiles"))
+        import qwen36
+        self.mod = qwen36
+
+    def test_valid(self):
+        self.assertEqual(self.mod.validate(), [])
+
+    def test_names_match_engine_checks(self):
+        names = {p["name"] for p in self.mod.PROFILES}
+        self.assertEqual(names, {"code", "agent", "reason", "longctx"})
+
+    def test_thinking_stated_twice(self):
+        for p in self.mod.PROFILES:
+            s = p["settings"]
+            self.assertEqual(s["chat_template_kwargs"]["enable_thinking"], s["enable_thinking"])
+
+    def test_catches_contradiction(self):
+        import copy
+        saved = self.mod.PROFILES
+        self.mod.PROFILES = copy.deepcopy(saved)
+        try:
+            self.mod.PROFILES[0]["settings"]["chat_template_kwargs"]["enable_thinking"] = True
+            self.assertTrue(self.mod.validate())
+        finally:
+            self.mod.PROFILES = saved
+
+
 if __name__ == "__main__":
     unittest.main()

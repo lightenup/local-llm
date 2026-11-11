@@ -4223,3 +4223,70 @@ which makes it a candidate for the 8-bit's roles instead. That needs what this
 round did not measure: a gate in the 8-bit's slot, agentic work (`taskbench`,
 an opencode session; §34 showed the toolcall category alone misleads), and
 profiles with their own thinking settings. Backlog A12.
+
+## 47. Qwen3.6-35B-A3B in the 8-bit's roles: fits, profiles hold, tool use perfect, diagrams weaker
+
+Backlog A12, `bench/a12_round.sh`, 2026-11-11, oMLX 0.7.4.dev1, MLX unless
+stated. Profiles: `profiles/qwen36.py` (`q36-code`, `q36-agent`, `q36-reason`,
+`q36-long`), the 8-bit's values one for one, with thinking stated in both the
+setting and `chat_template_kwargs` because this template defaults it on.
+`q36-code` and `q36-agent` are LiteLLM routes, not behind any alias.
+
+### Gate in the 8-bit's slot (`gate_q36_{mlx,splash}_replaces_8bit.json`)
+
+With gemma-26B-A4B and gemma-31B resident: **pass** on both engines, pool
+81.1 GiB on MLX and 85.3 GiB on Splash. With §46 that settles placement: the
+8-bit's slot on either engine, `fast`'s slot on MLX only.
+
+### Profiles hold (`check_q36_mlx_profiles.json`)
+
+Client `temperature: 0` ignored (4/4 distinct). No reasoning on code, agent
+and long; reasoning on `q36-reason`; every answer correct. The 8,192-token
+thinking budget stopped at 8,191 and 8,190 and both runs answered, decoding at
+104–105 t/s, against 59–61 for the 8-bit on Splash (§44). Splash: the same
+four checks pass (`check_q36_splash_profiles.json`, budget 8,192 of 8,192).
+
+### Long context on MLX (`longctx_q36_mlx_profile.json`, `longctx_q36_mlx_262k.json`)
+
+Through `q36-long`: 64k and 131k 10/10. The bare id at 262k: 5/5, with no
+base-context change: Qwen3.6's base value is unset, so the limit is the
+checkpoint's own 262,144.
+`q36-long` stays at 131,072 until the profile itself is run at 262k.
+
+### taskbench, 5 repeats, each profile's own sampling (`task_a12_*.json`)
+
+| run | engine | attempts passed | toolcall + toolchain | wall time |
+|---|---|---|---|---|
+| `q36-code` | MLX | 201/220 (91%) | 100% | 8 min |
+| `q36-agent` | MLX | 206/220 (94%) | 100% | 8 min |
+| `q36-agent` | Splash | 207/220 (94%) | 100% | about 4 min |
+| 8-bit `coder` (`qwen-code`), this build | MLX | 209/220 (95%) | 6 failed attempts | 37 min |
+
+Paired per attempt against tonight's `coder`: `q36-code` 10 / 18 (p = 0.18),
+`q36-agent` p = 0.68. Per task nothing separates (one discordant task at most).
+`q36-agent` on Splash and on MLX: p = 1.0. The 8-bit's control agrees with its
+stored run of 2026-10-20 (210/220, zero discordant tasks). Not run: the
+8-bit's `qwen-agent` on this build (skipped for time); `q36-agent` was compared
+with `coder` instead.
+
+Tool use is perfect: every `toolcall` and `toolchain` attempt passes, where the
+8-bit's `coder` has wrong-argument and wrong-second-call failures (6 attempts
+tonight, the same tasks as on 2026-10-20). The misses
+are diagrams: PlantUML `cpuml-multi` 0/5 on `q36-code` (several diagrams in one
+answer, too few found), `cpuml-json` 1/5 and render errors on `puml-seq`,
+`puml-c4`, `hpuml-deploy`. And `hpy-intervals` 2/5, a task the 8-bit also
+misses once. It does not show gemma-26B-A4B's return-type habit (§41).
+
+### Decision
+
+On everything measured Qwen3.6 is equal to the 8-bit in its roles: public
+suites (§46), taskbench within chance, profiles behave, retrieval to 262k, and
+it fits the 8-bit's slot on both engines. It differs in kind: perfect tool
+calls and chains where the 8-bit drops second calls, weaker PlantUML. It is 4–5×
+faster through taskbench, and about 1.8× faster on reasoning tokens than the
+8-bit on Splash.
+
+No switch is made here. Two things remain, both supervised: one real opencode
+session on `q36-agent` against `coder` (§25's workflow), and a decision on
+diagram work, which would stay on the 8-bit or gemma-31B if Qwen3.6 takes
+`coder`. Backlog A12.

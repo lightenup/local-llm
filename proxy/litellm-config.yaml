@@ -187,6 +187,30 @@ model_list:
       max_input_tokens: 131072
       notes: "behind the fast alias"
 
+  # ---- Qwen3.6-35B-A3B-MLX-8bit, trial for the 8-bit's roles ------------
+  # Backlog A12, FINDINGS §46. Not behind any alias; here so taskbench and a
+  # supervised session can reach the profiles through the same path.
+
+  - model_name: Qwen3.6-35B-A3B-MLX-8bit:q36-code
+    litellm_params:
+      model: openai/Qwen3.6-35B-A3B-MLX-8bit:q36-code
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "trial (A12); not wired"
+
+  - model_name: Qwen3.6-35B-A3B-MLX-8bit:q36-agent
+    litellm_params:
+      model: openai/Qwen3.6-35B-A3B-MLX-8bit:q36-agent
+      api_base: os.environ/OMLX_BASE_URL
+      api_key: os.environ/OMLX_API_KEY
+    model_info:
+      access_groups: ["local"]
+      max_input_tokens: 131072
+      notes: "trial (A12); not wired"
+
 
   # ---- C3: role aliases -------------------------------------------------
   # One alias per ROLE, not per model, so swapping the model behind a role is

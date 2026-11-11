@@ -1599,18 +1599,24 @@ When picked up:
 The dashboard's Candidates view shows the gap: no MMLU, HellaSwag or safety
 chips on those rows.
 
-### A12. Qwen3.6-35B-A3B for the 8-bit's roles — OPEN 2026-11-11
+### A12. Qwen3.6-35B-A3B for the 8-bit's roles — PARTLY DONE 2026-11-11
 
 FINDINGS §46: Qwen's own 35B-A3B matches the 8-bit on code, reason, general
 and safety (all p > 0.4) and decodes 5–6× faster on MLX, 2–3.5× on Splash. It
 loses to `fast` on code and reason, so it is not a `fast` replacement.
 
 What would settle it as a replacement for the 8-bit:
-1. Gate it in the 8-bit's slot (`candidate_gate.py --replaces Qwen3.8-27B-8bit`),
-   on MLX and on Splash (41 GiB there).
-2. Profiles with their own thinking settings; bare requests think by default.
-3. Agentic work: `taskbench` beyond `toolcall` (§34), and one real opencode
-   session against the 8-bit.
+1. ~~Gate it in the 8-bit's slot~~ Done (§47): passes on MLX and on Splash.
+2. ~~Profiles with their own thinking settings~~ Done (§47): `profiles/qwen36.py`
+   (`q36-code`, `q36-agent`, `q36-reason`, `q36-long`) holds on both engines.
+   LiteLLM has trial routes `:q36-code` and `:q36-agent`, not aliased.
+3. Agentic work: taskbench done (§47), equal to the 8-bit within noise, tool
+   use perfect, PlantUML weaker. Not run: the 8-bit `qwen-agent` control.
+   Still open: one supervised opencode session against the 8-bit, and a
+   decision on whether the diagram gap matters.
+
+Decision so far: no switch. It is equal on quality, faster, and the diagram
+results lean the other way.
 
 ## D. Evaluation
 

@@ -1,0 +1,80 @@
+{
+  "label": "q36_mlx_profiles",
+  "timestamp": "2026-11-11T03:11:37+00:00",
+  "model_id": "Qwen3.6-35B-A3B-MLX-8bit",
+  "engine": {
+    "engine": "mlx",
+    "omlx_version": "0.7.4.dev1"
+  },
+  "profiles": {
+    "code": "Qwen3.6-35B-A3B-MLX-8bit:q36-code",
+    "agent": "Qwen3.6-35B-A3B-MLX-8bit:q36-agent",
+    "reason": "Qwen3.6-35B-A3B-MLX-8bit:q36-reason",
+    "longctx": "Qwen3.6-35B-A3B-MLX-8bit:q36-long"
+  },
+  "checks": {
+    "client_temperature": {
+      "ok": true,
+      "distinct": 4,
+      "of": 4
+    },
+    "thinking": {
+      "ok": true,
+      "profiles": {
+        "code": {
+          "ok": true,
+          "reasoning_chars": 0,
+          "think_tag_in_content": false,
+          "answer_has_391": true,
+          "completion_tokens": 3
+        },
+        "agent": {
+          "ok": true,
+          "reasoning_chars": 0,
+          "think_tag_in_content": false,
+          "answer_has_391": true,
+          "completion_tokens": 3
+        },
+        "longctx": {
+          "ok": true,
+          "reasoning_chars": 0,
+          "think_tag_in_content": false,
+          "answer_has_391": true,
+          "completion_tokens": 3
+        },
+        "reason": {
+          "ok": true,
+          "reasoning_chars": 590,
+          "think_tag_in_content": false,
+          "answer_has_391": true,
+          "completion_tokens": 249
+        }
+      }
+    },
+    "budget": {
+      "ok": true,
+      "budget": 8192,
+      "max_reasoning_tokens": 8191,
+      "all_answered": true,
+      "runs": [
+        {
+          "reasoning_tokens": 8191,
+          "reasoning_tokens_reported": true,
+          "completion_tokens": 8905,
+          "finish_reason": "stop",
+          "tok_per_s": 103.97,
+          "answer_chars": 1953
+        },
+        {
+          "reasoning_tokens": 8190,
+          "reasoning_tokens_reported": true,
+          "completion_tokens": 8821,
+          "finish_reason": "stop",
+          "tok_per_s": 105.09,
+          "answer_chars": 1827
+        }
+      ]
+    }
+  },
+  "ok": true
+}
