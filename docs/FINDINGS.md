@@ -4299,7 +4299,8 @@ diagram work, which would stay on the 8-bit or gemma-31B if Qwen3.6 takes
 `splash_262k`: `external_engine: splash`, drafter `Qwen3.8-27B-DFlash2` named
 explicitly, and base `max_context_window` 262144. That last value settles the
 one open question of §45's decision: Splash sizes its KV pool from it, so
-`qwen-long` (and the `long` role) reaches 262k. The cost is Splash's memory
+`qwen-long` (and the `long` role) reaches 262k. (Only when the load carries
+no lower profile cap; corrected below, 2026-11-20.) The cost is Splash's memory
 budget, 39.79 GiB against 35.73 at 131072, for every profile. The other open
 question, cold concurrent prefill, is accepted: §45 measured Splash ahead of
 MLX at every concurrency even cold.
@@ -4335,3 +4336,42 @@ reserved up front, so the long prompt does not grow it.
 `python3 bench/set_variant.py apply plain` (in-process MLX, base 131072) and
 `SHIPPED_VARIANT = "plain"` in `bench/doctor.py`. MLX serves `qwen-long` at
 262k with its own profile value, as before §44.
+
+### Correction (2026-11-20, oMLX 0.8.0rc1): a profile's cap sized Splash at 128K
+
+The base value was not enough. oMLX starts Splash with the settings of the
+request that loads the model, and for a profile request those are the base
+settings with the profile laid over them (`server.py::get_engine` passes the
+profile's runtime settings to the pool). `qwen-code`, `qwen-agent` and
+`qwen-reason` each set `max_context_window` 131072, so whenever one of them
+loaded the 8-bit, Splash got `--max-context 131072` and planned 128K. oMLX
+then caps every profile at what Splash planned, `qwen-long` included, and
+context is not part of the settings that force a reload, so a later
+`qwen-long` request never resized it.
+
+That was the normal case. From 2026-11-13 to 2026-11-18, 9 loads were
+triggered by requests after an idle unload or a restart, and all 9 planned
+131072. Around each, the queue shows `qwen-code` and `qwen-reason` health
+probes, which arrive every 5 minutes. The only 262144 start in that time was
+the admin benchmark path, which loads without profile settings. The doctor's
+"8-bit served by the shipped engine" check failed from then on, which raised
+the `MacDoctorFailing` alert. No real prompt over 131072 was refused: `qwen-long` saw 2 to 5
+requests a day, all HTTP 200. oMLX 0.8.0 and `main` size Splash the same way.
+
+Fix: `code`, `agent` and `reason` no longer set `max_context_window`, so they
+inherit the base 262144, and their 131072 is enforced by LiteLLM's
+`max_input_tokens` on every route to them (`enable_pre_call_checks` is on and
+the doctor checks it). `profiles/apply.py --verify-only` now reports a stored
+cap the definition leaves out, and a test fails if any profile of a
+Splash-served model sets a cap below the shipped context.
+
+| check (2026-11-20) | result |
+|---|---|
+| unload the 8-bit, reload through LiteLLM `coder` | HTTP 200 in 27 s; Splash `--max-context 262144`, planned 262,144, budget 39.79 GiB |
+| 160,007-token prompt to `coder` | HTTP 400 from LiteLLM's pre-call check in 0.1 s, never queued |
+| memory after the 262k load, with `gemma-4-26B-A4B-it-oQ6e-mtp` resident | 63.39 GB total |
+| quick doctor | 24/24 |
+
+Trade-off: a client that calls oMLX directly, bypassing LiteLLM, can now send
+`qwen-code`, `qwen-agent` or `qwen-reason` up to 262,144 tokens. Every client
+here goes through LiteLLM.

@@ -149,5 +149,21 @@ class ShippedVariantTest(unittest.TestCase):
         if v.get("external_engine") != "splash":
             return
         self.assertIn(set_variant.MODEL, set_variant.SPLASH_DRAFTS)
-        need = max(p["settings"]["max_context_window"] for p in definitions.PROFILES)
+        need = max(p["settings"].get("max_context_window", 0) for p in definitions.PROFILES)
         self.assertGreaterEqual(set_variant.CONTEXT_VARIANTS.get(doctor.SHIPPED_VARIANT, 0), need)
+
+    def test_no_profile_sizes_splash_below_the_shipped_context(self):
+        # oMLX sizes Splash from the settings of the request that loads it,
+        # profile overlay included, so one low cap plans 128K for all (§48).
+        import doctor
+        sys.path.insert(0, str(ROOT / "profiles"))
+        import definitions
+        v = set_variant.VARIANTS[doctor.SHIPPED_VARIANT]
+        if v.get("external_engine") != "splash":
+            return
+        shipped = set_variant.CONTEXT_VARIANTS.get(doctor.SHIPPED_VARIANT,
+                                                   set_variant.CONTEXT_RESET)
+        for p in definitions.PROFILES:
+            cap = p["settings"].get("max_context_window")
+            if cap is not None:
+                self.assertGreaterEqual(cap, shipped, p["name"])

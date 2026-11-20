@@ -13,6 +13,17 @@ them would force a full ~28 GB engine reload on every switch. They live once on
 the base model instead - see bench/set_variant.py - so all four profiles share
 one resident engine and switching is free.
 
+CONSTRAINT — no context cap below the base model's
+-------------------------------------------------
+The base model runs on Splash, and oMLX sizes Splash from the settings of
+whichever request loads it, profile overlay included. A profile request is
+usually first after an idle unload, so a 131072 cap here started Splash at
+128K and capped qwen-long with it (FINDINGS §48). code, agent and reason
+therefore leave max_context_window to the base model, and their 131072 lives
+in LiteLLM's max_input_tokens. It is 131072 rather than 65536 because agent
+clients reserve their whole output cap out of the window before compacting:
+65536 left ~33.5k usable and forced a summarisation every few tool calls.
+
 CONSTRAINT — MTP exclusivity
 ----------------------------
 The shared engine variant enables vlm_mtp (≈1.8x decode). oMLX disables vlm_mtp
@@ -75,7 +86,6 @@ PROFILES: list[dict] = [
             "force_sampling": True,
             "min_p": 0.0,
             "enable_thinking": False,
-            "max_context_window": 131072,
             "max_tokens": 32768,
         },
     },
@@ -95,7 +105,6 @@ PROFILES: list[dict] = [
             "force_sampling": True,
             "min_p": 0.0,
             "enable_thinking": False,
-            "max_context_window": 131072,
             "max_tokens": 8192,
             "max_tool_result_tokens": 16384,
         },
@@ -118,10 +127,6 @@ PROFILES: list[dict] = [
             "preserve_thinking": True,
             "thinking_budget_enabled": True,
             "thinking_budget_tokens": 8192,
-            # Agent clients reserve their whole output cap out of the context
-            # window before deciding to compact, so a 65536 window left only
-            # ~33.5k usable and forced a summarisation every few tool calls.
-            "max_context_window": 131072,
             "max_tokens": 32768,
         },
     },

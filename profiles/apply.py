@@ -119,6 +119,10 @@ def verify(o: Omlx, model_id: str, profiles: list[dict]) -> int:
         diff = {
             k: (v, gs.get(k)) for k, v in spec["settings"].items() if gs.get(k) != v
         }
+        # A context cap the definition leaves out still sizes Splash when the
+        # profile loads the model (definitions.py), so a stored one is drift.
+        if "max_context_window" in gs and "max_context_window" not in spec["settings"]:
+            diff["max_context_window"] = (None, gs["max_context_window"])
         engine_fields = got.get("has_engine_fields")
         ok = not diff and not engine_fields
         note = "ok" if ok else ""
