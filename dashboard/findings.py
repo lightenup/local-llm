@@ -19,6 +19,7 @@ from sources import PathSyntaxError, check_file_ref, parse_path
 
 STATUSES = ("shipped", "on-trial", "retired", "dead-end", "open")
 DIRECTIONS = ("higher", "lower")
+ENGINES = ("mlx", "splash")
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 
 REQUIRED_FINDING_FIELDS = {
@@ -82,6 +83,9 @@ class Finding:
     rationale: str | None = None
     updated: str | None = None
     tier: str | None = None
+    # the engine the model is served on; results from another engine are
+    # labelled on the dashboard
+    engine: str | None = None
     source_file: Path | None = None
 
 
@@ -235,6 +239,11 @@ def _validate_finding(data: object, fname: Path, problems: list[Problem]) -> Fin
         problems.append(Problem(fname_s, "tier",
                                 "must be one of quality, fast, additive"))
         return None
+    engine = data.get("engine")
+    if engine is not None and engine not in ENGINES:
+        problems.append(Problem(fname_s, "engine",
+                                f"must be one of {', '.join(ENGINES)}"))
+        return None
     return Finding(
         id=data["id"],
         title=data["title"],
@@ -246,6 +255,7 @@ def _validate_finding(data: object, fname: Path, problems: list[Problem]) -> Fin
         rationale=data.get("rationale"),
         updated=str(data["updated"]) if data.get("updated") is not None else None,
         tier=tier,
+        engine=engine,
         source_file=fname,
     )
 

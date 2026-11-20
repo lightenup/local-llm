@@ -375,7 +375,12 @@ every later wave on this lane:
   format. The attractive third-party number (76.1 tok/s) comes from raw mlx-lm
   plus a community port, i.e. a third serving stack, which is the same trade
   §22 rejected. Re-open only if oMLX ships native DFlash drafter support; the
-  assembled drafter is already on disk.
+  assembled drafter is already on disk. **Re-opened 2026-11-10:** oMLX 0.7.4
+  runs Splash as an external engine with a native DFlash2 drafter, and the 8-bit
+  decodes 3.3–5.2× faster with sampling intact (FINDINGS §44). Accuracy,
+  coexistence, prefix cache and retrieval to 262k all pass (FINDINGS §45).
+  **Shipped 2026-11-11** (FINDINGS §48): the 8-bit runs on Splash, base
+  context 262,144.
 - **C8 — Hermes over the tailnet.** No stated urgency, and it depends on C1 and C2
   landing first anyway.
 
@@ -1084,6 +1089,8 @@ time a sampling A/B lands inside the noise and the answer actually matters.
 
 ### B4. DFlash — parked
 
+**Update 2026-11-10:** superseded by the Splash engine, see FINDINGS §44–§45.
+
 `dflash_draft_model` needs a purpose-built block-diffusion draft checkpoint and no
 local model qualifies: the MTP drafter is `qwen3_5_mtp`, and `Qwen2.5-Coder-3B-8bit`
 has a different tokenizer. oMLX reports `dflash_compatible: true`, so the option is
@@ -1592,6 +1599,25 @@ When picked up:
 
 The dashboard's Candidates view shows the gap: no MMLU, HellaSwag or safety
 chips on those rows.
+
+### A12. Qwen3.6-35B-A3B for the 8-bit's roles — PARTLY DONE 2026-11-11
+
+FINDINGS §46: Qwen's own 35B-A3B matches the 8-bit on code, reason, general
+and safety (all p > 0.4) and decodes 5–6× faster on MLX, 2–3.5× on Splash. It
+loses to `fast` on code and reason, so it is not a `fast` replacement.
+
+What would settle it as a replacement for the 8-bit:
+1. ~~Gate it in the 8-bit's slot~~ Done (§47): passes on MLX and on Splash.
+2. ~~Profiles with their own thinking settings~~ Done (§47): `profiles/qwen36.py`
+   (`q36-code`, `q36-agent`, `q36-reason`, `q36-long`) holds on both engines.
+   LiteLLM has trial routes `:q36-code` and `:q36-agent`, not aliased.
+3. Agentic work: taskbench done (§47), equal to the 8-bit within noise, tool
+   use perfect, PlantUML weaker. Not run: the 8-bit `qwen-agent` control.
+   Still open: one supervised opencode session against the 8-bit, and a
+   decision on whether the diagram gap matters.
+
+Decision so far: no switch. It is equal on quality, faster, and the diagram
+results lean the other way.
 
 ## D. Evaluation
 

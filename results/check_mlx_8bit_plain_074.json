@@ -1,0 +1,56 @@
+{
+  "label": "mlx_8bit_plain_074",
+  "timestamp": "2026-11-10T16:55:07+00:00",
+  "model_id": "Qwen3.8-27B-8bit",
+  "engine": {
+    "engine": "mlx",
+    "omlx_version": "0.7.4.dev1"
+  },
+  "profiles": {
+    "code": "Qwen3.8-27B-8bit:qwen-code",
+    "agent": "Qwen3.8-27B-8bit:qwen-agent",
+    "reason": "Qwen3.8-27B-8bit:qwen-reason",
+    "longctx": "Qwen3.8-27B-8bit:qwen-long"
+  },
+  "checks": {
+    "client_temperature": {
+      "ok": true,
+      "distinct": 4,
+      "of": 4
+    },
+    "thinking": {
+      "ok": true,
+      "profiles": {
+        "code": {
+          "ok": true,
+          "reasoning_chars": 0,
+          "think_tag_in_content": false,
+          "answer_has_391": true,
+          "completion_tokens": 3
+        },
+        "agent": {
+          "ok": true,
+          "reasoning_chars": 0,
+          "think_tag_in_content": false,
+          "answer_has_391": true,
+          "completion_tokens": 3
+        },
+        "longctx": {
+          "ok": true,
+          "reasoning_chars": 0,
+          "think_tag_in_content": false,
+          "answer_has_391": true,
+          "completion_tokens": 3
+        },
+        "reason": {
+          "ok": true,
+          "reasoning_chars": 119,
+          "think_tag_in_content": false,
+          "answer_has_391": true,
+          "completion_tokens": 68
+        }
+      }
+    }
+  },
+  "ok": true
+}

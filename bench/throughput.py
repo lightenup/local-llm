@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from engine_info import EngineWatch, engine_tag  # noqa: E402
 from omlx_client import MODEL, Omlx  # noqa: E402
 
 # Which engine-level settings a result was measured under. Recorded with every
@@ -35,6 +36,9 @@ VARIANT_KEYS = (
     "dflash_enabled",
     "dflash_draft_model",
     "specprefill_enabled",
+    # "splash" when oMLX hands the model to Splash; the "engine" field of the
+    # result holds the Splash version and settings.
+    "external_engine",
     # qwen4_exp only, and load-bearing for exactly one model: it decides whether
     # the 51.2B n-gram table is resident (111.6 GB) or mmapped off SSD (80.1 GB).
     # Without it a Flash-Next peak_gb figure cannot be interpreted at all.
@@ -161,6 +165,7 @@ def main() -> int:
           f"corpus={args.corpus} warmup={args.warmup} align_ane={args.align_ane}")
     print(f"   variant={json.dumps({k: v for k, v in variant.items() if v})}")
 
+    watch = EngineWatch(o, args.model)
     res = o.bench_throughput(
         prompt_lengths=args.lengths,
         generation_length=args.gen,
@@ -169,6 +174,7 @@ def main() -> int:
         warmup_mode=args.warmup,
         align_prompt_to_ane=args.align_ane,
         model_id=args.model,
+        on_poll=watch,
     )
     if res.get("status") != "completed":
         print(f"!! bench {res.get('status')}: {res.get('error_message')}")
@@ -186,10 +192,12 @@ def main() -> int:
             "align_prompt_to_ane": args.align_ane,
         },
         "variant": variant,
+        "engine": watch.result(),
         "summary": summarize(res),
         "raw": res,
     }
     Omlx.save(f"tp_{args.label}", payload)
+    print(f"   engine={engine_tag(payload)}")
     print()
     print_table(payload["summary"])
     return 0

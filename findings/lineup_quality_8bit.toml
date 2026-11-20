@@ -1,30 +1,34 @@
 id      = "lineup_quality_8bit"
-title   = "Qwen3.8-27B-8bit ships the quality tier"
+title   = "Qwen3.8-27B-8bit ships the quality tier, on Splash"
 status  = "shipped"
 tier    = "quality"
 models  = ["Qwen3.8-27B-8bit"]
-section = 19
-section_title = "The lineup: 8-bit for quality, oQ4e for speed"
-updated = 2026-09-22
+engine  = "splash"
+section = 48
+section_title = "Splash ships: the 8-bit's engine, with the KV pool sized for 262k"
+updated = 2026-11-11
 
 [[metrics]]
 name      = "decode @ 16k prompt"
 unit      = "tok/s"
 direction = "higher"
 headline  = true
-tooltip_what     = "Sustained decode throughput at a 16,384-token prompt, single stream."
-tooltip_how      = "bench/throughput.py, code_python context, 128-token generations."
-tooltip_evidence = "Deterministic sampling; MTP on; see §4 for the A/B."
-source_file = "tp_mtp.json"
+tooltip_what     = "Sustained decode throughput at a 16,384-token prompt, single stream, on Splash."
+tooltip_how      = "bench/throughput.py, code_python context, 128-token generations; MLX baseline is the plain variant on the same oMLX build."
+tooltip_evidence = "3.3x at 1k to 5.2x at 16k; prefill only 1.2-1.4x; accuracy unchanged; see §44, §45, §48."
+source_file = "tp_splash_8bit.json"
 source_path  = "summary[?pp=16384].decode_tps"
+baseline_label = "MLX"
+baseline_source_file = "tp_mlx_8bit_plain_074.json"
+baseline_source_path = "summary[?pp=16384].decode_tps"
 
 [[metrics]]
 name      = "context ceiling"
 unit      = "tokens"
 direction = "higher"
 headline  = false
-tooltip_what     = "Verified context window served by the quality tier."
-tooltip_how      = "bench context-window verification, needle retrieval at depth."
-tooltip_evidence = "Verified to the full 262,144-token window; see §8."
-source_file = "ctx_mtp.json"
-source_path  = "raw.result.verified_tokens"
+tooltip_what     = "Longest context with every needle retrieved, through qwen-long on Splash."
+tooltip_how      = "bench/longctx_quality.py, five depths plus one multi-hop question, base max_context_window 262144."
+tooltip_evidence = "5/5 and multi-hop correct at 262k; Splash caps every profile at the context it plans from the base value; see §45, §48."
+source_file = "longctx_splash_8bit_262k.json"
+source_path  = "summary.by_length.262144.verified_prompt_tokens"

@@ -1,0 +1,221 @@
+{
+  "timestamp": "2026-11-10T17:46:18.586224+00:00",
+  "model_id": "Qwen3.8-27B-8bit",
+  "engine_variant": {
+    "turboquant_kv_scheme": "turboquant",
+    "turboquant_kv_bits": 4.0,
+    "turboquant_skip_last": true,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_shared_fraction": 1.0,
+    "qwen35_ane_prefill_max_layers": 64,
+    "qwen35_ane_prefill_dual_ane": true,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_gdn_max_layers": 48,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "qwen35_ane_prefill_cpu_threads": 8,
+    "qwen35_ane_prefill_cpu_shared_resource": true,
+    "dflash_draft_model": "Qwen3.8-27B-DFlash2",
+    "external_engine": "splash"
+  },
+  "hot_cache_before": "0",
+  "hot_cache_restored_to": "0",
+  "request": {
+    "model": "Qwen3.8-27B-8bit",
+    "hot_size": "20GB",
+    "prefix_tokens": 16384,
+    "repeats": 6,
+    "churn": 4,
+    "max_tokens": 48,
+    "arms": "baseline",
+    "post_reload": true,
+    "label": "cache_splash_8bit",
+    "restore": "0"
+  },
+  "arms": [
+    {
+      "arm": "baseline",
+      "hot_cache_requested": "0",
+      "hot_cache_reported": "0",
+      "prefix_tag": "7NBJY4HP5X",
+      "cold": {
+        "question": "Which component is described as having torque va",
+        "wall_s": 11.01,
+        "prompt_tokens": 9245,
+        "cached_tokens": 32,
+        "cached_frac": 0.003,
+        "completion_tokens": 48,
+        "probe_before": {
+          "error": "OmlxError: POST /admin/api/cache/probe -> 500: {\"detail\":\"Scheduler unavailable for loaded model.\"}"
+        }
+      },
+      "repeats": [
+        {
+          "question": "In one sentence, what kind of document is the co",
+          "wall_s": 0.99,
+          "prompt_tokens": 9248,
+          "cached_tokens": 9216,
+          "cached_frac": 0.997,
+          "completion_tokens": 48,
+          "probe_before": {
+            "error": "OmlxError: POST /admin/api/cache/probe -> 500: {\"detail\":\"Scheduler unavailable for loaded model.\"}"
+          }
+        },
+        {
+          "question": "Name one thing the inspection found.",
+          "wall_s": 0.83,
+          "prompt_tokens": 9242,
+          "cached_tokens": 9216,
+          "cached_frac": 0.997,
+          "completion_tokens": 48,
+          "probe_before": {
+            "error": "OmlxError: POST /admin/api/cache/probe -> 500: {\"detail\":\"Scheduler unavailable for loaded model.\"}"
+          }
+        },
+        {
+          "question": "Was any anomaly detected? Answer yes or no.",
+          "wall_s": 0.79,
+          "prompt_tokens": 9245,
+          "cached_tokens": 9216,
+          "cached_frac": 0.997,
+          "completion_tokens": 48,
+          "probe_before": {
+            "error": "OmlxError: POST /admin/api/cache/probe -> 500: {\"detail\":\"Scheduler unavailable for loaded model.\"}"
+          }
+        },
+        {
+          "question": "What is logged against each fastener?",
+          "wall_s": 0.95,
+          "prompt_tokens": 9243,
+          "cached_tokens": 9216,
+          "cached_frac": 0.997,
+          "completion_tokens": 48,
+          "probe_before": {
+            "error": "OmlxError: POST /admin/api/cache/probe -> 500: {\"detail\":\"Scheduler unavailable for loaded model.\"}"
+          }
+        },
+        {
+          "question": "Summarise the context in under ten words.",
+          "wall_s": 0.87,
+          "prompt_tokens": 9245,
+          "cached_tokens": 9216,
+          "cached_frac": 0.997,
+          "completion_tokens": 48,
+          "probe_before": {
+            "error": "OmlxError: POST /admin/api/cache/probe -> 500: {\"detail\":\"Scheduler unavailable for loaded model.\"}"
+          }
+        },
+        {
+          "question": "Is this a maintenance record or a sales contract",
+          "wall_s": 0.86,
+          "prompt_tokens": 9245,
+          "cached_tokens": 9216,
+          "cached_frac": 0.997,
+          "completion_tokens": 48,
+          "probe_before": {
+            "error": "OmlxError: POST /admin/api/cache/probe -> 500: {\"detail\":\"Scheduler unavailable for loaded model.\"}"
+          }
+        }
+      ],
+      "churn": [
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 10.87,
+          "prompt_tokens": 9189,
+          "cached_tokens": 32,
+          "cached_frac": 0.003,
+          "completion_tokens": 8,
+          "probe_before": {
+            "error": "OmlxError: POST /admin/api/cache/probe -> 500: {\"detail\":\"Scheduler unavailable for loaded model.\"}"
+          },
+          "churn_round": 0
+        },
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 10.63,
+          "prompt_tokens": 9189,
+          "cached_tokens": 32,
+          "cached_frac": 0.003,
+          "completion_tokens": 8,
+          "probe_before": {
+            "error": "OmlxError: POST /admin/api/cache/probe -> 500: {\"detail\":\"Scheduler unavailable for loaded model.\"}"
+          },
+          "churn_round": 1
+        },
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 10.62,
+          "prompt_tokens": 9162,
+          "cached_tokens": 32,
+          "cached_frac": 0.003,
+          "completion_tokens": 8,
+          "probe_before": {
+            "error": "OmlxError: POST /admin/api/cache/probe -> 500: {\"detail\":\"Scheduler unavailable for loaded model.\"}"
+          },
+          "churn_round": 2
+        },
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 10.64,
+          "prompt_tokens": 9162,
+          "cached_tokens": 32,
+          "cached_frac": 0.003,
+          "completion_tokens": 8,
+          "probe_before": {
+            "error": "OmlxError: POST /admin/api/cache/probe -> 500: {\"detail\":\"Scheduler unavailable for loaded model.\"}"
+          },
+          "churn_round": 3
+        }
+      ],
+      "post_churn": {
+        "question": "Which component is described as having torque va",
+        "wall_s": 0.84,
+        "prompt_tokens": 9245,
+        "cached_tokens": 9216,
+        "cached_frac": 0.997,
+        "completion_tokens": 48,
+        "probe_before": {
+          "error": "OmlxError: POST /admin/api/cache/probe -> 500: {\"detail\":\"Scheduler unavailable for loaded model.\"}"
+        }
+      },
+      "post_reload": {
+        "question": "Which component is described as having torque va",
+        "wall_s": 0.82,
+        "prompt_tokens": 9245,
+        "cached_tokens": 9216,
+        "cached_frac": 0.997,
+        "completion_tokens": 48,
+        "probe_before": {
+          "error": "OmlxError: POST /admin/api/cache/probe -> 500: {\"detail\":\"Scheduler unavailable for loaded model.\"}"
+        }
+      },
+      "summary": {
+        "cold_s": 11.01,
+        "repeat_median_s": 0.86,
+        "repeat_median_cached_frac": 0.997,
+        "post_churn_s": 0.84,
+        "post_churn_cached_frac": 0.997,
+        "post_reload_s": 0.82,
+        "post_reload_cached_frac": 0.997
+      }
+    }
+  ],
+  "engine": {
+    "engine": "splash",
+    "omlx_version": "0.7.4.dev1",
+    "splash": {
+      "version": "1.6.0",
+      "draft_model": "Qwen3.8-27B-DFlash2",
+      "kv_format": "int8",
+      "ane_prefill": true,
+      "max_memory_gb": null,
+      "ssd_cache_gb": null,
+      "serving": true,
+      "max_context_window": 131072,
+      "planned_context": 131072,
+      "memory_budget_gb": 35.73,
+      "process_memory_gb": 34.07
+    }
+  }
+}

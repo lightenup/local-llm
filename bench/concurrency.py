@@ -62,6 +62,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from engine_info import engine_snapshot, engine_tag  # noqa: E402
 from omlx_client import MODEL, Omlx, OmlxError  # noqa: E402
 
 # Same intent as bench/throughput.py::VARIANT_KEYS, by prefix rather than by an
@@ -74,9 +75,15 @@ VARIANT_PREFIXES = (
     "dflash",
     "specprefill",
     "qwen35_ane",
+    "external_engine",
 )
 
 REQUEST_TIMEOUT = 1800.0
+
+# Prefixed to every nonce (--salt). Prompts are otherwise identical from run to
+# run, so a second run with the same salt measures a warm prefix cache and a
+# fresh salt measures a cold one.
+PROMPT_SALT = ""
 
 # Measured chars/token on this checkpoint is ~3.1 (see bench/thinking_budget_ab.py),
 # used only to size the filler; the real prompt_tokens is read back from usage.
@@ -133,14 +140,14 @@ def reload_count() -> int:
         return 0
 
 
-def build_prompt(client: int, prompt_tokens: int) -> str:
+def build_prompt(client: int, prompt_tokens: int, salt: str = "") -> str:
     """Filler sized to prompt_tokens, with a per-client nonce leading it.
 
     The nonce goes first on purpose: prefix caching keys on the leading blocks,
     so a distinct first block keeps clients from sharing a cached prefill and
     turning a concurrency measurement into a cache-hit measurement.
     """
-    nonce = f"[run {client:04d} nonce {client * 7919 + 13:08d}]"
+    nonce = f"[run {salt}{client:04d} nonce {client * 7919 + 13:08d}]"
     target_chars = max(0, int(prompt_tokens * CHARS_PER_TOKEN) - len(nonce))
     repeats = max(1, target_chars // len(FILLER))
     question = QUESTIONS[client % len(QUESTIONS)]
@@ -157,7 +164,9 @@ def one_request(
     caller also needs the start/end offsets to see whether requests overlapped
     at all or were queued back to back.
     """
-    messages = [{"role": "user", "content": build_prompt(client, prompt_tokens)}]
+    messages = [
+        {"role": "user", "content": build_prompt(client, prompt_tokens, PROMPT_SALT)}
+    ]
     t0 = time.perf_counter()
     try:
         resp = o.chat(
@@ -512,7 +521,20 @@ def main() -> int:
         "--prompt-tokens", type=int, default=2000, help="approximate filler size"
     )
     ap.add_argument("--model", default=MODEL)
+    ap.add_argument(
+        "--label",
+        default="concurrency",
+        help="result name, results/<label>.json; the default overwrites the "
+             "previous run",
+    )
+    ap.add_argument(
+        "--salt",
+        default="",
+        help="prefix for every prompt nonce; reuse it to measure a warm cache",
+    )
     args = ap.parse_args()
+    global PROMPT_SALT
+    PROMPT_SALT = args.salt
 
     levels = sorted({n for n in args.levels if n > 0})
     if not levels:
@@ -558,6 +580,7 @@ def main() -> int:
             "profile": args.profile,
             "max_tokens": args.max_tokens,
             "prompt_tokens_target": args.prompt_tokens,
+            "salt": args.salt,
             "request_timeout_s": REQUEST_TIMEOUT,
         },
         "profiles": by_name,
@@ -583,7 +606,9 @@ def main() -> int:
             print(f"!! mixed experiment aborted: {type(e).__name__}: {e}")
             payload["mixed"] = {"error": f"{type(e).__name__}: {str(e)[:300]}"}
 
-    Omlx.save("concurrency", payload)
+    payload["engine"] = engine_snapshot(o, args.model)
+    Omlx.save(args.label, payload)
+    print(f"   engine={engine_tag(payload)}")
 
     scaling = payload.get("scaling") or {}
     if scaling.get("summary"):

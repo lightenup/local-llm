@@ -1,0 +1,258 @@
+{
+  "timestamp": "2026-11-10T17:48:16.502417+00:00",
+  "model_id": "Qwen3.8-27B-8bit",
+  "engine_variant": {
+    "turboquant_kv_scheme": "turboquant",
+    "turboquant_kv_bits": 4.0,
+    "turboquant_skip_last": true,
+    "qwen35_ane_prefill_sequence_length": 2048,
+    "qwen35_ane_prefill_fraction": 0.53,
+    "qwen35_ane_prefill_shared_fraction": 1.0,
+    "qwen35_ane_prefill_max_layers": 64,
+    "qwen35_ane_prefill_dual_ane": true,
+    "qwen35_ane_prefill_gdn": true,
+    "qwen35_ane_prefill_gdn_fraction": 0.5,
+    "qwen35_ane_prefill_gdn_max_layers": 48,
+    "qwen35_ane_prefill_cpu_fraction": 0.135,
+    "qwen35_ane_prefill_cpu_threads": 8,
+    "qwen35_ane_prefill_cpu_shared_resource": true
+  },
+  "hot_cache_before": "0",
+  "hot_cache_restored_to": "0",
+  "request": {
+    "model": "Qwen3.8-27B-8bit",
+    "hot_size": "20GB",
+    "prefix_tokens": 16384,
+    "repeats": 6,
+    "churn": 4,
+    "max_tokens": 48,
+    "arms": "baseline",
+    "post_reload": true,
+    "label": "cache_mlx_8bit_plain_074",
+    "restore": "0"
+  },
+  "arms": [
+    {
+      "arm": "baseline",
+      "hot_cache_requested": "0",
+      "hot_cache_reported": "0",
+      "prefix_tag": "MGB90T41TS",
+      "cold": {
+        "question": "Which component is described as having torque va",
+        "wall_s": 15.75,
+        "prompt_tokens": 9218,
+        "cached_tokens": 0,
+        "cached_frac": 0.0,
+        "completion_tokens": 48,
+        "probe_before": {
+          "total_blocks": 5,
+          "hot": 0,
+          "disk": 0,
+          "cold": 5,
+          "ssd_hit_tokens": 0
+        }
+      },
+      "repeats": [
+        {
+          "question": "In one sentence, what kind of document is the co",
+          "wall_s": 4.72,
+          "prompt_tokens": 9221,
+          "cached_tokens": 8192,
+          "cached_frac": 0.888,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          }
+        },
+        {
+          "question": "Name one thing the inspection found.",
+          "wall_s": 4.56,
+          "prompt_tokens": 9215,
+          "cached_tokens": 8192,
+          "cached_frac": 0.889,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 4,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        },
+        {
+          "question": "Was any anomaly detected? Answer yes or no.",
+          "wall_s": 4.5,
+          "prompt_tokens": 9218,
+          "cached_tokens": 8192,
+          "cached_frac": 0.889,
+          "completion_tokens": 46,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 4,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        },
+        {
+          "question": "What is logged against each fastener?",
+          "wall_s": 4.55,
+          "prompt_tokens": 9216,
+          "cached_tokens": 8192,
+          "cached_frac": 0.889,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 4,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        },
+        {
+          "question": "Summarise the context in under ten words.",
+          "wall_s": 4.56,
+          "prompt_tokens": 9218,
+          "cached_tokens": 8192,
+          "cached_frac": 0.889,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 4,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        },
+        {
+          "question": "Is this a maintenance record or a sales contract",
+          "wall_s": 4.56,
+          "prompt_tokens": 9218,
+          "cached_tokens": 8192,
+          "cached_frac": 0.889,
+          "completion_tokens": 48,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 4,
+            "cold": 1,
+            "ssd_hit_tokens": 8192
+          }
+        }
+      ],
+      "churn": [
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 12.49,
+          "prompt_tokens": 9189,
+          "cached_tokens": 0,
+          "cached_frac": 0.0,
+          "completion_tokens": 8,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          },
+          "churn_round": 0
+        },
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 13.02,
+          "prompt_tokens": 9162,
+          "cached_tokens": 0,
+          "cached_frac": 0.0,
+          "completion_tokens": 8,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          },
+          "churn_round": 1
+        },
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 13.08,
+          "prompt_tokens": 9189,
+          "cached_tokens": 0,
+          "cached_frac": 0.0,
+          "completion_tokens": 8,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          },
+          "churn_round": 2
+        },
+        {
+          "question": "Reply with the single word: ok.",
+          "wall_s": 13.22,
+          "prompt_tokens": 9162,
+          "cached_tokens": 0,
+          "cached_frac": 0.0,
+          "completion_tokens": 8,
+          "probe_before": {
+            "total_blocks": 5,
+            "hot": 0,
+            "disk": 0,
+            "cold": 5,
+            "ssd_hit_tokens": 0
+          },
+          "churn_round": 3
+        }
+      ],
+      "post_churn": {
+        "question": "Which component is described as having torque va",
+        "wall_s": 3.5,
+        "prompt_tokens": 9218,
+        "cached_tokens": 9213,
+        "cached_frac": 0.999,
+        "completion_tokens": 48,
+        "probe_before": {
+          "total_blocks": 5,
+          "hot": 0,
+          "disk": 4,
+          "cold": 1,
+          "ssd_hit_tokens": 8192
+        }
+      },
+      "post_reload": {
+        "question": "Which component is described as having torque va",
+        "wall_s": 3.45,
+        "prompt_tokens": 9218,
+        "cached_tokens": 9213,
+        "cached_frac": 0.999,
+        "completion_tokens": 48,
+        "probe_before": {
+          "total_blocks": 5,
+          "hot": 0,
+          "disk": 4,
+          "cold": 1,
+          "ssd_hit_tokens": 8192
+        }
+      },
+      "summary": {
+        "cold_s": 15.75,
+        "repeat_median_s": 4.56,
+        "repeat_median_cached_frac": 0.889,
+        "post_churn_s": 3.5,
+        "post_churn_cached_frac": 0.999,
+        "post_reload_s": 3.45,
+        "post_reload_cached_frac": 0.999
+      }
+    }
+  ],
+  "engine": {
+    "engine": "mlx",
+    "omlx_version": "0.7.4.dev1"
+  }
+}

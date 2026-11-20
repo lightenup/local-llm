@@ -1,0 +1,87 @@
+{
+ "method": "exact McNemar on questions whose stored prompt is identical in both arms",
+ "pairs": [
+  {
+   "a": "acc_ship_code",
+   "b": "acc_splash_8bit_code",
+   "suites": {
+    "humaneval": {
+     "n": 164,
+     "of": 164,
+     "a": 93.9,
+     "b": 92.7,
+     "a_only": 2,
+     "b_only": 0,
+     "p": 0.5
+    },
+    "mbpp": {
+     "n": 500,
+     "of": 500,
+     "a": 80.4,
+     "b": 79.8,
+     "a_only": 6,
+     "b_only": 3,
+     "p": 0.508
+    },
+    "livecodebench": {
+     "n": 284,
+     "of": 500,
+     "a": 81.3,
+     "b": 81.3,
+     "a_only": 14,
+     "b_only": 14,
+     "p": 1.0
+    }
+   },
+   "pooled": {
+    "n": 948,
+    "a": 83.0,
+    "b": 82.5,
+    "a_only": 22,
+    "b_only": 17,
+    "p": 0.522
+   }
+  },
+  {
+   "a": "acc_plain_code",
+   "b": "acc_splash_8bit_code",
+   "suites": {
+    "humaneval": {
+     "n": 164,
+     "of": 164,
+     "a": 93.9,
+     "b": 92.7,
+     "a_only": 2,
+     "b_only": 0,
+     "p": 0.5
+    },
+    "mbpp": {
+     "n": 500,
+     "of": 500,
+     "a": 80.4,
+     "b": 79.8,
+     "a_only": 6,
+     "b_only": 3,
+     "p": 0.508
+    },
+    "livecodebench": {
+     "n": 284,
+     "of": 500,
+     "a": 81.3,
+     "b": 81.3,
+     "a_only": 16,
+     "b_only": 16,
+     "p": 1.0
+    }
+   },
+   "pooled": {
+    "n": 948,
+    "a": 83.0,
+    "b": 82.5,
+    "a_only": 24,
+    "b_only": 19,
+    "p": 0.542
+   }
+  }
+ ]
+}

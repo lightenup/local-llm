@@ -1,0 +1,46 @@
+[
+  {
+    "model_id": "Qwen3.6-35B-A3B-MLX-8bit",
+    "at": "2026-11-10T22:17:06",
+    "disk_gib": 36.89,
+    "config_model_type": "qwen3_5_moe",
+    "context": 262144,
+    "mtp_compatible": false,
+    "mtp_reason": "Config declares MTP layers but the weight files contain neither mtp.* tensors nor native nextn layers. Re-convert from H",
+    "arch_supported": true,
+    "lineup": [
+      "Qwen3.8-27B-8bit",
+      "gemma-4-31B-it-qat-OptiQ-4bit"
+    ],
+    "load_s": 18.3,
+    "resident_gib": 36.89,
+    "pool_gib": 87.61,
+    "lineup_survived_load": true,
+    "calls": [
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 16645,
+        "wall_s": 2.5,
+        "finish": "length",
+        "head": ""
+      },
+      {
+        "ok": true,
+        "completion_tokens": 256,
+        "prompt_tokens": 16645,
+        "wall_s": 2.4,
+        "finish": "length",
+        "head": ""
+      }
+    ],
+    "engine": {
+      "engine": "mlx",
+      "omlx_version": "0.7.4.dev1"
+    },
+    "lineup_survived_serving": true,
+    "coexists": true,
+    "verdict": "PASS -- coexists and serves",
+    "replaces": "gemma-4-26B-A4B-it-oQ6e-mtp"
+  }
+]

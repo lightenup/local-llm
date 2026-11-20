@@ -2,6 +2,10 @@
 """Compare every saved result so variants can be judged side by side.
 
     python3 bench/report.py
+    python3 bench/report.py a10_8bit_plain splash_8bit   # only these labels
+
+Each column carries the engine that served it (bench/engine_info.py): "mlx"
+for in-process runs, "splash <version> <kv format>" for Splash ones.
 """
 
 from __future__ import annotations
@@ -10,16 +14,30 @@ import json
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from engine_info import engine_tag  # noqa: E402
+
 RESULTS = Path(__file__).resolve().parent.parent / "results"
+
+
+# Label substrings from the command line; empty means every result.
+ONLY: list[str] = []
 
 
 def load(pattern: str) -> list[dict]:
     out = []
     for p in sorted(RESULTS.glob(pattern)):
         try:
-            out.append(json.loads(p.read_text()))
+            run = json.loads(p.read_text())
         except (OSError, json.JSONDecodeError) as e:
             print(f"  (skipped {p.name}: {e})", file=sys.stderr)
+            continue
+        if not isinstance(run, dict):
+            continue
+        run.setdefault("label", p.stem)
+        if ONLY and not any(s in run["label"] for s in ONLY):
+            continue
+        out.append(run)
     return out
 
 
@@ -63,6 +81,7 @@ def throughput() -> None:
     ):
         print(f"\n== throughput, single stream: {title} by prompt length ==")
         print(f"  {'prompt':>8} " + "".join(f"{lbl[:w - 2]:>{w}}" for lbl in labels))
+        print(f"  {'engine':>8} " + "".join(f"{engine_tag(r)[:w - 2]:>{w}}" for r in runs))
         shorts = 0
         for pp in lengths:
             cells = []
@@ -97,7 +116,8 @@ def throughput() -> None:
     if not batches:
         return
     print("\n== throughput, batched: aggregate decode tok/s (per stream) ==")
-    print(f"  {'pp':>7} {'bs':>3} " + "".join(f"{lbl:>18}" for lbl in labels))
+    print(f"  {'pp':>7} {'bs':>3} " + "".join(f"{lbl[:17]:>18}" for lbl in labels))
+    print(f"  {'engine':>11} " + "".join(f"{engine_tag(r)[:17]:>18}" for r in runs))
     pairs = sorted(
         {
             (r["pp"], r["batch_size"])
@@ -142,6 +162,7 @@ def accuracy() -> None:
     )
     labels = list(own)
     print(f"  {'suite':<16} " + "".join(f"{lbl[:17]:>18}" for lbl in labels))
+    print(f"  {'engine':<16} " + "".join(f"{engine_tag(run)[:17]:>18}" for run in runs))
     for s in suites:
         cells = []
         for lbl in labels:
@@ -205,6 +226,7 @@ def thinking_budget() -> None:
 
 
 def main() -> int:
+    ONLY.extend(sys.argv[1:])
     if not RESULTS.exists():
         print("no results yet")
         return 0

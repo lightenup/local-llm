@@ -9,6 +9,9 @@ in sync:
                                        role-named runs depend on the date)
   decision  findings/*.toml status     shipped / on-trial / retired / dead-end
 
+Where a model has a suite on more than one engine (MLX in-process, or Splash),
+the run on the engine it is served on is shown, and any other run is labelled.
+
 A finding names a model by a short id ("Qwen3.8-27B-oQ4e") where the results
 use the full one ("Qwen3.8-27B-oQ4e-mtp"); a full id that starts with the
 short one is the same model.
@@ -37,6 +40,7 @@ class SuiteRun:
     # livecodebench only: oMLX 0.7.1rc1 re-prompted the 216 functional problems
     # (FINDINGS §41), so a score before and after the change does not compare
     harness: str | None = None
+    engine: str = "mlx"
 
 
 @dataclass
@@ -48,6 +52,11 @@ class Candidate:
     tasks: list[str] = field(default_factory=list)
     finding: object = None  # findings.Finding
     roles: list[str] = field(default_factory=list)
+    runs: list[SuiteRun] = field(default_factory=list)
+
+    @property
+    def served_engine(self) -> str:
+        return getattr(self.finding, "engine", None) or "mlx"
 
     # ---- per-stage state: "pass" | "fail" | "partial" | "none" ----
     def stage(self, name: str) -> str:
@@ -94,6 +103,27 @@ def _lcb_harness(questions: list) -> str | None:
                              for q in questions) else "pre-0.7.1")
 
 
+def _engine(data: dict) -> str:
+    """The engine a result file was measured on; files from before the
+    "engine" field were all in-process (bench/engine_info.py engine_tag)."""
+    engine = data.get("engine")
+    if isinstance(engine, dict):
+        return engine.get("engine") or "mlx"
+    return (data.get("variant") or {}).get("external_engine") or "mlx"
+
+
+def _pick_suites(c: Candidate) -> None:
+    # one run per suite: the current harness first, then the engine the model
+    # is served on, then the larger sample, then the file name (mtimes differ
+    # per checkout)
+    def rank(x: SuiteRun) -> tuple:
+        return (x.harness != "pre-0.7.1", x.engine == c.served_engine, x.total, x.file)
+    for run in c.runs:
+        prev = c.suites.get(run.benchmark)
+        if prev is None or rank(run) > rank(prev):
+            c.suites[run.benchmark] = run
+
+
 def build(results_dir: Path, findings: list, roles: list | None = None) -> list[Candidate]:
     by_model: dict[str, Candidate] = {}
 
@@ -110,6 +140,7 @@ def build(results_dir: Path, findings: list, roles: list | None = None) -> list[
         data = _load(p)
         if not isinstance(data, dict):
             continue
+        engine = _engine(data)
         for r in data.get("results") or []:
             if not isinstance(r, dict) or not r.get("model_id") or not r.get("benchmark"):
                 continue
@@ -119,16 +150,11 @@ def build(results_dir: Path, findings: list, roles: list | None = None) -> list[
                 c.samples += 1
                 continue
             qs = r.get("question_results") or []
-            run = SuiteRun(r["benchmark"], float(r.get("accuracy") or 0), total,
-                           sum(1 for q in qs if q.get("finish_reason") == "length"), p.name,
-                           _lcb_harness(qs) if r["benchmark"] == "livecodebench" else None)
-            prev = c.suites.get(run.benchmark)
-            # one run per suite: the current harness first, then the larger
-            # sample, then the file name (mtimes differ per checkout)
-            def rank(x: SuiteRun) -> tuple:
-                return (x.harness != "pre-0.7.1", x.total, x.file)
-            if prev is None or rank(run) > rank(prev):
-                c.suites[run.benchmark] = run
+            c.runs.append(SuiteRun(r["benchmark"], float(r.get("accuracy") or 0), total,
+                                   sum(1 for q in qs if q.get("finish_reason") == "length"),
+                                   p.name,
+                                   _lcb_harness(qs) if r["benchmark"] == "livecodebench" else None,
+                                   engine))
 
     for p in sorted(results_dir.glob("task_*.json")):
         data = _load(p)
@@ -148,6 +174,7 @@ def build(results_dir: Path, findings: list, roles: list | None = None) -> list[
                 if best is None or key > best[0]:
                     best = (key, f)
         c.finding = best[1] if best else None
+        _pick_suites(c)
 
     for role in roles or []:
         for c in by_model.values():

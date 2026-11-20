@@ -269,6 +269,9 @@ def _candidate_notes(c, sections) -> str:
         ok = g.get("verdict", "").startswith("PASS")
         where = (f"replacing {esc(g['replaces'])}" if g.get("replaces")
                  else "beside the lineup")
+        engine = (g.get("engine") or {}).get("engine") if isinstance(g.get("engine"), dict) else None
+        if engine and engine != c.served_engine:
+            where += f" on {esc(engine)}"
         mem = f", {g['resident_gib']} GiB" if g.get("resident_gib") else ""
         notes.append(f'<li><span class="chip chip-{"pass" if ok else "fail"}">'
                      f'gate {"✓" if ok else "✗"}</span> {where}{mem} '
@@ -277,14 +280,17 @@ def _candidate_notes(c, sections) -> str:
     for b, run in sorted(c.suites.items(), key=lambda kv: (SUITE_ORDER.get(kv[0], 99), kv[0])):
         capped = run.truncated >= max(5, run.total // 50)
         old = run.harness == "pre-0.7.1"
-        title = [f"{run.accuracy * 100:.1f}% of {run.total} questions"]
+        title = [f"{run.accuracy * 100:.1f}% of {run.total} questions", f"engine: {run.engine}"]
+        other_engine = run.engine != c.served_engine
         if capped:
             title.append(f"{run.truncated} answers hit the token cap and count as wrong")
         if old:
             title.append("old harness: scored before oMLX 0.7.1rc1 re-prompted 216 problems; "
                          "compare only with runs from the same harness")
         flags = ("" if not capped else f' <span class="flag" aria-label="capped">✂{run.truncated}</span>') + \
-                ("" if not old else ' <span class="flag" aria-label="old harness">old</span>')
+                ("" if not old else ' <span class="flag" aria-label="old harness">old</span>') + \
+                ("" if not other_engine else
+                 f' <span class="flag" aria-label="engine">{esc(run.engine)}</span>')
         chips.append(f'<a class="chip score{" chip-old" if old else ""}" '
                      f'href="../results/{esc(run.file)}" title="{esc("; ".join(title))}">'
                      f'{esc(SUITE_SHORT.get(b, b))} <b>{run.accuracy * 100:.1f}</b>'

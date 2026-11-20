@@ -17,9 +17,19 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from engine_info import engine_snapshot, engine_tag  # noqa: E402
 from omlx_client import MODEL, Omlx  # noqa: E402
 
 DRAFT = "Qwen3.8-27B-MTP-8bit"
+# The BF16 DFlash2 release Splash is built for. Name it explicitly: oMLX
+# otherwise takes the first helper whose config fits, which can be the 4-bit
+# ProCreations/Qwen3.8-27B-DFlash2-Q4 from FINDINGS §23.
+SPLASH_DRAFT = "Qwen3.8-27B-DFlash2"
+# The DFlash2 drafter for each model a Splash variant may be applied to.
+SPLASH_DRAFTS = {
+    MODEL: SPLASH_DRAFT,
+    "Qwen3.6-35B-A3B-MLX-8bit": "Qwen3.6-35B-A3B-DFlash2",
+}
 
 # Every engine-level key we touch, so each variant is a full reset rather
 # than a patch on top of whatever the last experiment left behind.
@@ -37,7 +47,26 @@ RESET = {
     "specprefill_draft_model": None,
     "specprefill_keep_pct": None,
     "specprefill_threshold": None,
+    "external_engine": None,
 }
+
+# Splash reads its KV format and ANE prefill from oMLX global settings, so a
+# Splash variant has to reset those too. These are oMLX's defaults.
+GLOBAL_RESET = {
+    "splash_kv_format": "int8",
+    "splash_ane_prefill": True,
+}
+GLOBAL_VARIANTS: dict[str, dict] = {
+    "splash_bf16": {"splash_kv_format": "bf16"},
+    "splash_noane": {"splash_ane_prefill": False},
+}
+
+# Splash sizes its KV pool to the base model's max_context_window at load, and
+# oMLX then caps every profile at what Splash planned; qwen-long's own 262,144
+# does not reach it. 131,072 is the base value for every other variant; the
+# shipped splash_262k (doctor.SHIPPED_VARIANT) raises it.
+CONTEXT_RESET = 131072
+CONTEXT_VARIANTS: dict[str, int] = {"splash_262k": 262144}
 
 VARIANTS: dict[str, dict] = {
     # GPU-only prefill, no speculative decode. The measured baseline.
@@ -94,6 +123,28 @@ VARIANTS: dict[str, dict] = {
         "specprefill_keep_pct": 0.2,
         "specprefill_threshold": 8192,
     },
+    # Serve through Splash (an external Metal engine with DFlash2 speculative
+    # decoding) instead of in-process. Its KV format, ANE prefill and memory
+    # budget are oMLX global settings (integrations.splash_*), not model ones.
+    "splash": {
+        "external_engine": "splash",
+        "dflash_draft_model": SPLASH_DRAFT,
+    },
+    # The same, with bf16 KV pages instead of int8 (GLOBAL_VARIANTS).
+    "splash_bf16": {
+        "external_engine": "splash",
+        "dflash_draft_model": SPLASH_DRAFT,
+    },
+    # The same, with ANE prefill off (GLOBAL_VARIANTS).
+    "splash_noane": {
+        "external_engine": "splash",
+        "dflash_draft_model": SPLASH_DRAFT,
+    },
+    # The same, with the KV pool sized for 262,144 tokens (CONTEXT_VARIANTS).
+    "splash_262k": {
+        "external_engine": "splash",
+        "dflash_draft_model": SPLASH_DRAFT,
+    },
     # The intended production stack: speculative decode + compressed KV.
     "mtp_tqkv": {
         "vlm_mtp_enabled": True,
@@ -119,9 +170,26 @@ def apply(o: Omlx, name: str, model_id: str = MODEL, reload: bool = True) -> dic
     if name not in VARIANTS:
         raise SystemExit(f"unknown variant {name!r}; have {list(VARIANTS)}")
     patch = {**RESET, **VARIANTS[name]}
+    if patch.get("external_engine") == "splash":
+        if model_id not in SPLASH_DRAFTS:
+            raise SystemExit(f"no Splash drafter recorded for {model_id}; add it to SPLASH_DRAFTS")
+        patch["dflash_draft_model"] = SPLASH_DRAFTS[model_id]
+    if model_id == MODEL:
+        patch["max_context_window"] = CONTEXT_VARIANTS.get(name, CONTEXT_RESET)
+    else:
+        # Other models have no shipped base value; None falls back to the
+        # checkpoint's own model_context_length.
+        patch["max_context_window"] = CONTEXT_VARIANTS.get(name)
+    globals_patch = {**GLOBAL_RESET, **GLOBAL_VARIANTS.get(name, {})}
     print(f"== applying variant '{name}'")
-    active = {k: v for k, v in VARIANTS[name].items()}
+    active = {k: patch[k] for k in VARIANTS[name]}
+    active.update(GLOBAL_VARIANTS.get(name, {}))
+    if name in CONTEXT_VARIANTS:
+        active["max_context_window"] = CONTEXT_VARIANTS[name]
     print(f"   {json.dumps(active) if active else '(all accelerators off)'}")
+    glob = o.global_settings().get("integrations") or {}
+    if any(glob.get(k) != v for k, v in globals_patch.items()):
+        o.update_global_settings(globals_patch)
     o.update_settings(patch, model_id=model_id)
     if reload:
         print("   reloading engine…")
@@ -129,6 +197,14 @@ def apply(o: Omlx, name: str, model_id: str = MODEL, reload: bool = True) -> dic
     after = o.settings(model_id)
     got = {k: after.get(k) for k in patch if after.get(k) not in (None, False)}
     print(f"   active engine settings: {json.dumps(got)}")
+    if reload and after.get("external_engine"):
+        # Selecting an engine and seeing no error is not evidence it serves
+        # (FINDINGS §23), so ask the engine itself.
+        snap = engine_snapshot(o, model_id)
+        tag = engine_tag({"engine": snap})
+        if not (snap.get("splash") or {}).get("serving"):
+            raise SystemExit(f"!! {model_id} is set to {tag} but Splash is not serving it")
+        print(f"   serving: {tag} {json.dumps(snap.get('splash'))}")
     return got
 
 
@@ -147,7 +223,10 @@ def main() -> int:
         return 0
     if args.action == "show":
         s = o.settings(args.model)
-        print(json.dumps({k: s.get(k) for k in RESET}, indent=2))
+        g = o.global_settings().get("integrations") or {}
+        print(json.dumps({**{k: s.get(k) for k in RESET},
+                          "max_context_window": s.get("max_context_window"),
+                          **{k: g.get(k) for k in GLOBAL_RESET}}, indent=2))
         return 0
     if not args.name:
         raise SystemExit("apply needs a variant name")

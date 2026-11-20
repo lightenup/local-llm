@@ -1,0 +1,319 @@
+{
+  "timestamp": "2026-11-10T17:37:13.559511+00:00",
+  "request": {
+    "models": [
+      "Qwen3.8-27B-8bit:qwen-agent",
+      "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+      "gemma-4-31B-it-qat-OptiQ-4bit:g4-agent"
+    ],
+    "prompt_tokens": 16384,
+    "rounds": 3,
+    "max_tokens": 128,
+    "label": "coexist_splash_8bit"
+  },
+  "loaded_before": [
+    "Qwen3.8-27B-8bit"
+  ],
+  "loads": [
+    {
+      "model": "Qwen3.8-27B-8bit",
+      "ok": true,
+      "s": 0.0,
+      "loaded": [
+        "Qwen3.8-27B-8bit"
+      ],
+      "pool_gib": 35.73,
+      "ceiling_gib": 107.96
+    },
+    {
+      "model": "gemma-4-26B-A4B-it-oQ6e-mtp",
+      "ok": true,
+      "s": 46.9,
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp"
+      ],
+      "pool_gib": 58.11,
+      "ceiling_gib": 96.0
+    },
+    {
+      "model": "gemma-4-31B-it-qat-OptiQ-4bit",
+      "ok": true,
+      "s": 10.4,
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 79.98,
+      "ceiling_gib": 103.0
+    }
+  ],
+  "after_load": {
+    "loaded": [
+      "Qwen3.8-27B-8bit",
+      "gemma-4-26B-A4B-it-oQ6e-mtp",
+      "gemma-4-31B-it-qat-OptiQ-4bit"
+    ],
+    "sizes": {
+      "Qwen3.8-27B-8bit": {
+        "estimated_gib": 28.85,
+        "actual_gib": 30.9,
+        "external_engine": null
+      },
+      "gemma-4-26B-A4B-it-oQ6e-mtp": {
+        "estimated_gib": 22.37,
+        "actual_gib": 21.76,
+        "external_engine": null
+      },
+      "gemma-4-31B-it-qat-OptiQ-4bit": {
+        "estimated_gib": 21.88,
+        "actual_gib": 22.24,
+        "external_engine": null
+      }
+    },
+    "pool_gib": 79.98,
+    "ceiling_gib": 103.0,
+    "active_wired_gb": 58.71,
+    "wired_gb": 38.17
+  },
+  "engine": {
+    "engine": "splash",
+    "omlx_version": "0.7.4.dev1",
+    "splash": {
+      "version": "1.6.0",
+      "draft_model": "Qwen3.8-27B-DFlash2",
+      "kv_format": "int8",
+      "ane_prefill": true,
+      "max_memory_gb": null,
+      "ssd_cache_gb": null,
+      "serving": true,
+      "max_context_window": 131072,
+      "planned_context": 131072,
+      "memory_budget_gb": 35.73,
+      "process_memory_gb": 30.9
+    }
+  },
+  "calls": [
+    {
+      "ok": true,
+      "s": 16.2,
+      "prompt_tokens": 15732,
+      "cached_tokens": 0,
+      "completion_tokens": 38,
+      "finish": "stop",
+      "round": 0,
+      "model": "Qwen3.8-27B-8bit:qwen-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 79.98,
+      "ceiling_gib": 101.88,
+      "active_wired_gb": 59.07,
+      "wired_gb": 38.67,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 11.5,
+      "prompt_tokens": 15298,
+      "cached_tokens": 0,
+      "completion_tokens": 35,
+      "finish": "stop",
+      "round": 0,
+      "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 79.98,
+      "ceiling_gib": 101.98,
+      "active_wired_gb": 105.44,
+      "wired_gb": 86.37,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 31.0,
+      "prompt_tokens": 15294,
+      "cached_tokens": 0,
+      "completion_tokens": 33,
+      "finish": "stop",
+      "round": 0,
+      "model": "gemma-4-31B-it-qat-OptiQ-4bit:g4-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 79.98,
+      "ceiling_gib": 103.41,
+      "active_wired_gb": 106.32,
+      "wired_gb": 89.65,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 18.3,
+      "prompt_tokens": 15732,
+      "cached_tokens": 0,
+      "completion_tokens": 40,
+      "finish": "stop",
+      "round": 1,
+      "model": "Qwen3.8-27B-8bit:qwen-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 79.98,
+      "ceiling_gib": 108.9,
+      "active_wired_gb": 93.7,
+      "wired_gb": 39.33,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 5.8,
+      "prompt_tokens": 15298,
+      "cached_tokens": 0,
+      "completion_tokens": 46,
+      "finish": "stop",
+      "round": 1,
+      "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 79.98,
+      "ceiling_gib": 108.13,
+      "active_wired_gb": 98.62,
+      "wired_gb": 87.41,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 29.2,
+      "prompt_tokens": 15294,
+      "cached_tokens": 0,
+      "completion_tokens": 33,
+      "finish": "stop",
+      "round": 1,
+      "model": "gemma-4-31B-it-qat-OptiQ-4bit:g4-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 79.98,
+      "ceiling_gib": 108.98,
+      "active_wired_gb": 101.94,
+      "wired_gb": 90.66,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 17.5,
+      "prompt_tokens": 15732,
+      "cached_tokens": 0,
+      "completion_tokens": 37,
+      "finish": "stop",
+      "round": 2,
+      "model": "Qwen3.8-27B-8bit:qwen-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 79.98,
+      "ceiling_gib": 108.9,
+      "active_wired_gb": 95.77,
+      "wired_gb": 40.18,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 6.0,
+      "prompt_tokens": 15298,
+      "cached_tokens": 0,
+      "completion_tokens": 44,
+      "finish": "stop",
+      "round": 2,
+      "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 79.98,
+      "ceiling_gib": 103.75,
+      "active_wired_gb": 99.41,
+      "wired_gb": 88.72,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 30.8,
+      "prompt_tokens": 15294,
+      "cached_tokens": 0,
+      "completion_tokens": 33,
+      "finish": "stop",
+      "round": 2,
+      "model": "gemma-4-31B-it-qat-OptiQ-4bit:g4-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 79.98,
+      "ceiling_gib": 108.9,
+      "active_wired_gb": 102.1,
+      "wired_gb": 91.13,
+      "evicted": []
+    }
+  ],
+  "after_calls": {
+    "loaded": [
+      "Qwen3.8-27B-8bit",
+      "gemma-4-26B-A4B-it-oQ6e-mtp",
+      "gemma-4-31B-it-qat-OptiQ-4bit"
+    ],
+    "sizes": {
+      "Qwen3.8-27B-8bit": {
+        "estimated_gib": 28.85,
+        "actual_gib": 33.05,
+        "external_engine": null
+      },
+      "gemma-4-26B-A4B-it-oQ6e-mtp": {
+        "estimated_gib": 22.37,
+        "actual_gib": 21.76,
+        "external_engine": null
+      },
+      "gemma-4-31B-it-qat-OptiQ-4bit": {
+        "estimated_gib": 21.88,
+        "actual_gib": 22.24,
+        "external_engine": null
+      }
+    },
+    "pool_gib": 79.98,
+    "ceiling_gib": 109.23,
+    "active_wired_gb": 103.07,
+    "wired_gb": 91.62
+  },
+  "summary": {
+    "calls": 9,
+    "served": 9,
+    "calls_with_eviction": 0,
+    "peak_pool_gib": 79.98,
+    "peak_active_wired_gb": 106.32,
+    "coexists": true
+  },
+  "loaded_after_restore": [
+    "Qwen3.8-27B-8bit",
+    "gemma-4-31B-it-qat-OptiQ-4bit"
+  ]
+}

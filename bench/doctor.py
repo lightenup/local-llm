@@ -51,6 +51,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from engine_info import engine_snapshot, engine_tag  # noqa: E402
 from omlx_client import BASE, Omlx, OmlxError  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -82,7 +83,9 @@ MTP_FLOORS = {"Qwen3.8-27B-oQ4e-mtp": 44.0}
 
 # The engine variant (bench/set_variant.py) the 8-bit base model must carry.
 # "plain", not "mtp", since §39: oMLX 0.7.0's vlm_mtp path ignores the sampler.
-SHIPPED_VARIANT = "plain"
+# "splash_262k" since §48: Splash, with the KV pool sized so qwen-long reaches
+# 262,144. Rollback is `set_variant.py apply plain` and this back to "plain".
+SHIPPED_VARIANT = "splash_262k"
 
 # Served chat profiles whose sampling must be live (§39). Thinking-off profiles
 # are the ones a speculative decode path takes, so they are the ones at risk.
@@ -270,7 +273,9 @@ def check_engine_omlx(d: Doctor) -> None:
         # both slows prefill (§3) and splits the engine from any profile that
         # pins the old value. Expect exactly set_variant.py's shipped variant.
         import set_variant as sv
-        want = {**sv.RESET, **sv.VARIANTS[SHIPPED_VARIANT]}
+        want = {**sv.RESET, **sv.VARIANTS[SHIPPED_VARIANT],
+                "max_context_window": sv.CONTEXT_VARIANTS.get(SHIPPED_VARIANT,
+                                                              sv.CONTEXT_RESET)}
         s = o.settings("Qwen3.8-27B-8bit")
         diff = {k: (want[k], s.get(k)) for k in want
                 if (s.get(k) or None) != (want[k] or None)}
@@ -278,6 +283,26 @@ def check_engine_omlx(d: Doctor) -> None:
                           else f"DRIFT (want, have): {diff}")
     d.check("engine", "8-bit base engine variant is the shipped one", "config",
             base_variant)
+
+    def external_engine_serving():
+        # §44: choosing Splash in the settings gives no error even when Splash
+        # is not running the model, and Splash caps every profile at the
+        # context it planned at start. One token loads the model if it was not.
+        import set_variant as sv
+        want = sv.VARIANTS[SHIPPED_VARIANT].get("external_engine")
+        if not want:
+            return True, "in-process (no external engine shipped)"
+        o.chat([{"role": "user", "content": "Say ok."}],
+               model="Qwen3.8-27B-8bit:qwen-code", max_tokens=1)
+        snap = engine_snapshot(o, "Qwen3.8-27B-8bit")
+        sp = snap.get("splash") or {}
+        need = sv.CONTEXT_VARIANTS.get(SHIPPED_VARIANT, sv.CONTEXT_RESET)
+        ok = (snap.get("engine") == want and sp.get("serving") is True
+              and (sp.get("planned_context") or 0) >= need)
+        return ok, (f"{engine_tag({'engine': snap})}, planned context "
+                    f"{sp.get('planned_context')} (need {need})")
+    d.check("engine", "8-bit served by the shipped engine", "behaviour",
+            external_engine_serving)
 
     def no_stale_profiles():
         served = [m["id"] for m in o.get("/v1/models", admin=False)["data"]

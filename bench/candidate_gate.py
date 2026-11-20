@@ -40,6 +40,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from engine_info import engine_snapshot, engine_tag  # noqa: E402
 from omlx_client import Omlx, OmlxError  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -164,6 +165,8 @@ def probe(o: Omlx, model_id: str, prompt_tokens: int, keep_lineup: bool) -> dict
             call["short_generation"] = True
             print("                 !! short generation -- do not read a rate off this")
 
+    r["engine"] = engine_snapshot(o, model_id)
+    print(f"  engine         {engine_tag(r)}")
     served = [c for c in r["calls"] if c.get("ok")]
     after_serving = [m["id"] for m in o.models() if m.get("loaded")]
     r["lineup_survived_serving"] = all(m in after_serving for m in lineup)
@@ -198,6 +201,9 @@ def main() -> int:
     ap.add_argument("models", nargs="+")
     ap.add_argument("--prompt-tokens", type=int, default=16384)
     ap.add_argument("--label", default="candidate_gate")
+    ap.add_argument("--load-first", nargs="*", default=[], metavar="MODEL_ID",
+                    help="load these before gating, so the gate runs beside them; "
+                         "unloaded again afterwards if they were not loaded")
     # A candidate the scout classes "replaces quality" is meant for the
     # incumbent's slot, not beside it, so gating it alongside asks the wrong
     # question. Unload the incumbent first; the rest of the lineup must still
@@ -207,6 +213,11 @@ def main() -> int:
     args = ap.parse_args()
 
     o = Omlx()
+    baseline = [m["id"] for m in o.models() if m.get("loaded")]
+    for m in args.load_first:
+        if m not in baseline:
+            o.load(m)
+    started_with = baseline
     baseline = [m["id"] for m in o.models() if m.get("loaded")]
     print(f"lineup: {baseline}")
     if args.replaces:
@@ -237,6 +248,8 @@ def main() -> int:
         # Anything this run loaded that was not in the baseline has to go back
         # out, or the "restored" line reports success while the pool is wrong.
         for m in [x["id"] for x in o.models() if x.get("loaded") and x["id"] not in baseline]:
+            drain(o, m)
+        for m in [x for x in baseline if x not in started_with]:
             drain(o, m)
         now = [m["id"] for m in o.models() if m.get("loaded")]
         print(f"restored: {now}  (drift: {sorted(set(baseline) ^ set(now)) or 'none'})")

@@ -1,0 +1,305 @@
+{
+  "timestamp": "2026-11-10T17:41:14.275559+00:00",
+  "request": {
+    "models": [
+      "Qwen3.8-27B-8bit:qwen-agent",
+      "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+      "gemma-4-31B-it-qat-OptiQ-4bit:g4-agent"
+    ],
+    "prompt_tokens": 16384,
+    "rounds": 3,
+    "max_tokens": 128,
+    "label": "coexist_mlx_8bit_plain_074"
+  },
+  "loaded_before": [
+    "Qwen3.8-27B-8bit"
+  ],
+  "loads": [
+    {
+      "model": "Qwen3.8-27B-8bit",
+      "ok": true,
+      "s": 0.0,
+      "loaded": [
+        "Qwen3.8-27B-8bit"
+      ],
+      "pool_gib": 28.85,
+      "ceiling_gib": 108.21
+    },
+    {
+      "model": "gemma-4-26B-A4B-it-oQ6e-mtp",
+      "ok": true,
+      "s": 6.3,
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp"
+      ],
+      "pool_gib": 51.22,
+      "ceiling_gib": 108.58
+    },
+    {
+      "model": "gemma-4-31B-it-qat-OptiQ-4bit",
+      "ok": true,
+      "s": 6.8,
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 73.1,
+      "ceiling_gib": 108.98
+    }
+  ],
+  "after_load": {
+    "loaded": [
+      "Qwen3.8-27B-8bit",
+      "gemma-4-26B-A4B-it-oQ6e-mtp",
+      "gemma-4-31B-it-qat-OptiQ-4bit"
+    ],
+    "sizes": {
+      "Qwen3.8-27B-8bit": {
+        "estimated_gib": 28.85,
+        "actual_gib": 27.62,
+        "external_engine": null
+      },
+      "gemma-4-26B-A4B-it-oQ6e-mtp": {
+        "estimated_gib": 22.37,
+        "actual_gib": 21.57,
+        "external_engine": null
+      },
+      "gemma-4-31B-it-qat-OptiQ-4bit": {
+        "estimated_gib": 21.88,
+        "actual_gib": 22.2,
+        "external_engine": null
+      }
+    },
+    "pool_gib": 73.1,
+    "ceiling_gib": 108.98,
+    "active_wired_gb": 92.51,
+    "wired_gb": 33.37
+  },
+  "engine": {
+    "engine": "mlx",
+    "omlx_version": "0.7.4.dev1"
+  },
+  "calls": [
+    {
+      "ok": true,
+      "s": 24.9,
+      "prompt_tokens": 15737,
+      "cached_tokens": 0,
+      "completion_tokens": 39,
+      "finish": "stop",
+      "round": 0,
+      "model": "Qwen3.8-27B-8bit:qwen-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 73.1,
+      "ceiling_gib": 100.77,
+      "active_wired_gb": 94.86,
+      "wired_gb": 82.52,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 5.7,
+      "prompt_tokens": 15304,
+      "cached_tokens": 0,
+      "completion_tokens": 40,
+      "finish": "stop",
+      "round": 0,
+      "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 73.1,
+      "ceiling_gib": 102.05,
+      "active_wired_gb": 95.27,
+      "wired_gb": 82.8,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 30.1,
+      "prompt_tokens": 15300,
+      "cached_tokens": 0,
+      "completion_tokens": 33,
+      "finish": "stop",
+      "round": 0,
+      "model": "gemma-4-31B-it-qat-OptiQ-4bit:g4-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 73.1,
+      "ceiling_gib": 103.68,
+      "active_wired_gb": 98.3,
+      "wired_gb": 85.7,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 26.3,
+      "prompt_tokens": 15737,
+      "cached_tokens": 0,
+      "completion_tokens": 39,
+      "finish": "stop",
+      "round": 1,
+      "model": "Qwen3.8-27B-8bit:qwen-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 73.1,
+      "ceiling_gib": 102.53,
+      "active_wired_gb": 95.17,
+      "wired_gb": 82.43,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 5.7,
+      "prompt_tokens": 15304,
+      "cached_tokens": 0,
+      "completion_tokens": 47,
+      "finish": "stop",
+      "round": 1,
+      "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 73.1,
+      "ceiling_gib": 104.85,
+      "active_wired_gb": 95.48,
+      "wired_gb": 82.57,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 30.6,
+      "prompt_tokens": 15300,
+      "cached_tokens": 0,
+      "completion_tokens": 34,
+      "finish": "stop",
+      "round": 1,
+      "model": "gemma-4-31B-it-qat-OptiQ-4bit:g4-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 73.1,
+      "ceiling_gib": 107.91,
+      "active_wired_gb": 98.58,
+      "wired_gb": 85.57,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 27.7,
+      "prompt_tokens": 15737,
+      "cached_tokens": 0,
+      "completion_tokens": 43,
+      "finish": "stop",
+      "round": 2,
+      "model": "Qwen3.8-27B-8bit:qwen-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 73.1,
+      "ceiling_gib": 102.59,
+      "active_wired_gb": 95.43,
+      "wired_gb": 82.45,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 5.9,
+      "prompt_tokens": 15304,
+      "cached_tokens": 0,
+      "completion_tokens": 47,
+      "finish": "stop",
+      "round": 2,
+      "model": "gemma-4-26B-A4B-it-oQ6e-mtp:g4m-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 73.1,
+      "ceiling_gib": 103.95,
+      "active_wired_gb": 95.89,
+      "wired_gb": 82.56,
+      "evicted": []
+    },
+    {
+      "ok": true,
+      "s": 31.9,
+      "prompt_tokens": 15300,
+      "cached_tokens": 0,
+      "completion_tokens": 33,
+      "finish": "stop",
+      "round": 2,
+      "model": "gemma-4-31B-it-qat-OptiQ-4bit:g4-agent",
+      "loaded": [
+        "Qwen3.8-27B-8bit",
+        "gemma-4-26B-A4B-it-oQ6e-mtp",
+        "gemma-4-31B-it-qat-OptiQ-4bit"
+      ],
+      "pool_gib": 73.1,
+      "ceiling_gib": 108.19,
+      "active_wired_gb": 98.47,
+      "wired_gb": 85.69,
+      "evicted": []
+    }
+  ],
+  "after_calls": {
+    "loaded": [
+      "Qwen3.8-27B-8bit",
+      "gemma-4-26B-A4B-it-oQ6e-mtp",
+      "gemma-4-31B-it-qat-OptiQ-4bit"
+    ],
+    "sizes": {
+      "Qwen3.8-27B-8bit": {
+        "estimated_gib": 28.85,
+        "actual_gib": 27.62,
+        "external_engine": null
+      },
+      "gemma-4-26B-A4B-it-oQ6e-mtp": {
+        "estimated_gib": 22.37,
+        "actual_gib": 21.57,
+        "external_engine": null
+      },
+      "gemma-4-31B-it-qat-OptiQ-4bit": {
+        "estimated_gib": 21.88,
+        "actual_gib": 22.2,
+        "external_engine": null
+      }
+    },
+    "pool_gib": 73.1,
+    "ceiling_gib": 109.07,
+    "active_wired_gb": 99.78,
+    "wired_gb": 86.44
+  },
+  "summary": {
+    "calls": 9,
+    "served": 9,
+    "calls_with_eviction": 0,
+    "peak_pool_gib": 73.1,
+    "peak_active_wired_gb": 98.58,
+    "coexists": true
+  },
+  "loaded_after_restore": [
+    "Qwen3.8-27B-8bit"
+  ]
+}

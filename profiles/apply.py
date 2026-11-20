@@ -46,6 +46,8 @@ PROFILE_SETS = {
     "gemma4": ("gemma4", "gemma-4-31B-it-qat-OptiQ-4bit"),
     # Fast-slot challenger to oq4e, 2026-10-19 (backlog A10 step 2). Trial only.
     "gemma4moe": ("gemma4moe", "gemma-4-26B-A4B-it-oQ6e-mtp"),
+    # Candidate for the 8-bit's roles, 2026-11-11 (backlog A12). Trial only.
+    "qwen36": ("qwen36", "Qwen3.6-35B-A3B-MLX-8bit"),
 }
 
 
@@ -117,6 +119,10 @@ def verify(o: Omlx, model_id: str, profiles: list[dict]) -> int:
         diff = {
             k: (v, gs.get(k)) for k, v in spec["settings"].items() if gs.get(k) != v
         }
+        # A context cap the definition leaves out still sizes Splash when the
+        # profile loads the model (definitions.py), so a stored one is drift.
+        if "max_context_window" in gs and "max_context_window" not in spec["settings"]:
+            diff["max_context_window"] = (None, gs["max_context_window"])
         engine_fields = got.get("has_engine_fields")
         ok = not diff and not engine_fields
         note = "ok" if ok else ""
